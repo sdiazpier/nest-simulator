@@ -117,7 +117,10 @@ nest::SynapticElement::set( const DictionaryDatum& d )
   double_t new_tau_vacant = tau_vacant_;
 
   // Store values
-  updateValue< double_t >( d, names::growth_rate, growth_rate_ );
+  if ( d->known( names::growth_rate ) )
+    growth_rate_ = getValue< double_t >( d, names::growth_rate );
+  else
+    updateValue< double_t >( d, names::growth_rate, growth_rate_ );
   updateValue< double_t >( d, names::tau_vacant, new_tau_vacant );
   updateValue< bool >( d, names::continuous, continuous_ );
   updateValue< double_t >( d, names::z, z_ );

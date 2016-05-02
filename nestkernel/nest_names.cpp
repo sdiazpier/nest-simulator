@@ -331,6 +331,7 @@ const Name U_std( "U_std" );
 const Name U_upper( "U_upper" );
 const Name update( "update" );
 const Name update_node( "update_node" );
+const Name update_synaptic_elements( "update_synaptic_elements" );
 const Name us( "us" );
 
 const Name V_epsp( "V_epsp" );
