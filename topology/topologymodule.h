@@ -36,7 +36,7 @@
 
 namespace nest
 {
-class Parameter;
+class TopologyParameter;
 class AbstractMask;
 class AbstractLayer;
 
@@ -233,8 +233,8 @@ public:
    *          as value, and optionally an anchor.
    * @returns Either the MaskDatum given as argument, or a new mask.
    */
-  static lockPTRDatum< AbstractMask, &TopologyModule::MaskType > /*MaskDatum*/ create_mask(
-    const Token& t );
+  static lockPTRDatum< AbstractMask,
+    &TopologyModule::MaskType > /*MaskDatum*/ create_mask( const Token& t );
 
   /**
    * Create a new Mask object using the mask factory.
@@ -242,10 +242,12 @@ public:
    * @param d    Dictionary with parameters specific for this mask type.
    * @returns dynamically allocated new Mask object.
    */
-  static AbstractMask* create_mask( const Name& name, const DictionaryDatum& d );
+  static AbstractMask* create_mask( const Name& name,
+    const DictionaryDatum& d );
 
-  typedef GenericFactory< Parameter > ParameterFactory;
-  typedef GenericFactory< Parameter >::CreatorFunction ParameterCreatorFunction;
+  typedef GenericFactory< TopologyParameter > ParameterFactory;
+  typedef GenericFactory< TopologyParameter >::CreatorFunction
+    ParameterCreatorFunction;
 
   /**
    * Register an Parameter subclass as a new parameter type with the
@@ -268,7 +270,8 @@ public:
    * @returns true if the new type was successfully registered, or false
    *          if a parameter type with the same name already exists.
    */
-  static bool register_parameter( const Name& name, ParameterCreatorFunction creator );
+  static bool register_parameter( const Name& name,
+    ParameterCreatorFunction creator );
 
   /**
    * Return a Parameter object.
@@ -280,8 +283,9 @@ public:
    * @returns Either the ParameterDatum given as argument, or a new
    *          parameter.
    */
-  static lockPTRDatum< Parameter,
-    &TopologyModule::ParameterType > /*ParameterDatum*/ create_parameter( const Token& );
+  static lockPTRDatum< TopologyParameter,
+    &TopologyModule::
+      ParameterType > /*ParameterDatum*/ create_parameter( const Token& );
 
   /**
    * Create a new Parameter object using the parameter factory.
@@ -290,7 +294,8 @@ public:
    *             type.
    * @returns dynamically allocated new Parameter object.
    */
-  static Parameter* create_parameter( const Name& name, const DictionaryDatum& d );
+  static TopologyParameter* create_parameter( const Name& name,
+    const DictionaryDatum& d );
 
 private:
   /**
@@ -357,7 +362,8 @@ TopologyModule::register_parameter( const Name& name )
 }
 
 inline bool
-TopologyModule::register_parameter( const Name& name, ParameterCreatorFunction creator )
+TopologyModule::register_parameter( const Name& name,
+  ParameterCreatorFunction creator )
 {
   return parameter_factory_().register_subtype( name, creator );
 }

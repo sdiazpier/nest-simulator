@@ -42,6 +42,7 @@
 #include "gslrandomgen.h"
 
 // Includes from nestkernel:
+#include "conn_parameter.h"
 #include "gid_collection.h"
 #include "nest_time.h"
 
@@ -103,13 +104,20 @@ public:
 
   int change_connected_synaptic_elements( index, index, const int, int );
 
+  virtual bool
+  supports_symmetric() const
+  {
+    return false;
+  }
+
 protected:
   //! Implements the actual connection algorithm
   virtual void connect_() = 0;
   virtual void
   sp_connect_()
   {
-    throw NotImplemented( "This connection rule is not implemented for structural plasticity" );
+    throw NotImplemented(
+      "This connection rule is not implemented for structural plasticity" );
   }
   virtual void
   disconnect_()
@@ -119,7 +127,8 @@ protected:
   virtual void
   sp_disconnect_()
   {
-    throw NotImplemented( "This connection rule is not implemented for structural plasticity" );
+    throw NotImplemented(
+      "This connection rule is not implemented for structural plasticity" );
   }
 
   //! Create connection between given nodes, fill parameter values
@@ -137,16 +146,18 @@ protected:
    */
   void skip_conn_parameter_( thread );
 
-  const GIDCollection& sources_;
-  const GIDCollection& targets_;
+  GIDCollection const* sources_;
+  GIDCollection const* targets_;
 
   bool autapses_;
   bool multapses_;
+  bool symmetric_;
 
   //! buffer for exceptions raised in threads
   std::vector< lockPTR< WrappedThreadException > > exceptions_raised_;
 
-  // Name of the pre synaptic and post synaptic elements for this connection builder
+  // Name of the pre synaptic and post synaptic elements for this connection
+  // builder
   std::string pre_synaptic_element_name;
   std::string post_synaptic_element_name;
 
@@ -187,9 +198,10 @@ private:
   void register_parameters_requiring_skipping_( ConnParameter& param );
 
   // check for synapse specific errors or warnings
-  // This is a temporary function which should be removed once all parameter types work with
-  // Connect.
-  // The remaining error and warnings should then be handled within the synapse model.
+  // This is a temporary function which should be removed once all parameter
+  // types work with Connect.
+  // The remaining error and warnings should then be handled within the synapse
+  // model.
   void check_synapse_params_( std::string, const DictionaryDatum& );
 };
 
@@ -202,6 +214,12 @@ public:
     const DictionaryDatum& syn_spec )
     : ConnBuilder( sources, targets, conn_spec, syn_spec )
   {
+  }
+
+  bool
+  supports_symmetric() const
+  {
+    return true;
   }
 
 protected:
@@ -322,6 +340,25 @@ protected:
   void connect_();
   void connect_( GIDCollection sources, GIDCollection targets );
 };
+
+inline void
+ConnBuilder::register_parameters_requiring_skipping_( ConnParameter& param )
+{
+  if ( param.is_array() )
+  {
+    parameters_requiring_skipping_.push_back( &param );
+  }
+}
+
+inline void
+ConnBuilder::skip_conn_parameter_( thread target_thread )
+{
+  for ( std::vector< ConnParameter* >::iterator it =
+          parameters_requiring_skipping_.begin();
+        it != parameters_requiring_skipping_.end();
+        ++it )
+    ( *it )->skip( target_thread );
+}
 
 } // namespace nest
 
