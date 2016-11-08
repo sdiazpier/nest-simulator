@@ -177,6 +177,13 @@ nest::VPManager::get_status( DictionaryDatum& d )
   def< long >( d, "total_num_virtual_procs", get_num_virtual_processes() );
 }
 
+int
+nest::VPManager::get_rank_from_gid( index gid ) const
+{
+  return kernel().mpi_manager.get_process_id( suggest_vp( gid ));
+}
+
+
 void
 nest::VPManager::set_num_threads( nest::thread n_threads )
 {

@@ -25,6 +25,7 @@
 // C++ includes:
 #include <limits>
 #include <numeric>
+#include <c++/4.8/bits/stl_vector.h>
 
 // Includes from libnestutil:
 #include "compose.hpp"
@@ -248,6 +249,60 @@ nest::MPIManager::communicate( std::vector< unsigned int >& send_buffer,
   else
   {
     communicate_Allgather( send_buffer, recv_buffer, displacements );
+  }
+}
+
+void
+nest::MPIManager::communicate_Alltoall( std::vector< index > send_buffer,
+  std::vector< index >& recv_buffer )
+{
+  if ( get_num_processes() == 1 ) // purely thread-based
+  {
+    if ( static_cast< unsigned int >( recv_buffer_size_ ) < send_buffer.size() )
+    {
+      recv_buffer_size_ = send_buffer_size_ = send_buffer.size();
+      recv_buffer.resize( recv_buffer_size_ );
+    }
+    recv_buffer.swap( send_buffer );
+  }
+  else
+  {
+      fprintf( stderr,
+        "Something procs %d  size  %d", get_num_processes(), send_buffer.size() );
+      MPI_Alltoall( &send_buffer[ 0 ],
+      send_buffer.size(),
+      MPI_UNSIGNED,
+      &recv_buffer[ 0 ],
+      send_buffer.size(),
+      MPI_UNSIGNED,
+      comm );
+  }
+}
+
+void
+nest::MPIManager::communicate_Alltoallv( std::vector< index > send_buffer,
+  std::vector< index >& recv_buffer, std::vector< int > displacements )
+{
+  std::vector< int > recv_counts( get_num_processes(), send_buffer_size_ );
+  if ( get_num_processes() == 1 ) // purely thread-based
+  {
+    if ( static_cast< unsigned int >( recv_buffer_size_ ) < send_buffer.size() )
+    {
+      recv_buffer_size_ = send_buffer_size_ = send_buffer.size();
+      recv_buffer.resize( recv_buffer_size_ );
+    }
+    recv_buffer.swap( send_buffer );
+  }
+  else
+  {
+    MPI_Allgatherv( &send_buffer[ 0 ],
+      send_buffer.size(),
+      MPI_UNSIGNED,
+      &recv_buffer[ 0 ],
+      &recv_counts[ 0 ],
+      &displacements[ 0 ],
+      MPI_UNSIGNED,
+      comm );
   }
 }
 

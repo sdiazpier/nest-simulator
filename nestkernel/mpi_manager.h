@@ -156,6 +156,11 @@ public:
   void communicate( double, std::vector< double >& );
   void communicate( std::vector< int >& );
   void communicate( std::vector< long >& );
+  
+  void communicate_Alltoall( std::vector< index > send_buffer,
+  std::vector< index >& recv_buffer);
+  void communicate_Alltoallv( std::vector< index > send_buffer,
+  std::vector< index >& recv_buffer, std::vector< int > displacements );
 
   /*
    * Sum across all rank
@@ -255,6 +260,7 @@ private:
   void communicate_Allgather( std::vector< T >& send_buffer,
     std::vector< T >& recv_buffer,
     std::vector< int >& displacements );
+  
 
 #endif /* #ifdef HAVE_MPI */
 

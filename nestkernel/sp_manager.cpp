@@ -31,6 +31,7 @@
 
 // C++ includes:
 #include <algorithm>
+#include <c++/4.8/bits/stl_vector.h>
 
 // Includes from nestkernel:
 #include "conn_builder.h"
@@ -370,6 +371,8 @@ SPManager::update_structural_plasticity()
 void
 SPManager::update_structural_plasticity( SPBuilder* sp_builder )
 {
+    /*
+     
   // Index of neurons having a vacant synaptic element
   std::vector< index > pre_vacant_id;  // pre synaptic elements (e.g Axon)
   std::vector< index > post_vacant_id; // post synaptic element (e.g Den)
@@ -470,6 +473,80 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
       post_vacant_n_global,
       sp_builder );
   }
+     */
+  // Index of neurons having a vacant synaptic element
+  std::vector< index > pre_vacant_id;  // pre synaptic elements (e.g Axon)
+  std::vector< index > post_vacant_id; // post synaptic element (e.g Den)
+  std::vector< int > pre_vacant_n;     // number of synaptic elements
+  std::vector< int > post_vacant_n;    // number of synaptic elements
+
+  // Index of neuron deleting a synaptic element
+  std::vector< index > pre_deleted_id, post_deleted_id;
+  std::vector< int > pre_deleted_n, post_deleted_n;
+
+  // Vector of displacements for communication
+  std::vector< int > displacements;
+  std::vector< index > pre_id_rnd;
+  std::vector< index > pre_id_rnd_global;
+  std::vector< index > post_id_rnd;
+  
+  // Get pre synaptic elements data from global nodes
+  get_synaptic_elements( sp_builder->get_pre_synaptic_element_name(),
+    pre_vacant_id,
+    pre_vacant_n,
+    pre_deleted_id,
+    pre_deleted_n );
+  // Get post synaptic elements data from local nodes
+  get_synaptic_elements( sp_builder->get_post_synaptic_element_name(),
+    post_vacant_id,
+    post_vacant_n,
+    post_deleted_id,
+    post_deleted_n );
+  
+  /**
+   * Start of deletions
+   **/
+  
+  //Do this anyway
+  /*{
+    delete_synapses_from_pre( pre_deleted_id,
+      pre_deleted_n,
+      sp_builder->get_synapse_model(),
+      sp_builder->get_pre_synaptic_element_name(),
+      sp_builder->get_post_synaptic_element_name() );
+  }*/
+
+  /**
+   * Start of connections
+   **/
+  // serialize the vacant pre element
+  serialize_id( pre_vacant_id, pre_vacant_n, pre_id_rnd );
+  // serialize the vacant pre element
+  serialize_id( post_vacant_id, post_vacant_n, post_id_rnd );
+  // shuffle
+  global_shuffle( pre_id_rnd, pre_id_rnd.size() );
+  global_shuffle( post_id_rnd, post_id_rnd.size() );
+  //Communicate using AllToAll
+  
+  kernel().mpi_manager.communicate_Alltoall( pre_id_rnd, pre_id_rnd_global );
+  fprintf( stderr,
+        "Something %d", post_vacant_n[0] );
+  // Cut
+  if ( pre_id_rnd_global.size() > post_id_rnd.size() )
+  {
+    pre_id_rnd_global.resize( post_id_rnd.size() );
+  }
+  else
+  {
+    post_id_rnd.resize( pre_id_rnd_global.size() );
+  }
+  // create synapse
+  GIDCollection sources = GIDCollection( pre_id_rnd_global );
+  GIDCollection targets = GIDCollection( post_id_rnd );
+
+  // Sort would go here for 5g
+  sp_builder->sp_connect( sources, targets );
+  
 }
 
 /**
@@ -541,14 +618,19 @@ SPManager::delete_synapses_from_pre( std::vector< index >& pre_deleted_id,
 
   // Connectivity
   std::vector< std::vector< index > > connectivity;
-  std::vector< index > global_targets;
+  std::vector< index > targets;
+  std::vector< index > sources;
   std::vector< int > displacements;
+  int deletions;
+  std::vector< index > send_targets;
+  std::vector< std::vector< index > > global_targets;
 
   // iterators
   std::vector< std::vector< index > >::iterator connectivity_it;
   std::vector< index >::iterator id_it;
   std::vector< int >::iterator n_it;
-
+  int target_rank;
+  // Disconnect from pre
   kernel().connection_manager.get_targets(
     pre_deleted_id, connectivity, synapse_model );
 
@@ -558,20 +640,40 @@ SPManager::delete_synapses_from_pre( std::vector< index >& pre_deleted_id,
   for ( ; id_it != pre_deleted_id.end() && n_it != pre_deleted_n.end();
         id_it++, n_it++, connectivity_it++ )
   {
-    // Communicate the list of targets
-    kernel().mpi_manager.communicate(
-      *connectivity_it, global_targets, displacements );
-    // shuffle only the first n items, n is the number of deleted synaptic
-    // elements
-    if ( -( *n_it ) > static_cast< int >( global_targets.size() ) )
-      *n_it = -global_targets.size();
-    global_shuffle( global_targets, -( *n_it ) );
-
-    for ( int i = 0; i < -( *n_it ); i++ ) // n is negative
+    targets = *connectivity_it;
+    global_shuffle( targets );
+    deletions =  -( *n_it ); // n is negative
+    targets.resize( deletions );
+    for ( int i = 0; i < deletions; i++ ) 
     {
       delete_synapse(
-        *id_it, global_targets[ i ], synapse_model, se_pre_name, se_post_name );
+        *id_it, targets[ i ], synapse_model, se_pre_name, se_post_name );
+      target_rank = kernel().vp_manager.get_rank_from_gid(targets[ i ]);
+      ( global_targets[target_rank]).push_back( targets[ i ] );
+      displacements[target_rank] ++;
     }
+  }
+  for(int i = 0; i<global_targets.size(); i++){
+      std::vector< index > tmp_targets = global_targets[i];
+      for(int j = 0; j<tmp_targets.size(); j++){
+          send_targets.push_back(tmp_targets[ j ]);
+      }
+  }
+  // Communicate the list of targets
+  kernel().mpi_manager.communicate_Alltoallv(
+    send_targets, send_targets, displacements );
+  // Disconnect from post
+  // Retrieve the connected sources
+  kernel().connection_manager.get_sources(
+    send_targets, connectivity, synapse_model );
+
+  for ( int i = 0; i < connectivity.size(); i++ ) 
+  {
+      std::vector< index > conn = connectivity.at(i);
+      for( int j = 0; j< conn.size(); j++){
+          delete_synapse(
+          sources.at( i ), conn.at( i ), synapse_model, se_pre_name, se_post_name );
+      }
   }
 }
 
@@ -785,7 +887,7 @@ nest::SPManager::global_shuffle( std::vector< index >& v, size_t n )
   for ( uint i = 0; i < n; i++ )
   {
     N = v.size();
-    rnd = kernel().rng_manager.get_grng()->ulrand( N );
+    rnd = kernel().rng_manager.get_rng()->ulrand( N ); //get rng instead of grng
     tmp = v[ rnd ];
     v2.push_back( tmp );
     rndi = v.begin();

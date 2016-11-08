@@ -113,6 +113,10 @@ public:
    * Returns the number of virtual processes.
    */
   int get_num_virtual_processes() const;
+  /**
+   * Returns the rank of a given gid
+   */
+  int get_rank_from_gid( index ) const;
 
 private:
   const bool force_singlethreading_;

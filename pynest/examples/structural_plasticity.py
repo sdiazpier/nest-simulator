@@ -40,6 +40,7 @@ in the network and the average calcium concentration in the neurons is created.
 import nest
 import numpy
 import matplotlib.pyplot as pl
+from mpi4py import MPI
 import sys
 
 '''
@@ -50,14 +51,21 @@ First, we have import all necessary modules.
 class StructralPlasticityExample:
     def __init__(self):
         '''
+        MPI start
+        '''
+        self.comm = MPI.COMM_WORLD
+        self.rank = self.comm.Get_rank()
+        assert(nest.Rank() == self.rank)
+        
+        '''
         We define general simulation parameters
         '''
         # simulated time (ms)
         self.t_sim = 200000.0
         # simulation step (ms).
         self.dt = 0.1
-        self.number_excitatory_neurons = 800
-        self.number_inhibitory_neurons = 200
+        self.number_excitatory_neurons = 80
+        self.number_inhibitory_neurons = 20
 
         # Structural_plasticity properties
         self.update_interval = 1000
@@ -127,6 +135,8 @@ class StructralPlasticityExample:
 
         self.nodes_e = None
         self.nodes_i = None
+        self.loc_e = None
+        self.loc_i = None
         self.mean_ca_e = []
         self.mean_ca_i = []
         self.total_connections_e = []
@@ -165,7 +175,7 @@ class StructralPlasticityExample:
         nest.SetStructuralPlasticityStatus({
             'structural_plasticity_update_interval': self.update_interval,
         })
-
+        nest.SetKernelStatus({'total_num_virtual_procs': 8})
         '''
         Now we define Structural Plasticity synapses. In this example we create
         two synapse models, one for excitatory and one for inhibitory synapses.
@@ -223,6 +233,8 @@ class StructralPlasticityExample:
                                    {'synaptic_elements': synaptic_elements_i})
         nest.SetStatus(self.nodes_e, 'synaptic_elements', synaptic_elements)
         nest.SetStatus(self.nodes_i, 'synaptic_elements', synaptic_elements_i)
+        self.loc_e = [stat['global_id'] for stat in nest.GetStatus(self.nodes_e) if stat['local']]
+        self.loc_i = [stat['global_id'] for stat in nest.GetStatus(self.nodes_i) if stat['local']]
 
     def connect_external_input(self):
         '''
@@ -243,11 +255,20 @@ class StructralPlasticityExample:
     '''
 
     def record_ca(self):
-        ca_e = nest.GetStatus(self.nodes_e, 'Ca'),  # Calcium concentration
-        self.mean_ca_e.append(numpy.mean(ca_e))
-
-        ca_i = nest.GetStatus(self.nodes_i, 'Ca'),  # Calcium concentration
-        self.mean_ca_i.append(numpy.mean(ca_i))
+        ca_e = nest.GetStatus(self.loc_e, 'Ca'),  # Calcium concentration
+        ca_e = self.comm.gather(ca_e, root=0)
+	ca_i = nest.GetStatus(self.loc_i, 'Ca'),  # Calcium concentration
+        ca_i = self.comm.gather(ca_i, root=0)
+        if nest.Rank() == 0:
+            mean = numpy.mean([ee for tupl in ca_e for element in tupl for ee in element])
+            self.mean_ca_e.append(mean)
+            mean = numpy.mean([ee for tupl in ca_i for element in tupl for ee in element])
+            self.mean_ca_i.append(mean)
+        
+        #ca_e = nest.GetStatus(loc_e, 'Ca'),  # Calcium concentration
+        #self.mean_ca_e.append(numpy.mean(ca_e))
+        #ca_i = nest.GetStatus(loc_i, 'Ca'),  # Calcium concentration
+        #self.mean_ca_i.append(numpy.mean(ca_i))
 
     '''
     In order to save the state of the connectivity in the network through time
@@ -259,12 +280,17 @@ class StructralPlasticityExample:
     '''
 
     def record_connectivity(self):
-        syn_elems_e = nest.GetStatus(self.nodes_e, 'synaptic_elements')
-        syn_elems_i = nest.GetStatus(self.nodes_i, 'synaptic_elements')
-        self.total_connections_e.append(sum(neuron['Axon_ex']['z_connected']
-                                            for neuron in syn_elems_e))
-        self.total_connections_i.append(sum(neuron['Axon_in']['z_connected']
-                                            for neuron in syn_elems_i))
+
+        syn_elems_e = nest.GetStatus(self.loc_e, 'synaptic_elements')
+        syn_elems_i = nest.GetStatus(self.loc_i, 'synaptic_elements')
+        sum_neurons_e = sum(neuron['Axon_ex']['z_connected'] for neuron in syn_elems_e)
+        sum_neurons_e = self.comm.gather(sum_neurons_e, root=0)
+        
+        sum_neurons_i = sum(neuron['Axon_in']['z_connected'] for neuron in syn_elems_i)
+        sum_neurons_i = self.comm.gather(sum_neurons_i, root=0)
+        if nest.Rank() == 0:
+            self.total_connections_e.append(sum_neurons_e)
+            self.total_connections_i.append(sum_neurons_i)
 
     '''
     We define a function to plot the recorded values
@@ -304,9 +330,9 @@ class StructralPlasticityExample:
     '''
 
     def simulate(self):
-        if nest.NumProcesses() > 1:
-            sys.exit("For simplicity, this example only works " +
-                     "for a single process.")
+        #if nest.NumProcesses() > 1:
+        #    sys.exit("For simplicity, this example only works " +
+        #             "for a single process.")
         nest.EnableStructuralPlasticity()
         print("Starting simulation")
         sim_steps = numpy.arange(0, self.t_sim, self.record_interval)
