@@ -175,7 +175,7 @@ class StructralPlasticityExample:
         nest.SetStructuralPlasticityStatus({
             'structural_plasticity_update_interval': self.update_interval,
         })
-        nest.SetKernelStatus({'total_num_virtual_procs': 8})
+        nest.SetKernelStatus({'total_num_virtual_procs': 2})
         '''
         Now we define Structural Plasticity synapses. In this example we create
         two synapse models, one for excitatory and one for inhibitory synapses.

@@ -485,7 +485,6 @@ nest::ConnBuilder::single_connect_( index sgid,
   else
   {
     assert( kernel().vp_manager.get_num_threads() == param_dicts_.size() );
-
     for ( ConnParameterMap::const_iterator it = synapse_params_.begin();
           it != synapse_params_.end();
           ++it )
@@ -1556,11 +1555,14 @@ nest::SPBuilder::connect_( GIDCollection sources, GIDCollection targets )
             tgid != targets.end();
             ++tgid, ++sgid )
       {
+        
+        if(*sgid == 0){
+            fprintf( stderr,"SIGD ZERO %d %d \n", *sgid, *tgid );
+            continue;
+        }
         assert( sgid != sources.end() );
-
         if ( *sgid == *tgid and not autapses_ )
           continue;
-
         if ( !change_connected_synaptic_elements( *sgid, *tgid, tid, 1 ) )
         {
           skip_conn_parameter_( tid );
@@ -1568,7 +1570,7 @@ nest::SPBuilder::connect_( GIDCollection sources, GIDCollection targets )
         }
         Node* const target = kernel().node_manager.get_node( *tgid, tid );
         const thread target_thread = target->get_thread();
-
+        
         single_connect_( *sgid, *target, target_thread, rng );
       }
     }

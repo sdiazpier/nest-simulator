@@ -509,9 +509,11 @@ Node* NodeManager::get_node( index n, thread thr ) // no_p
 
   if ( node->num_thread_siblings_() == 0 )
     return node; // plain node
-
-  if ( thr < 0 || thr >= static_cast< thread >( node->num_thread_siblings_() ) )
+  if ( thr < 0 || thr >= static_cast< thread >( node->num_thread_siblings_() ) ){
+    fprintf(stderr, "Unknown Node id %d", n);
+    fflush(stderr);
     throw UnknownNode();
+  }
 
   return node->get_thread_sibling_( thr );
 }

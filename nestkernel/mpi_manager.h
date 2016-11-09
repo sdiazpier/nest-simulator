@@ -158,9 +158,13 @@ public:
   void communicate( std::vector< long >& );
   
   void communicate_Alltoall( std::vector< index > send_buffer,
-  std::vector< index >& recv_buffer);
+  std::vector< index >& recv_buffer, int size);
+  void communicate_Alltoall( std::vector< int > send_buffer,
+  std::vector< int >& recv_buffer, int size);
   void communicate_Alltoallv( std::vector< index > send_buffer,
-  std::vector< index >& recv_buffer, std::vector< int > displacements );
+  std::vector< index >& recv_buffer, std::vector< int > send_counts, 
+  std::vector< int > recv_counts, std::vector< int > send_displacements, 
+  std::vector< int > recv_displacements );
 
   /*
    * Sum across all rank

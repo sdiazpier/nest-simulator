@@ -371,109 +371,7 @@ SPManager::update_structural_plasticity()
 void
 SPManager::update_structural_plasticity( SPBuilder* sp_builder )
 {
-    /*
-     
-  // Index of neurons having a vacant synaptic element
-  std::vector< index > pre_vacant_id;  // pre synaptic elements (e.g Axon)
-  std::vector< index > post_vacant_id; // post synaptic element (e.g Den)
-  std::vector< int > pre_vacant_n;     // number of synaptic elements
-  std::vector< int > post_vacant_n;    // number of synaptic elements
-
-  // Index of neuron deleting a synaptic element
-  std::vector< index > pre_deleted_id, post_deleted_id;
-  std::vector< int > pre_deleted_n, post_deleted_n;
-
-  // Global vector for vacant and deleted synaptic element
-  std::vector< index > pre_vacant_id_global, post_vacant_id_global;
-  std::vector< int > pre_vacant_n_global, post_vacant_n_global;
-  std::vector< index > pre_deleted_id_global, post_deleted_id_global;
-  std::vector< int > pre_deleted_n_global, post_deleted_n_global;
-
-  // Vector of displacements for communication
-  std::vector< int > displacements;
-
-  // Get pre synaptic elements data from global nodes
-  get_synaptic_elements( sp_builder->get_pre_synaptic_element_name(),
-    pre_vacant_id,
-    pre_vacant_n,
-    pre_deleted_id,
-    pre_deleted_n );
-  // Get post synaptic elements data from local nodes
-  get_synaptic_elements( sp_builder->get_post_synaptic_element_name(),
-    post_vacant_id,
-    post_vacant_n,
-    post_deleted_id,
-    post_deleted_n );
-  // Communicate the number of deleted pre-synaptic elements
-  kernel().mpi_manager.communicate(
-    pre_deleted_id, pre_deleted_id_global, displacements );
-  kernel().mpi_manager.communicate(
-    pre_deleted_n, pre_deleted_n_global, displacements );
-
-  if ( pre_deleted_id_global.size() > 0 )
-  {
-    delete_synapses_from_pre( pre_deleted_id_global,
-      pre_deleted_n_global,
-      sp_builder->get_synapse_model(),
-      sp_builder->get_pre_synaptic_element_name(),
-      sp_builder->get_post_synaptic_element_name() );
-    // update the number of synaptic elements
-    get_synaptic_elements( sp_builder->get_pre_synaptic_element_name(),
-      pre_vacant_id,
-      pre_vacant_n,
-      pre_deleted_id,
-      pre_deleted_n );
-    get_synaptic_elements( sp_builder->get_post_synaptic_element_name(),
-      post_vacant_id,
-      post_vacant_n,
-      post_deleted_id,
-      post_deleted_n );
-  }
-
-  // Communicate the number of deleted post-synaptic elements
-  kernel().mpi_manager.communicate(
-    post_deleted_id, post_deleted_id_global, displacements );
-  kernel().mpi_manager.communicate(
-    post_deleted_n, post_deleted_n_global, displacements );
-
-  if ( post_deleted_id_global.size() > 0 )
-  {
-    delete_synapses_from_post( post_deleted_id_global,
-      post_deleted_n_global,
-      sp_builder->get_synapse_model(),
-      sp_builder->get_pre_synaptic_element_name(),
-      sp_builder->get_post_synaptic_element_name() );
-    get_synaptic_elements( sp_builder->get_pre_synaptic_element_name(),
-      pre_vacant_id,
-      pre_vacant_n,
-      pre_deleted_id,
-      pre_deleted_n );
-    get_synaptic_elements( sp_builder->get_post_synaptic_element_name(),
-      post_vacant_id,
-      post_vacant_n,
-      post_deleted_id,
-      post_deleted_n );
-  }
-
-  // Communicate vacant elements
-  kernel().mpi_manager.communicate(
-    pre_vacant_id, pre_vacant_id_global, displacements );
-  kernel().mpi_manager.communicate(
-    pre_vacant_n, pre_vacant_n_global, displacements );
-  kernel().mpi_manager.communicate(
-    post_vacant_id, post_vacant_id_global, displacements );
-  kernel().mpi_manager.communicate(
-    post_vacant_n, post_vacant_n_global, displacements );
-
-  if ( pre_vacant_id_global.size() > 0 && post_vacant_id_global.size() > 0 )
-  {
-    create_synapses( pre_vacant_id_global,
-      pre_vacant_n_global,
-      post_vacant_id_global,
-      post_vacant_n_global,
-      sp_builder );
-  }
-     */
+    
   // Index of neurons having a vacant synaptic element
   std::vector< index > pre_vacant_id;  // pre synaptic elements (e.g Axon)
   std::vector< index > post_vacant_id; // post synaptic element (e.g Den)
@@ -485,9 +383,8 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
   std::vector< int > pre_deleted_n, post_deleted_n;
 
   // Vector of displacements for communication
-  std::vector< int > displacements;
   std::vector< index > pre_id_rnd;
-  std::vector< index > pre_id_rnd_global;
+  
   std::vector< index > post_id_rnd;
   
   // Get pre synaptic elements data from global nodes
@@ -508,14 +405,14 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
    **/
   
   //Do this anyway
-  /*{
+  {
     delete_synapses_from_pre( pre_deleted_id,
       pre_deleted_n,
       sp_builder->get_synapse_model(),
       sp_builder->get_pre_synaptic_element_name(),
       sp_builder->get_post_synaptic_element_name() );
-  }*/
-
+  }
+  
   /**
    * Start of connections
    **/
@@ -526,27 +423,72 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
   // shuffle
   global_shuffle( pre_id_rnd, pre_id_rnd.size() );
   global_shuffle( post_id_rnd, post_id_rnd.size() );
-  //Communicate using AllToAll
   
-  kernel().mpi_manager.communicate_Alltoall( pre_id_rnd, pre_id_rnd_global );
-  fprintf( stderr,
-        "Something %d", post_vacant_n[0] );
-  // Cut
-  if ( pre_id_rnd_global.size() > post_id_rnd.size() )
-  {
-    pre_id_rnd_global.resize( post_id_rnd.size() );
+  for(int i = 0; i< pre_id_rnd.size(); i++){
+    fprintf( stderr,"I want to know this first! rank %d pre_id %d post_id %d i %d\n", kernel().mpi_manager.get_rank(), pre_id_rnd[i], i, i );
   }
-  else
-  {
-    post_id_rnd.resize( pre_id_rnd_global.size() );
+  fflush(stderr);
+  kernel().mpi_manager.synchronize();
+  //Communicate number of elements to be created using AllToAll
+  std::vector< int > send_sources;   // number of new sent conns
+  std::vector< int > send_targets;   // number of new sent conns
+  int total_ranks = kernel().mpi_manager.get_num_processes();
+  int chunk_size = pre_id_rnd.size()/total_ranks;
+  int chunk_mod = pre_id_rnd.size()% total_ranks;
+  send_sources.assign(total_ranks, chunk_size );
+  if( chunk_mod != 0 ){
+      for(int i = 0; i<chunk_mod; i++){
+        send_sources[i] ++;
+      }
   }
-  // create synapse
-  GIDCollection sources = GIDCollection( pre_id_rnd_global );
-  GIDCollection targets = GIDCollection( post_id_rnd );
-
-  // Sort would go here for 5g
-  sp_builder->sp_connect( sources, targets );
+  std::vector< int > rec_conns(send_sources.size());    // number of new received conns
+  std::vector< int > send_displacements(total_ranks);
+  std::vector< int > rec_displacements(total_ranks);
   
+  kernel().mpi_manager.communicate_Alltoall( send_sources, rec_conns, 1 );
+  
+  int sum = 0;
+  for(int i = 0; i< total_ranks; i++){
+      sum += rec_conns[i];
+      if(i == 0){
+          rec_displacements[i]=0;
+          send_displacements[i]=0;
+      }
+      else{
+          rec_displacements[i]= rec_displacements[i-1]+rec_conns[i-1];
+          send_displacements[i]= send_displacements[i-1]+send_sources[i-1];
+      }
+          //fprintf( stderr,"rank %d Rec conns %d from proc %d\n", kernel().mpi_manager.get_rank(), rec_conns[i], i );
+  }
+  std::vector< index > pre_id_rnd_global(sum);
+  kernel().mpi_manager.communicate_Alltoallv( pre_id_rnd, pre_id_rnd_global, send_sources, rec_conns, send_displacements, rec_displacements );
+  
+  for(int i = 0; i< pre_id_rnd_global.size(); i++){
+    fprintf( stderr,"I want to know this! rank %d pre_id %d\n", kernel().mpi_manager.get_rank(), pre_id_rnd_global[i] );
+  }
+  fflush(stderr);
+  
+  if(pre_id_rnd_global.size()>0 && post_id_rnd.size()>0){
+    // Cut
+    if ( pre_id_rnd_global.size() > post_id_rnd.size() )
+    {
+      pre_id_rnd_global.resize( post_id_rnd.size() );
+    }
+    else
+    {
+      //This is big trouble. Have to let know the sources that the connections will not be made 
+      post_id_rnd.resize( pre_id_rnd_global.size() );
+    }
+     // create synapse
+    GIDCollection sources = GIDCollection( pre_id_rnd_global );
+    GIDCollection targets = GIDCollection( post_id_rnd );
+    // Sort would go here for 5g
+    sp_builder->sp_connect( sources, targets );
+    fprintf( stderr,"After connect %d", kernel().mpi_manager.get_rank());
+    fflush(stderr);
+  }
+  fflush(stderr);
+  kernel().mpi_manager.synchronize();
 }
 
 /**
@@ -660,12 +602,11 @@ SPManager::delete_synapses_from_pre( std::vector< index >& pre_deleted_id,
       }
   }
   // Communicate the list of targets
-  kernel().mpi_manager.communicate_Alltoallv(
-    send_targets, send_targets, displacements );
+  //TODO change this
+  //kernel().mpi_manager.communicate_Alltoallv( send_targets, send_targets, displacements );
   // Disconnect from post
   // Retrieve the connected sources
-  kernel().connection_manager.get_sources(
-    send_targets, connectivity, synapse_model );
+  kernel().connection_manager.get_sources( send_targets, connectivity, synapse_model );
 
   for ( int i = 0; i < connectivity.size(); i++ ) 
   {

@@ -244,7 +244,7 @@ GenericConnectorModel< ConnectionT >::add_connection( Node& src,
     kernel().connection_manager.get_delay_checker().assert_valid_delay_ms(
       delay );
   }
-
+  
   // create a new instance of the default connection
   ConnectionT c = ConnectionT( default_connection_ );
   if ( not numerics::is_nan( weight ) )
@@ -260,7 +260,7 @@ GenericConnectorModel< ConnectionT >::add_connection( Node& src,
     // tell the connector model, that we used the default delay
     used_default_delay();
   }
-
+  
   return add_connection( src, tgt, conn, syn_id, c, receptor_type_ );
 }
 
@@ -378,19 +378,15 @@ GenericConnectorModel< ConnectionT >::add_connection( Node& src,
   // - neuron src has n targets of more than a single synapse type (case 2)
   //     -- there are already synapses of type syn_id
   //     -- there are no connections of type syn_id yet
-
   if ( conn == 0 )
   {
     // case 0
-
     // the following line will throw an exception, if it does not work
     // set last_spike to 0
     c.check_connection( src, tgt, receptor_type, 0., get_common_properties() );
-
     // no entry at all, so start with homogeneous container for exactly one
     // connection
     conn = allocate< Connector< 1, ConnectionT > >( c );
-
     // there is only one connection, so either it is primary or secondary
     conn = pack_pointer( conn, is_primary_, !is_primary_ );
   }

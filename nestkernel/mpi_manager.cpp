@@ -254,7 +254,7 @@ nest::MPIManager::communicate( std::vector< unsigned int >& send_buffer,
 
 void
 nest::MPIManager::communicate_Alltoall( std::vector< index > send_buffer,
-  std::vector< index >& recv_buffer )
+  std::vector< index >& recv_buffer, int size )
 {
   if ( get_num_processes() == 1 ) // purely thread-based
   {
@@ -267,23 +267,20 @@ nest::MPIManager::communicate_Alltoall( std::vector< index > send_buffer,
   }
   else
   {
-      fprintf( stderr,
-        "Something procs %d  size  %d", get_num_processes(), send_buffer.size() );
       MPI_Alltoall( &send_buffer[ 0 ],
-      send_buffer.size(),
+      size,
       MPI_UNSIGNED,
       &recv_buffer[ 0 ],
-      send_buffer.size(),
+      size,
       MPI_UNSIGNED,
       comm );
   }
 }
 
 void
-nest::MPIManager::communicate_Alltoallv( std::vector< index > send_buffer,
-  std::vector< index >& recv_buffer, std::vector< int > displacements )
+nest::MPIManager::communicate_Alltoall( std::vector< int > send_buffer,
+  std::vector< int >& recv_buffer, int size )
 {
-  std::vector< int > recv_counts( get_num_processes(), send_buffer_size_ );
   if ( get_num_processes() == 1 ) // purely thread-based
   {
     if ( static_cast< unsigned int >( recv_buffer_size_ ) < send_buffer.size() )
@@ -295,13 +292,42 @@ nest::MPIManager::communicate_Alltoallv( std::vector< index > send_buffer,
   }
   else
   {
-    MPI_Allgatherv( &send_buffer[ 0 ],
-      send_buffer.size(),
-      MPI_UNSIGNED,
+    MPI_Barrier( comm ); 
+      MPI_Alltoall( &send_buffer[ 0 ],
+      size,
+      MPI_INT,
+      &recv_buffer[ 0 ],
+      size,
+      MPI_INT,
+      comm );
+  }
+}
+
+void
+nest::MPIManager::communicate_Alltoallv( std::vector< index > send_buffer,
+  std::vector< index >& recv_buffer, std::vector< int > send_counts, 
+  std::vector< int > recv_counts, std::vector< int > send_displacements, std::vector< int > recv_displacements )
+{
+  //std::vector< int > recv_counts( get_num_processes(), send_buffer_size_ );
+  if ( get_num_processes() == 1 ) // purely thread-based
+  {
+    if ( static_cast< unsigned int >( recv_buffer_size_ ) < send_buffer.size() )
+    {
+      recv_buffer_size_ = send_buffer_size_ = send_buffer.size();
+      recv_buffer.resize( recv_buffer_size_ );
+    }
+    recv_buffer.swap( send_buffer );
+  }
+  else
+  {
+    MPI_Alltoallv( &send_buffer[ 0 ],
+      &send_counts[ 0 ],
+      &send_displacements[ 0 ],
+      MPI_UNSIGNED_LONG,
       &recv_buffer[ 0 ],
       &recv_counts[ 0 ],
-      &displacements[ 0 ],
-      MPI_UNSIGNED,
+      &recv_displacements[ 0 ],
+      MPI_UNSIGNED_LONG,
       comm );
   }
 }
