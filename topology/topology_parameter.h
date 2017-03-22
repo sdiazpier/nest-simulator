@@ -299,6 +299,54 @@ private:
   double a_, c_;
 };
 
+/**
+ * EField parameter p(d) = c + p_center / (d * sigma * sqrt(1 + 4*d^2/sigma^2))
+ *
+ * See Ebert et al, Front. Comput. Neurosci. 8:154, Eq 15.
+ */
+class EFieldParameter : public RadialParameter
+{
+public:
+  /**
+   * Parameters:
+   * c        - constant offset
+   * p_center - value at center
+   * sigma    - width parameter
+   */
+  EFieldParameter( const DictionaryDatum& d )
+    : RadialParameter( d )
+    , c_( 0.0 )
+    , p_center_( 1.0 )
+    , sigma_( 1.0 )
+  {
+    updateValue< double >( d, names::c, c_ );
+    updateValue< double >( d, names::p_center, p_center_ );
+    updateValue< double >( d, names::sigma, sigma_ );
+    if ( sigma_ <= 0 )
+      throw BadProperty(
+        "topology::EFieldParameter: "
+        "sigma > 0 required." );
+  }
+
+  double
+  raw_value( double x ) const
+  {
+         return c_ + p_center_ / ( x * sigma_ *
+           std::sqrt( 1.0 + 4.0 * std::pow( x, 2 ) / std::pow( sigma_, 2 ) ) );
+  }
+
+  TopologyParameter*
+  clone() const
+  {
+    return new EFieldParameter( *this );
+  }
+
+private:
+  double c_;
+  double p_center_;
+  double sigma_;
+};
+
 
 /**
  * Exponential parameter p(d) = c + a*exp(-d/tau).

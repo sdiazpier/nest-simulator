@@ -395,6 +395,7 @@ TopologyModule::init( SLIInterpreter* i )
   register_parameter< UniformParameter >( "uniform" );
   register_parameter< NormalParameter >( "normal" );
   register_parameter< LognormalParameter >( "lognormal" );
+  register_parameter< EFieldParameter >( "efield" );
 }
 
 /*BeginDocumentation
