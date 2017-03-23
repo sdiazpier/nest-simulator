@@ -180,7 +180,7 @@ nest::VPManager::get_status( DictionaryDatum& d )
 void
 nest::VPManager::set_num_threads( nest::thread n_threads )
 {
-  if ( kernel().sp_manager.is_structural_plasticity_enabled()
+  if ( kernel().connection_manager.is_structural_plasticity_enabled()
     && ( n_threads > 1 ) )
   {
     throw KernelException(

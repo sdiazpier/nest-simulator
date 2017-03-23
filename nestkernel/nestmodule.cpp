@@ -43,7 +43,6 @@
 #include "nest_types.h"
 #include "node.h"
 #include "nodelist.h"
-#include "sp_manager_impl.h"
 #include "subnet.h"
 
 // Includes from sli:
@@ -772,7 +771,7 @@ NestModule::Disconnect_i_i_lFunction::execute( SLIInterpreter* i ) const
   {
     Node* const target_node = kernel().node_manager.get_node( target );
     const thread target_thread = target_node->get_thread();
-    kernel().sp_manager.disconnect_single(
+    kernel().connection_manager.disconnect_single(
       source, target_node, target_thread, synapse_params );
   }
 
@@ -796,7 +795,7 @@ NestModule::Disconnect_g_g_D_DFunction::execute( SLIInterpreter* i ) const
     getValue< DictionaryDatum >( i->OStack.pick( 0 ) );
 
   // dictionary access checking is handled by disconnect
-  kernel().sp_manager.disconnect(
+  kernel().connection_manager.disconnect(
     sources, targets, connectivity, synapse_params );
 
   i->OStack.pop( 4 );
@@ -1642,7 +1641,7 @@ NestModule::SetStructuralPlasticityStatus_DFunction::execute(
   DictionaryDatum structural_plasticity_dictionary =
     getValue< DictionaryDatum >( i->OStack.pick( 0 ) );
 
-  kernel().sp_manager.set_status( structural_plasticity_dictionary );
+  kernel().connection_manager.set_status( structural_plasticity_dictionary );
 
   i->OStack.pop( 1 );
   i->EStack.pop();
@@ -1656,7 +1655,7 @@ NestModule::GetStructuralPlasticityStatus_DFunction::execute(
 
   DictionaryDatum current_status =
     getValue< DictionaryDatum >( i->OStack.pick( 0 ) );
-  kernel().sp_manager.get_status( current_status );
+  kernel().connection_manager.get_status( current_status );
 
   i->OStack.pop( 1 );
   i->OStack.push( current_status );
@@ -1672,7 +1671,7 @@ void
 NestModule::EnableStructuralPlasticity_Function::execute(
   SLIInterpreter* i ) const
 {
-  kernel().sp_manager.enable_structural_plasticity();
+  kernel().connection_manager.enable_structural_plasticity();
 
   i->EStack.pop();
 }
@@ -1684,7 +1683,7 @@ void
 NestModule::DisableStructuralPlasticity_Function::execute(
   SLIInterpreter* i ) const
 {
-  kernel().sp_manager.disable_structural_plasticity();
+  kernel().connection_manager.disable_structural_plasticity();
 
   i->EStack.pop();
 }
@@ -1799,10 +1798,10 @@ NestModule::init( SLIInterpreter* i )
     "fixed_total_number" );
 
   // Add MSP growth curves
-  kernel().sp_manager.register_growth_curve< GrowthCurveSigmoid >( "sigmoid" );
-  kernel().sp_manager.register_growth_curve< GrowthCurveGaussian >(
+  kernel().connection_manager.register_growth_curve< GrowthCurveSigmoid >( "sigmoid" );
+  kernel().connection_manager.register_growth_curve< GrowthCurveGaussian >(
     "gaussian" );
-  kernel().sp_manager.register_growth_curve< GrowthCurveLinear >( "linear" );
+  kernel().connection_manager.register_growth_curve< GrowthCurveLinear >( "linear" );
 
   Token statusd = i->baselookup( Name( "statusdict" ) );
   DictionaryDatum dd = getValue< DictionaryDatum >( statusd );

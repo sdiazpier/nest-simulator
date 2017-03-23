@@ -44,6 +44,8 @@
 #include "dict.h"
 #include "dictdatum.h"
 
+#include "growth_curve_factory.h"
+
 namespace nest
 {
 class ConnectorBase;
@@ -293,6 +295,102 @@ public:
    * Returns the delay checker for the current thread.
    */
   DelayChecker& get_delay_checker();
+  
+  /**SP Functionality moved from the SP Manager**/
+  DictionaryDatum& get_growthcurvedict();
+
+  /**
+   * Create a new Growth Curve object using the GrowthCurve Factory
+   * @param name which defines the type of GC to be created
+   * @return a new Growth Curve object of the type indicated by name
+   */
+  GrowthCurve* new_growth_curve( Name name );
+
+  /**
+   * Add a growth curve for MSP
+   */
+  template < typename GrowthCurve >
+  void register_growth_curve( const std::string& name );
+
+  /**
+   * Disconnect two nodes. The source node is defined by its global ID.
+   * The target node is defined by the node. The connection is
+   * established on the thread/process that owns the target node.
+   * Identifies if the network is Structural Plasticity enabled or not and then
+   * performs a single disconnect between the two nodes.
+   *
+   * \param s GID of the sending Node.
+   * \param target Pointer to target Node.
+   * \param target_thread Thread that hosts the target node.
+   * \param syn The synapse model to use.
+   */
+  void disconnect_single( index s,
+    Node* target,
+    thread target_thread,
+    DictionaryDatum& syn );
+
+  /**
+   * Disconnect two collections of nodes.  The connection is
+   * established on the thread/process that owns the target node.
+   *
+   * \param sources GID Collection of the source Nodes.
+   * \param targets GID Collection of the target Nodes.
+   * \param connectivityParams connectivity Dictionary
+   * \param synapseParams synapse parameters Dictionary
+   */
+  void disconnect( GIDCollection&,
+    GIDCollection&,
+    DictionaryDatum&,
+    DictionaryDatum& );
+
+  /**
+   * Disconnect two nodes.
+   * The source node is defined by its global ID.
+   * The target node is defined by the node. The connection is
+   * established on the thread/process that owns the target node.
+   *
+   * \param s GID of the sending Node.
+   * \param target Pointer to target Node.
+   * \param target_thread Thread that hosts the target node.
+   * \param syn The synapse model to use.
+   */
+  void disconnect( index s, Node* target, thread target_thread, index syn );
+  
+  void delete_synapse( index source,
+    index target,
+    long syn_id,
+    std::string se_pre_name,
+    std::string se_post_name );
+  
+  /**
+  * Enable  structural plasticity
+  */
+  void enable_structural_plasticity();
+
+  /**
+   * Disable  structural plasticity
+   */
+  void disable_structural_plasticity();
+
+  bool is_structural_plasticity_enabled() const;
+  
+    /**
+   * Returns the minimum delay of all SP builders.
+   * This influences the min_delay of the kernel, as the connections
+   * are build during the simulation. Hence, the
+   * ConnectionManager::min_delay() methods have to respect this delay
+   * as well.
+   */
+  delay builder_min_delay() const;
+
+  /**
+   * Returns the maximum delay of all SP builders.
+   * This influences the max_delay of the kernel, as the connections
+   * are build during the simulation. Hence, the
+   * ConnectionManager::max_delay() methods have to respect this delay
+   * as well.
+   */
+  delay builder_max_delay() const;
 
 private:
   /**
@@ -388,6 +486,26 @@ private:
   delay min_delay_; //!< Value of the smallest delay in the network.
 
   delay max_delay_; //!< Value of the largest delay in the network in steps.
+  
+  /**Private SP functions ported from the SP Manager*/
+    /**
+   * Indicates whether the Structrual Plasticity functionality is On (True) of
+   * Off (False).
+   */
+  bool structural_plasticity_enabled_;
+  std::vector< SPBuilder* > sp_conn_builders_;
+
+  /* BeginDocumentation
+   Name: growthcurvedict - growth curves for Model of Structural Plasticity
+   Description:
+   This dictionary provides indexes for the growth curve factory
+   */
+  DictionaryDatum growthcurvedict_; //!< Dictionary for growth rules.
+
+  /**
+   * GrowthCurve factories, indexed by growthcurvedict_ elements.
+   */
+  std::vector< GenericGrowthCurveFactory* > growthcurve_factories_;
 };
 
 inline DictionaryDatum&
@@ -406,6 +524,26 @@ inline delay
 ConnectionManager::get_max_delay() const
 {
   return max_delay_;
+}
+
+/**SP functions**/
+inline DictionaryDatum&
+ConnectionManager::get_growthcurvedict()
+{
+  return growthcurvedict_;
+}
+
+inline GrowthCurve*
+ConnectionManager::new_growth_curve( Name name )
+{
+  const long gc_id = ( *growthcurvedict_ )[ name ];
+  return growthcurve_factories_.at( gc_id )->create();
+}
+
+inline bool
+ConnectionManager::is_structural_plasticity_enabled() const
+{
+  return structural_plasticity_enabled_;
 }
 
 } // namespace nest

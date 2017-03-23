@@ -138,7 +138,7 @@ neststartup( int* argc,
   engine.def(
     "connruledict", nest::kernel().connection_manager.get_connruledict() );
   engine.def(
-    "growthcurvedict", nest::kernel().sp_manager.get_growthcurvedict() );
+    "growthcurvedict", nest::kernel().connection_manager.get_growthcurvedict() );
 
   // register sli_neuron
   nest::kernel().model_manager.register_node_model< nest::sli_neuron >(

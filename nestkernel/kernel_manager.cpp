@@ -54,7 +54,6 @@ nest::KernelManager::KernelManager()
   , simulation_manager()
   , modelrange_manager()
   , connection_manager()
-  , sp_manager()
   , event_delivery_manager()
   , model_manager()
   , music_manager()
@@ -86,7 +85,6 @@ nest::KernelManager::initialize()
   simulation_manager.initialize(); // independent of others
   modelrange_manager.initialize(); // independent of others
   connection_manager.initialize(); // depends only on num of threads
-  sp_manager.initialize();
 
   // prerequisites:
   //   - min_delay/max_delay available (connection_manager)
@@ -116,7 +114,6 @@ nest::KernelManager::finalize()
   music_manager.finalize();
   model_manager.finalize();
   event_delivery_manager.finalize();
-  sp_manager.finalize();
   connection_manager.finalize();
   modelrange_manager.finalize();
   simulation_manager.finalize();
@@ -170,7 +167,6 @@ nest::KernelManager::set_status( const DictionaryDatum& dict )
   simulation_manager.set_status( dict );
   modelrange_manager.set_status( dict );
   connection_manager.set_status( dict );
-  sp_manager.set_status( dict );
 
   event_delivery_manager.set_status( dict );
   model_manager.set_status( dict );
@@ -193,7 +189,6 @@ nest::KernelManager::get_status( DictionaryDatum& dict )
   simulation_manager.get_status( dict );
   modelrange_manager.get_status( dict );
   connection_manager.get_status( dict );
-  sp_manager.get_status( dict );
 
   event_delivery_manager.get_status( dict );
   model_manager.get_status( dict );

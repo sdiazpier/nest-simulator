@@ -654,33 +654,14 @@ nest::SimulationManager::update_()
         gettimeofday( &t_slice_begin_, NULL );
       }
 
-      if ( kernel().sp_manager.is_structural_plasticity_enabled()
-        && ( clock_.get_steps() + from_step_ )
-            % kernel().sp_manager.get_structural_plasticity_update_interval()
-          == 0 )
-      {
-        for ( std::vector< Node* >::const_iterator i =
-                kernel().node_manager.get_nodes_on_thread( thrd ).begin();
-              i != kernel().node_manager.get_nodes_on_thread( thrd ).end();
-              ++i )
-        {
-          ( *i )->update_synaptic_elements(
-            Time( Time::step( clock_.get_steps() + from_step_ ) ).get_ms() );
-        }
-#pragma omp barrier
-#pragma omp single
-        {
-          kernel().sp_manager.update_structural_plasticity();
-        }
         // Remove 10% of the vacant elements
-        for ( std::vector< Node* >::const_iterator i =
+        /*for ( std::vector< Node* >::const_iterator i =
                 kernel().node_manager.get_nodes_on_thread( thrd ).begin();
               i != kernel().node_manager.get_nodes_on_thread( thrd ).end();
               ++i )
         {
           ( *i )->decay_synaptic_elements_vacant();
-        }
-      }
+        }*/
 
 
       if ( from_step_ == 0 ) // deliver only at beginning of slice

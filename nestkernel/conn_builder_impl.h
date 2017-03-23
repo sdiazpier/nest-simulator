@@ -41,7 +41,7 @@ ConnBuilder::single_disconnect_( index sgid,
   // This is the most simple case in which only the synapse_model_ has been
   // defined. TODO: Add functionality to delete synapses with a given weight
   // or a given delay
-  kernel().sp_manager.disconnect(
+  kernel().connection_manager.disconnect(
     sgid, &target, target_thread, synapse_model_ );
 }
 
