@@ -87,6 +87,10 @@ set( models_sources
     tsodyks2_connection.h
     tsodyks_connection.h
     tsodyks_connection_hom.h tsodyks_connection_hom.cpp
+    terub_neuron_gpe.cpp
+    terub_neuron_gpe.h
+    terub_neuron_stn.cpp
+    terub_neuron_stn.h
     volume_transmitter.h volume_transmitter.cpp
     vogels_sprekeler_connection.h
     spike_dilutor.h spike_dilutor.cpp

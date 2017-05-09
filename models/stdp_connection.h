@@ -202,6 +202,7 @@ private:
   double mu_minus_;
   double Wmax_;
   double Kplus_;
+  bool enabled_;
 };
 
 
@@ -244,21 +245,22 @@ STDPConnection< targetidentifierT >::send( Event& e,
   // details.
   target->get_history(
     t_lastspike - dendritic_delay, t_spike - dendritic_delay, &start, &finish );
-  // facilitation due to post-synaptic spikes since last pre-synaptic spike
-  double minus_dt;
-  while ( start != finish )
-  {
-    minus_dt = t_lastspike - ( start->t_ + dendritic_delay );
-    ++start;
-    if ( minus_dt == 0 )
-      continue;
-    weight_ = facilitate_( weight_, Kplus_ * std::exp( minus_dt / tau_plus_ ) );
+  if(enabled_){
+    // facilitation due to post-synaptic spikes since last pre-synaptic spike
+    double minus_dt;
+    while ( start != finish )
+    {
+      minus_dt = t_lastspike - ( start->t_ + dendritic_delay );
+      ++start;
+      if ( minus_dt == 0 )
+        continue;
+      weight_ = facilitate_( weight_, Kplus_ * std::exp( minus_dt / tau_plus_ ) );
+    }
+
+    // depression due to new pre-synaptic spike
+    weight_ =
+      depress_( weight_, target->get_K_value( t_spike - dendritic_delay ) );
   }
-
-  // depression due to new pre-synaptic spike
-  weight_ =
-    depress_( weight_, target->get_K_value( t_spike - dendritic_delay ) );
-
   e.set_receiver( *target );
   e.set_weight( weight_ );
   // use accessor functions (inherited from Connection< >) to obtain delay in
@@ -282,6 +284,7 @@ STDPConnection< targetidentifierT >::STDPConnection()
   , mu_minus_( 1.0 )
   , Wmax_( 100.0 )
   , Kplus_( 0.0 )
+  , enabled_(true)
 {
 }
 
@@ -297,6 +300,7 @@ STDPConnection< targetidentifierT >::STDPConnection(
   , mu_minus_( rhs.mu_minus_ )
   , Wmax_( rhs.Wmax_ )
   , Kplus_( rhs.Kplus_ )
+  , enabled_(rhs.enabled_)
 {
 }
 
@@ -312,6 +316,7 @@ STDPConnection< targetidentifierT >::get_status( DictionaryDatum& d ) const
   def< double >( d, "mu_plus", mu_plus_ );
   def< double >( d, "mu_minus", mu_minus_ );
   def< double >( d, "Wmax", Wmax_ );
+  def< bool >(d, "enabled", enabled_);
   def< long >( d, names::size_of, sizeof( *this ) );
 }
 
@@ -328,7 +333,7 @@ STDPConnection< targetidentifierT >::set_status( const DictionaryDatum& d,
   updateValue< double >( d, "mu_plus", mu_plus_ );
   updateValue< double >( d, "mu_minus", mu_minus_ );
   updateValue< double >( d, "Wmax", Wmax_ );
-
+  updateValue< bool >(d, "enabled", enabled_);
   // check if weight_ and Wmax_ has the same sign
   if ( not( ( ( weight_ >= 0 ) - ( weight_ < 0 ) )
          == ( ( Wmax_ >= 0 ) - ( Wmax_ < 0 ) ) ) )
