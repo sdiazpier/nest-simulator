@@ -400,7 +400,7 @@ extern const Name update;      //!< Command to execute the neuron (sli_neuron)
 extern const Name update_node; //!< Command to execute the neuron (sli_neuron)
 extern const Name update_synaptic_elements; //!< Command to update parameters
                                             //!< of synaptic elements
-extern const Name us; //!< probability of release [0...1] (property arrays)
+extern const Name use_wfr;                  //!< Simulation-related
 
 extern const Name V_epsp;  //!< Specific to iaf_chs_2008 neuron
 extern const Name V_m;     //!< Membrane potential
