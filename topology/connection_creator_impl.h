@@ -810,6 +810,18 @@ ConnectionCreator::divergent_connect_( Layer< D >& source, Layer< D >& target )
       double w, d;
       get_parameters_( target_displ, get_global_rng(), w, d );
 
+      //Update pre synaptic elements if structural plasticity is enabled
+      Node* target_ptr = kernel().node_manager.get_node( target_id );
+      //&& synapse_model_ == (index) kernel().model_manager.get_synapsedict()->lookup("ss_synapse")
+      if(kernel().node_manager.is_local_gid( source_id ) && pre_synaptic_element_name_ != "" && post_synaptic_element_name_ != ""  ) {
+         Node* const source = kernel().node_manager.get_node( source_id );
+         if(source->has_synaptic_element(pre_synaptic_element_name_) )
+         {
+           source->connect_synaptic_element( pre_synaptic_element_name_, 1 );
+         }
+      }
+
+      
       // We bail out for non-local neurons only now after all possible
       // random numbers haven been drawn. Bailing out any earlier may lead
       // to desynchronized global rngs.
@@ -818,9 +830,14 @@ ConnectionCreator::divergent_connect_( Layer< D >& source, Layer< D >& target )
         continue;
       }
 
-      Node* target_ptr = kernel().node_manager.get_node( target_id );
+      //Node* target_ptr = kernel().node_manager.get_node( target_id );
       kernel().connection_manager.connect(
         source_id, target_ptr, target_ptr->get_thread(), synapse_model_, d, w );
+      // synapse_model_ == (index) kernel().model_manager.get_synapsedict()->lookup("ss_synapse")
+      if ( target_ptr->has_synaptic_element(post_synaptic_element_name_) && pre_synaptic_element_name_ != "" && post_synaptic_element_name_ != "" )
+      {
+         target_ptr->connect_synaptic_element( post_synaptic_element_name_, 1 );
+      }
     }
   }
 }

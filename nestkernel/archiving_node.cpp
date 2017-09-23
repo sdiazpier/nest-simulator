@@ -31,6 +31,7 @@
 
 // Includes from sli:
 #include "dictutils.h"
+#include "kernel_manager.h"
 
 namespace nest
 {
@@ -275,7 +276,6 @@ nest::Archiving_Node::set_status( const DictionaryDatum& d )
     clear_history();
   }
 
-
   if ( d->known( names::update_synaptic_elements ) )
   {
     const DictionaryDatum synaptic_elements_a =
@@ -320,6 +320,25 @@ nest::Archiving_Node::clear_history()
   history_.clear();
   Ca_minus_ = 0.0;
   Ca_t_ = 0.0;
+}
+
+/* ----------------------------------------------------------------
+* Define if the node has an specific synaptic_element
+* ---------------------------------------------------------------- */
+bool
+nest::Archiving_Node::has_synaptic_element( Name n ) const
+{
+  std::map< Name, SynapticElement >::const_iterator se_it;
+  se_it = synaptic_elements_map_.find( n );
+
+  if ( se_it != synaptic_elements_map_.end() )
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 

@@ -188,6 +188,8 @@ private:
   index synapse_model_;
   lockPTR< TopologyParameter > weight_;
   lockPTR< TopologyParameter > delay_;
+  std::string pre_synaptic_element_name_;
+  std::string post_synaptic_element_name_;
 };
 
 inline void

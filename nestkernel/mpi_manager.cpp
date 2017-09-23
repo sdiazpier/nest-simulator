@@ -546,7 +546,6 @@ nest::MPIManager::communicate( std::vector< int >& send_buffer,
 
   // Calculate total number of node data items to be gathered.
   size_t n_globals = std::accumulate( n_nodes.begin(), n_nodes.end(), 0 );
-
   if ( n_globals != 0 )
   {
     recv_buffer.resize( n_globals, 0.0 );

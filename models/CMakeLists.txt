@@ -84,6 +84,9 @@ set( models_sources
     stdp_pl_connection_hom.h stdp_pl_connection_hom.cpp
     stdp_triplet_connection.h
     step_current_generator.h step_current_generator.cpp
+    step_current_rec.h step_current_rec.cpp
+    terub_neuron_gpe.h terub_neuron_gpe.cpp
+    terub_neuron_stn.h terub_neuron_stn.cpp
     tsodyks2_connection.h
     tsodyks_connection.h
     tsodyks_connection_hom.h tsodyks_connection_hom.cpp

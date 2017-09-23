@@ -119,14 +119,15 @@ nest::GrowthCurveGaussian::update( double t,
 
   double z_value = z_minus;
   double Ca = Ca_minus;
-
+  
   for ( double lag = t_minus; lag < ( t - h / 2.0 ); lag += h )
   {
     Ca = Ca - ( ( Ca / tau_Ca ) * h );
+    if(Ca<0)
+        Ca = 0;
     const double dz =
       h * growth_rate * ( 2.0 * exp( -pow( ( Ca - xi ) / zeta, 2 ) ) - 1.0 );
     z_value = z_value + dz;
   }
-
   return std::max( z_value, 0.0 );
 }

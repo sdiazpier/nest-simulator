@@ -17,16 +17,16 @@
 
 /*BeginDocumentation
   Name: step_current_rec - provides a piecewise constant DC input current
-  
   Description:
   The dc_generator provides a piecewise constant DC input to the
   connected node(s).  The amplitude of the current is changed at the
   specified times. The unit of the current is pA.
 
- Parameters: 
+ Parameters:
      The following parameters can be set in the status dictionary:
      amplitude_times   list of doubles - Times at which current changes in ms
-     amplitude_values  list of doubles - Amplitudes of step current current in pA 
+     amplitude_values  list of doubles - Amplitudes of step current current in
+ pA
 
   Examples:
     The current can be altered in the following way:
@@ -37,11 +37,12 @@
     2.0 pA in the interval [0.2, 0.5) and 4.0 from then on.
 
   Sends: CurrentEvent
-    
+
   Author: Jochen Martin Eppler, Jens Kremkow
 
-  SeeAlso: ac_generator, dc_generator, step_current_generator, Device, StimulatingDevice
-*/ 
+  SeeAlso: ac_generator, dc_generator, step_current_generator, Device,
+ StimulatingDevice
+*/
 
 #ifndef STEP_CURRENT_REC_H
 #define STEP_CURRENT_REC_H
@@ -173,7 +174,6 @@ namespace nest
     // if we get here, temporaries contain consistent set of properties
     P_ = ptmp;
   }
-  
   
 } // namespace
 
