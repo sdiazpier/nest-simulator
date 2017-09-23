@@ -26,7 +26,7 @@
  *
  * Created on November 26, 2013, 2:28 PM
  */
-
+#include <execinfo.h>
 #include "sp_manager.h"
 
 // C++ includes:
@@ -406,8 +406,8 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
     pre_deleted_id, pre_deleted_id_global, displacements );
   kernel().mpi_manager.communicate(
     pre_deleted_n, pre_deleted_n_global, displacements );
-
-  if ( pre_deleted_id_global.size() > 0 )
+  
+  if ( pre_deleted_id_global.size() > 0 && pre_deleted_n_global.size() > 0 )
   {
     delete_synapses_from_pre( pre_deleted_id_global,
       pre_deleted_n_global,
@@ -433,7 +433,7 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
   kernel().mpi_manager.communicate(
     post_deleted_n, post_deleted_n_global, displacements );
 
-  if ( post_deleted_id_global.size() > 0 )
+  if ( post_deleted_id_global.size() > 0 && post_deleted_n_global.size() > 0 )
   {
     delete_synapses_from_post( post_deleted_id_global,
       post_deleted_n_global,
@@ -502,14 +502,13 @@ SPManager::create_synapses( std::vector< index >& pre_id,
     global_shuffle( pre_id_rnd, post_id_rnd.size() );
     pre_id_rnd.resize( post_id_rnd.size() );
   }
-  else
+  else if (pre_id_rnd.size() > 0)
   {
     // we only shuffle the n first items,
     // where n is the number of pre synaptic elements
     global_shuffle( post_id_rnd, pre_id_rnd.size() );
     post_id_rnd.resize( pre_id_rnd.size() );
-  }
-
+  }  
   // create synapse
   GIDCollection sources = GIDCollection( pre_id_rnd );
   GIDCollection targets = GIDCollection( post_id_rnd );
@@ -551,7 +550,7 @@ SPManager::delete_synapses_from_pre( std::vector< index >& pre_deleted_id,
 
   kernel().connection_manager.get_targets(
     pre_deleted_id, connectivity, synapse_model );
-
+  
   id_it = pre_deleted_id.begin();
   n_it = pre_deleted_n.begin();
   connectivity_it = connectivity.begin();
@@ -564,7 +563,9 @@ SPManager::delete_synapses_from_pre( std::vector< index >& pre_deleted_id,
     // shuffle only the first n items, n is the number of deleted synaptic
     // elements
     if ( -( *n_it ) > static_cast< int >( global_targets.size() ) )
-      *n_it = -global_targets.size();
+    {
+      *n_it = -((int)global_targets.size());
+    }
     global_shuffle( global_targets, -( *n_it ) );
 
     for ( int i = 0; i < -( *n_it ); i++ ) // n is negative
@@ -669,7 +670,9 @@ SPManager::delete_synapses_from_post( std::vector< index >& post_deleted_id,
     // shuffle only the first n items, n is the number of deleted synaptic
     // elements
     if ( -( *n_it ) > static_cast< int >( global_sources.size() ) )
-      *n_it = -global_sources.size();
+    {
+        *n_it = -((int)global_sources.size());
+    }
     global_shuffle( global_sources, -( *n_it ) );
 
     for ( int i = 0; i < -( *n_it ); i++ ) // n is negative

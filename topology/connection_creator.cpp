@@ -37,6 +37,8 @@ ConnectionCreator::ConnectionCreator( DictionaryDatum dict )
       "static_synapse" ) )
   , weight_()
   , delay_()
+  , pre_synaptic_element_name_("")
+  , post_synaptic_element_name_("")
 {
   Name connection_type;
 
@@ -110,6 +112,16 @@ ConnectionCreator::ConnectionCreator( DictionaryDatum dict )
     {
 
       delay_ = TopologyModule::create_parameter( dit->second );
+    }
+    // dit->known( names::pre_synaptic_element ) && dit>known( names::post_synaptic_element ) &&
+    else if ( dit->first == names::pre_synaptic_element )
+    {
+        pre_synaptic_element_name_ =
+      getValue< std::string >( dit->second );
+    }
+    else if ( dit->first == names::post_synaptic_element){
+        post_synaptic_element_name_ =
+      getValue< std::string >( dit->second );
     }
     else
     {

@@ -69,6 +69,8 @@
 #include "parrot_neuron.h"
 #include "pp_pop_psc_delta.h"
 #include "pp_psc_delta.h"
+#include "terub_neuron_gpe.h"
+#include "terub_neuron_stn.h"
 
 // Stimulation devices
 #include "ac_generator.h"
@@ -83,6 +85,7 @@
 #include "sinusoidal_poisson_generator.h"
 #include "spike_generator.h"
 #include "step_current_generator.h"
+#include "step_current_rec.h"
 
 // Recording devices
 #include "correlation_detector.h"
@@ -198,6 +201,8 @@ ModelsModule::init( SLIInterpreter* )
     "noise_generator" );
   kernel().model_manager.register_node_model< step_current_generator >(
     "step_current_generator" );
+  kernel().model_manager.register_node_model< step_current_rec >(
+    "step_current_rec" );
   kernel().model_manager.register_node_model< mip_generator >(
     "mip_generator" );
   kernel().model_manager.register_node_model< sinusoidal_poisson_generator >(
@@ -320,6 +325,10 @@ ModelsModule::init( SLIInterpreter* )
     "hh_cond_exp_traub" );
   kernel().model_manager.register_node_model< sinusoidal_gamma_generator >(
     "sinusoidal_gamma_generator" );
+  kernel().model_manager.register_node_model< terub_neuron_gpe >(
+    "terub_neuron_gpe" );
+  kernel().model_manager.register_node_model< terub_neuron_stn >(
+    "terub_neuron_stn" );
 #endif
 
 #ifdef HAVE_GSL

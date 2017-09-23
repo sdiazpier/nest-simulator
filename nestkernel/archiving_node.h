@@ -78,6 +78,13 @@ public:
   double get_Ca_minus() const;
 
   /**
+   * Defines if the node has a certain synaptic element or not
+   * @param syn_element the name of the synaptic element
+   * @return true if the node contains this synaptic element
+   */
+  bool has_synaptic_element( Name syn_element ) const;
+  
+  /**
    * \fn double get_synaptic_elements(Name n)
    * get the number of synaptic element for the current Node
    * the number of synaptic elements is a double value but the number of

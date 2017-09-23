@@ -90,6 +90,7 @@
 
 // Includes from sli:
 #include "dictdatum.h"
+#include "kernel_manager.h"
 
 namespace nest
 {
@@ -172,7 +173,8 @@ public:
   int
   get_z_vacant() const
   {
-    return std::floor( z_ ) - z_connected_;
+    double vacant = (std::floor( z_ )) - z_connected_;
+    return vacant;
   }
   /*
    * Retrieves the current number of synaptic elements bound to a synapse
@@ -242,6 +244,7 @@ public:
   decay_z_vacant()
   {
     z_ -= get_z_vacant() * tau_vacant_;
+    z_ = std::max(z_, 0.0);
   }
 
   bool

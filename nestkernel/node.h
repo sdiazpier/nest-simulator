@@ -540,6 +540,15 @@ public:
   {
     return 0.0;
   }
+  
+  /**
+   * Define if a node has a given synaptic element
+   * @ingroup SP_functions
+   */
+  virtual bool has_synaptic_element( Name ) const
+  {
+    return false;
+  }
 
   /**
    * Get the number of synaptic element for the current Node at Ca_t which
