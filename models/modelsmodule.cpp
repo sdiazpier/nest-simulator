@@ -85,7 +85,6 @@
 #include "sinusoidal_poisson_generator.h"
 #include "spike_generator.h"
 #include "step_current_generator.h"
-#include "step_current_rec.h"
 
 // Recording devices
 #include "correlation_detector.h"
@@ -233,12 +232,6 @@ ModelsModule::init( SLIInterpreter* )
     "correlospinmatrix_detector" );
   kernel().model_manager.register_node_model< volume_transmitter >(
     "volume_transmitter" );
-  kernel().model_manager.register_node_model< terub_neuron_stn >(
-    "terub_neuron_stn" );
-  kernel().model_manager.register_node_model< terub_neuron_gpe >(
-    "terub_neuron_gpe" );
-  kernel().model_manager.register_node_model< step_current_rec >(
-    "step_current_rec" );
 
   // Create voltmeter as a multimeter pre-configured to record V_m.
   /*BeginDocumentation

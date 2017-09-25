@@ -406,10 +406,11 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
     pre_deleted_id, pre_deleted_id_global, displacements );
   kernel().mpi_manager.communicate(
     pre_deleted_n, pre_deleted_n_global, displacements );
-  
+ 
   if ( pre_deleted_id_global.size() > 0 && pre_deleted_n_global.size() > 0 )
   {
-    delete_synapses_from_pre( pre_deleted_id_global,
+   std::cout<<"Delete";
+   delete_synapses_from_pre( pre_deleted_id_global,
       pre_deleted_n_global,
       sp_builder->get_synapse_model(),
       sp_builder->get_pre_synaptic_element_name(),

@@ -275,6 +275,9 @@ nest::Archiving_Node::set_status( const DictionaryDatum& d )
   {
     clear_history();
   }
+  if ( d->known( "reset_sp_time" )){
+    Ca_t_ = kernel().simulation_manager.get_time().get_ms();
+  }
 
   if ( d->known( names::update_synaptic_elements ) )
   {
