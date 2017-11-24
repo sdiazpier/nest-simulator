@@ -43,7 +43,7 @@ namespace nest
 /**
  * \class GrowthCurve
  * Defines the way the number of synaptic elements changes through time
- * according to the calcium concentration of the neuron.
+ * according to the firing rate of the neuron.
  */
 class GrowthCurve
 {
@@ -55,9 +55,9 @@ public:
   virtual void set( const DictionaryDatum& d ) = 0;
   virtual double update( double t,
     double t_minus,
-    double Ca_minus,
+    double fr_minus,
     double z,
-    double tau_Ca,
+    double tau_fr,
     double growth_rate ) const = 0;
   virtual bool
   is( Name n )
@@ -87,26 +87,15 @@ protected:
    when structural plasticity is enabled, allows the dynamic rewiring of the
    network during the simulation.
    This type of growth curve uses an exact integration method to update the
-   number of synaptic elements: dz/dt = nu (1 - (1/eps) * Ca(t)), where nu is
-   the growth rate [elements/ms] and eps is the desired average calcium
-   concentration. The growth rate nu is defined in the SynapticElement class.
+   number of synaptic elements: dz/dt = nu (1 - (1/eps) * fr(t)), where nu is
+   the growth rate [elements/ms] and eps is the desired firing rate.
+   The growth rate nu is defined in the SynapticElement class.
 
   Parameters:
-   eps          double -  The target calcium concentration that
+   eps          double -  The target firing rate in Hz that
                           the neuron should look to achieve by creating or
                           deleting synaptic elements. It should always be a
-                          positive value.  It is important to note that the
-                          calcium concentration is linearly proportional to the
-                          firing rate. This is because dCa/dt = - Ca(t)/tau_Ca
-                          + beta_Ca if the neuron fires and dCa/dt = -
-                          Ca(t)/tau_Ca otherwise, where tau_Ca is the calcium
-                          concentration decay constant and beta_Ca is the
-                          calcium intake constant (see SynapticElement class).
-                          This means that eps also defines the desired firing
-                          rate that the neuron should achieve.  For example, an
-                          eps = 0.05 [Ca2+] with tau_Ca = 10000.0 and beta_Ca =
-                          0.001 for a synaptic element means a desired firing
-                          rate of 5Hz.
+                          positive value. (see SynapticElement class).
 
   References:
    [1] Butz, Markus, Florentin Wörgötter, and Arjen van Ooyen.
@@ -125,8 +114,8 @@ protected:
 /**
  * \class GrowthCurveLinear
  * Uses an exact integration method to update the number of synaptic elements:
- * dz/dt = nu (1 - (1/eps) * Ca(t)), where nu is the growth rate and
- * eps is the desired average calcium concentration.
+ * dz/dt = nu (1 - (1/eps) * fr(t)), where nu is the growth rate and
+ * eps is the desired firing rate in Hz.
  */
 class GrowthCurveLinear : public GrowthCurve
 {
@@ -136,9 +125,9 @@ public:
   void set( const DictionaryDatum& d );
   double update( double t,
     double t_minus,
-    double Ca_minus,
+    double fr_minus,
     double z,
-    double tau_Ca,
+    double tau_fr,
     double growth_rate ) const;
 
 private:
@@ -155,40 +144,29 @@ private:
    network during the simulation.
    This type of growth curve  uses a forward Euler integration method to update
    the number of synaptic elements:
-   dz/dt = nu (2 * e^(- ((Ca(t) - xi)/z)^2 ) - 1)
+   dz/dt = nu (2 * e^(- ((fr(t) - xi)/z)^2 ) - 1)
    where xi = (eta  + eps)/2,
    zeta = (eps - eta)/2 * sqrt(ln(2))),
-   eta is the minimum calcium concentration required for any synaptic element
-   to be created, eps is the target mean calcium concentration in the neuron
+   eta is the minimum firing rate required for any synaptic element
+   to be created, eps is the target firing rate in the neuron
    and nu is the growth rate in elements/ms. The growth rate nu is defined in
    the SynapticElement class.
 
   Parameters:
-   eta          double -  Minimum amount of calcium concentration that the
+   eta          double -  Minimum firing rate in Hz that the
                           neuron needs to start creating synaptic elements.
                           eta can have a negative value, making the growth
                           curve move its maximum to the left. For example, if
-                          eta=-0.5 and eps=0.5 [Ca2+], the maximum growth rate
-                          (elements/ms) will be achieved at 0.0 [Ca2+]. If
-                          eta=0.0 [Ca2+] and eps=0.5 [Ca2+] the maximum growth
-                          rate will be achieved at 0.25 [Ca2+] while at 0.0
-                          [Ca+2] no new elements will be created.
+                          eta=-5 and eps=5 Hz, the maximum growth rate
+                          (elements/ms) will be achieved at 0.0 Hz. If
+                          eta=0.0  and eps=5 Hz the maximum growth
+                          rate will be achieved at 2.5 Hz while at 0.0
+                          Hz no new elements will be created.
 
-   eps          double -  The target calcium concentration that
+   eps          double -  The target firing rate in Hz that
                           the neuron should look to achieve by creating or
                           deleting synaptic elements. It should always be a
-                          positive value.  It is important to note that the
-                          calcium concentration is linearly proportional to the
-                          firing rate. This is because dCa/dt = - Ca(t)/tau_Ca
-                          + beta_Ca if the neuron fires and dCa/dt = -
-                          Ca(t)/tau_Ca otherwise, where tau_Ca is the calcium
-                          concentration decay constant and beta_Ca is the
-                          calcium intake constant (see SynapticElement class).
-                          This means that eps can also be seen as the desired
-                          firing rate that the neuron should achieve.  For
-                          example, an eps = 0.05 [Ca2+] with tau_Ca = 10000.0
-                          and beta_Ca = 0.001 for a synaptic element means a
-                          desired firing rate of 5Hz.
+                          positive value. 
 
    nu           double -  Growth rate in elements/ms. The growth rate nu is
                           defined in the SynapticElement class. Can be negative.
@@ -214,8 +192,8 @@ private:
  * dz/dt = nu (2 * e^(- ((Ca(t) - xi)/zeta)^2 ) - 1)
  * where xi = (eta  + eps)/2,
  * zeta = (eps - eta)/2 * sqrt(ln(2))),
- * eta is the minimum calcium concentration required for any synaptic element
- * to be created, eps is the target mean calcium concentration in the
+ * eta is the minimum firing rate in Hz required for any synaptic element
+ * to be created, eps is the target firing rate in Hz in the
  * neuron and nu is the growth rate.
  */
 class GrowthCurveGaussian : public GrowthCurve
@@ -226,9 +204,9 @@ public:
   void set( const DictionaryDatum& d );
   double update( double t,
     double t_minus,
-    double Ca_minus,
+    double fr_minus,
     double z,
-    double tau_Ca,
+    double tau_fr,
     double growth_rate ) const;
 
 private:
@@ -246,27 +224,16 @@ private:
    network during the simulation.
    This type of growth curve  uses a forward Euler integration method to update
    the number of synaptic elements:
-   dz/dt = nu ((2 / (1 + e^((Ca(t) - eps)/psi))) - 1)
-   eps is the target mean calcium concentration in the
+   dz/dt = nu ((2 / (1 + e^((fr(t) - eps)/psi))) - 1)
+   eps is the target firing rate in Hz in the
    neuron, psi controls the width of the sigmoid and nu is the growth rate in
    elements/ms. The growth rate nu is defined in the SynapticElement class.
 
   Parameters:
-   eps          double -  The target calcium concentration that
+   eps          double -  The target firing rate in Hz that
                           the neuron should look to achieve by creating or
                           deleting synaptic elements. It should always be a
-                          positive value.  It is important to note that the
-                          calcium concentration is linearly proportional to the
-                          firing rate. This is because dCa/dt = - Ca(t)/tau_Ca
-                          + beta_Ca if the neuron fires and dCa/dt = -
-                          Ca(t)/tau_Ca otherwise, where tau_Ca is the calcium
-                          concentration decay constant and beta_Ca is the
-                          calcium intake constant (see SynapticElement class).
-                          This means that eps can also be seen as the desired
-                          firing rate that the neuron should achieve.  For
-                          example, an eps = 0.05 [Ca2+] with tau_Ca = 10000.0
-                          and beta_Ca = 0.001 for a synaptic element means a
-                          desired firing rate of 5Hz.
+                          positive value. 
 
    nu           double -  Growth rate in elements/ms. The growth rate nu is
                           defined in the SynapticElement class. Can be negative.
@@ -288,8 +255,8 @@ private:
  * \class GrowthCurveSigmoid
  * Uses a forward Euler integration method to update the number of synaptic
  * elements:
- * dz/dt = nu ((2 / (1 + e^((Ca(t) - eps)/psi))) - 1)
- * eps is the target mean calcium concentration in the
+ * dz/dt = nu ((2 / (1 + e^((fr(t) - eps)/psi))) - 1)
+ * eps is the target firing rate in Hz in the
  * neuron, psi controls the width of the sigmoid
  * and nu is the growth rate.
  */
@@ -301,9 +268,9 @@ public:
   void set( const DictionaryDatum& d );
   double update( double t,
     double t_minus,
-    double Ca_minus,
+    double fr_minus,
     double z,
-    double tau_Ca,
+    double tau_fr,
     double growth_rate ) const;
 
 private:

@@ -27,14 +27,14 @@ plasticity is used. The network has 1000 neurons, 80% excitatory and
 20% inhibitory. The simulation starts without any connectivity. A set of
 homeostatic rules are defined, according to which structural plasticity will
 create and delete synapses dynamically during the simulation until a desired
-level of electrical activity is reached. The model of structural plasticity
+firing rate is reached. The model of structural plasticity
 used here corresponds to the formulation presented in Butz, M., & van Ooyen, A.
 (2013). A simple rule for dendritic spine and axonal bouton formation can
 account for cortical reorganization after focal retinal lesions.
 PLoS Comput. Biol. 9 (10), e1003259.
 
 At the end of the simulation, a plot of the evolution of the connectivity
-in the network and the average calcium concentration in the neurons is created.
+in the network and the firing rate in the neurons is created.
 '''
 
 import nest
@@ -79,8 +79,8 @@ class StructralPlasticityExample:
             'growth_curve': "gaussian",
             'growth_rate': 0.0001,  # (elements/ms)
             'continuous': False,
-            'eta': 0.0,  # Ca2+
-            'eps': 0.05,  # Ca2+
+            'eta': 0.0,  # Hz
+            'eps': 5.0,  # Hz
         }
 
         # Inhibitory synaptic elements of excitatory neurons
@@ -88,8 +88,8 @@ class StructralPlasticityExample:
             'growth_curve': "gaussian",
             'growth_rate': 0.0001,  # (elements/ms)
             'continuous': False,
-            'eta': 0.0,  # Ca2+
-            'eps': self.growth_curve_e_e['eps'],  # Ca2+
+            'eta': 0.0,  # Hz
+            'eps': self.growth_curve_e_e['eps'],  # Hz
         }
 
         # Excitatory synaptic elements of inhibitory neurons
@@ -97,8 +97,8 @@ class StructralPlasticityExample:
             'growth_curve': "gaussian",
             'growth_rate': 0.0004,  # (elements/ms)
             'continuous': False,
-            'eta': 0.0,  # Ca2+
-            'eps': 0.2,  # Ca2+
+            'eta': 0.0,  # Hz
+            'eps': 20.0,  # Hz
         }
 
         # Inhibitory synaptic elements of inhibitory neurons
@@ -106,8 +106,8 @@ class StructralPlasticityExample:
             'growth_curve': "gaussian",
             'growth_rate': 0.0001,  # (elements/ms)
             'continuous': False,
-            'eta': 0.0,  # Ca2+
-            'eps': self.growth_curve_i_e['eps']  # Ca2+
+            'eta': 0.0,  # Hz
+            'eps': self.growth_curve_i_e['eps']  # Hz
         }
 
         '''
@@ -127,8 +127,8 @@ class StructralPlasticityExample:
 
         self.nodes_e = None
         self.nodes_i = None
-        self.mean_ca_e = []
-        self.mean_ca_i = []
+        self.mean_fr_e = []
+        self.mean_fr_i = []
         self.total_connections_e = []
         self.total_connections_i = []
 
@@ -236,18 +236,18 @@ class StructralPlasticityExample:
                      {'weight': self.psc_ext, 'delay': 1.0})
 
     '''
-    In order to save the amount of average calcium concentration in each
-    population through time we create the function record_ca. Here we use the
+    In order to save the average firing rate in each
+    population through time we create the function record_fr. Here we use the
     GetStatus function to retrieve the value of Ca for every neuron in the
     network and then store the average.
     '''
 
-    def record_ca(self):
-        ca_e = nest.GetStatus(self.nodes_e, 'Ca'),  # Calcium concentration
-        self.mean_ca_e.append(numpy.mean(ca_e))
+    def record_fr(self):
+        fr_e = nest.GetStatus(self.nodes_e, 'fr'),  # Calcium concentration
+        self.mean_fr_e.append(numpy.mean(fr_e))
 
-        ca_i = nest.GetStatus(self.nodes_i, 'Ca'),  # Calcium concentration
-        self.mean_ca_i.append(numpy.mean(ca_i))
+        fr_i = nest.GetStatus(self.nodes_i, 'fr'),  # Calcium concentration
+        self.mean_fr_i.append(numpy.mean(fr_i))
 
     '''
     In order to save the state of the connectivity in the network through time
@@ -275,15 +275,15 @@ class StructralPlasticityExample:
         fig, ax1 = pl.subplots()
         ax1.axhline(self.growth_curve_e_e['eps'],
                     linewidth=4.0, color='#9999FF')
-        ax1.plot(self.mean_ca_e, 'b',
-                 label='Ca Concentration Excitatory Neurons', linewidth=2.0)
+        ax1.plot(self.mean_fr_e, 'b',
+                 label='Firing rate excitatory neurons', linewidth=2.0)
         ax1.axhline(self.growth_curve_i_e['eps'],
                     linewidth=4.0, color='#FF9999')
-        ax1.plot(self.mean_ca_i, 'r',
-                 label='Ca Concentration Inhibitory Neurons', linewidth=2.0)
-        ax1.set_ylim([0, 0.275])
+        ax1.plot(self.mean_fr_i, 'r',
+                 label='Firing rate inhibitory neurons', linewidth=2.0)
+        ax1.set_ylim([0, 27.5])
         ax1.set_xlabel("Time in [s]")
-        ax1.set_ylabel("Ca concentration")
+        ax1.set_ylabel("Firing rate [Hz]")
         ax2 = ax1.twinx()
         ax2.plot(self.total_connections_e, 'm',
                  label='Excitatory connections', linewidth=2.0, linestyle='--')
@@ -300,7 +300,7 @@ class StructralPlasticityExample:
     function we first enable structural plasticity in the network and then we
     simulate in steps. On each step we record the calcium concentration and the
     connectivity. At the end of the simulation, the plot of connections and
-    calcium concentration through time is generated.
+    firing rate through time is generated.
     '''
 
     def simulate(self):
@@ -312,7 +312,7 @@ class StructralPlasticityExample:
         sim_steps = numpy.arange(0, self.t_sim, self.record_interval)
         for i, step in enumerate(sim_steps):
             nest.Simulate(self.record_interval)
-            self.record_ca()
+            self.record_fr()
             self.record_connectivity()
             if i % 20 == 0:
                 print("Progress: " + str(i / 2) + "%")

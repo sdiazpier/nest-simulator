@@ -46,10 +46,10 @@ nest::Archiving_Node::Archiving_Node()
   , tau_minus_triplet_( 110.0 )
   , tau_minus_triplet_inv_( 1. / tau_minus_triplet_ )
   , last_spike_( -1.0 )
-  , Ca_t_( 0.0 )
-  , Ca_minus_( 0.0 )
-  , tau_Ca_( 10000.0 )
-  , beta_Ca_( 0.001 )
+  , fr_t_( 0.0 )
+  , fr_minus_( 0.0 )
+  , tau_fr_( 10000.0 )
+  , beta_fr_( 0.1 )
   , synaptic_elements_map_()
 {
 }
@@ -64,10 +64,10 @@ nest::Archiving_Node::Archiving_Node( const Archiving_Node& n )
   , tau_minus_triplet_( n.tau_minus_triplet_ )
   , tau_minus_triplet_inv_( n.tau_minus_inv_ )
   , last_spike_( n.last_spike_ )
-  , Ca_t_( n.Ca_t_ )
-  , Ca_minus_( n.Ca_minus_ )
-  , tau_Ca_( n.tau_Ca_ )
-  , beta_Ca_( n.beta_Ca_ )
+  , fr_t_( n.fr_t_ )
+  , fr_minus_( n.fr_minus_ )
+  , tau_fr_( n.tau_fr_ )
+  , beta_fr_( n.beta_fr_ )
   , synaptic_elements_map_( n.synaptic_elements_map_ )
 {
 }
@@ -178,7 +178,7 @@ nest::Archiving_Node::set_spiketime( Time const& t_sp, double offset )
 {
   const double t_sp_ms = t_sp.get_ms() - offset;
   update_synaptic_elements( t_sp_ms );
-  Ca_minus_ += beta_Ca_;
+  fr_minus_ += beta_fr_;
 
   if ( n_incoming_ )
   {
@@ -218,9 +218,9 @@ nest::Archiving_Node::get_status( DictionaryDatum& d ) const
 
   def< double >( d, names::t_spike, get_spiketime_ms() );
   def< double >( d, names::tau_minus, tau_minus_ );
-  def< double >( d, names::Ca, Ca_minus_ );
-  def< double >( d, names::tau_Ca, tau_Ca_ );
-  def< double >( d, names::beta_Ca, beta_Ca_ );
+  def< double >( d, names::fr, fr_minus_ );
+  def< double >( d, names::tau_fr, tau_fr_ );
+  def< double >( d, names::beta_fr, beta_fr_ );
   def< double >( d, names::tau_minus_triplet, tau_minus_triplet_ );
 #ifdef DEBUG_ARCHIVER
   def< int >( d, names::archiver_length, history_.size() );
@@ -246,12 +246,12 @@ nest::Archiving_Node::set_status( const DictionaryDatum& d )
   // We need to preserve values in case invalid values are set
   double new_tau_minus = tau_minus_;
   double new_tau_minus_triplet = tau_minus_triplet_;
-  double new_tau_Ca = tau_Ca_;
-  double new_beta_Ca = beta_Ca_;
+  double new_tau_fr = tau_fr_;
+  double new_beta_fr = beta_fr_;
   updateValue< double >( d, names::tau_minus, new_tau_minus );
   updateValue< double >( d, names::tau_minus_triplet, new_tau_minus_triplet );
-  updateValue< double >( d, names::tau_Ca, new_tau_Ca );
-  updateValue< double >( d, names::beta_Ca, new_beta_Ca );
+  updateValue< double >( d, names::tau_fr, new_tau_fr );
+  updateValue< double >( d, names::beta_fr, new_beta_fr );
 
   if ( new_tau_minus <= 0.0 || new_tau_minus_triplet <= 0.0 )
   {
@@ -263,19 +263,19 @@ nest::Archiving_Node::set_status( const DictionaryDatum& d )
   tau_minus_inv_ = 1. / tau_minus_;
   tau_minus_triplet_inv_ = 1. / tau_minus_triplet_;
 
-  if ( new_tau_Ca <= 0.0 )
+  if ( new_tau_fr <= 0.0 )
   {
     throw BadProperty( "All time constants must be strictly positive." );
   }
-  tau_Ca_ = new_tau_Ca;
+  tau_fr_ = new_tau_fr;
 
-  if ( new_beta_Ca <= 0.0 )
+  if ( new_beta_fr <= 0.0 )
   {
     throw BadProperty(
-      "For Ca to function as an integrator of the electrical activity, beta_ca "
-      "needs to be greater than 0." );
+      "beta_fr needs to be greater than 0 to be able to calculate the"
+            "firing rate." );
   }
-  beta_Ca_ = new_beta_Ca;
+  beta_fr_ = new_beta_fr;
 
   // check, if to clear spike history and K_minus
   bool clear = false;
@@ -333,8 +333,8 @@ nest::Archiving_Node::clear_history()
   Kminus_ = 0.0;
   triplet_Kminus_ = 0.0;
   history_.clear();
-  Ca_minus_ = 0.0;
-  Ca_t_ = 0.0;
+  fr_minus_ = 0.0;
+  fr_t_ = 0.0;
 }
 
 
@@ -417,18 +417,18 @@ nest::Archiving_Node::get_synaptic_elements() const
 void
 nest::Archiving_Node::update_synaptic_elements( double t )
 {
-  assert( t >= Ca_t_ );
+  assert( t >= fr_t_ );
 
   for ( std::map< Name, SynapticElement >::iterator it =
           synaptic_elements_map_.begin();
         it != synaptic_elements_map_.end();
         ++it )
   {
-    it->second.update( t, Ca_t_, Ca_minus_, tau_Ca_ );
+    it->second.update( t, fr_t_, fr_minus_, tau_fr_ );
   }
-  // Update calcium concentration
-  Ca_minus_ = Ca_minus_ * std::exp( ( Ca_t_ - t ) / tau_Ca_ );
-  Ca_t_ = t;
+  // Update the firing rate
+  fr_minus_ = fr_minus_ * std::exp( ( fr_t_ - t ) / tau_fr_ );
+  fr_t_ = t;
 }
 
 void

@@ -50,8 +50,8 @@ class TestGetStructuralPlasticityStatus(unittest.TestCase):
         'growth_curve': "gaussian",
         'growth_rate': 0.0001,  # (elements/ms)
         'continuous': False,
-        'eta': 0.0,  # Ca2+
-        'eps': 0.05
+        'eta': 0.0,  # Hz
+        'eps': 5.0
     }
 
     '''

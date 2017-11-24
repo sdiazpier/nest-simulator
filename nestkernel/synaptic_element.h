@@ -36,37 +36,31 @@
    and deletion of synapses.
 
   Description:
-   This class represents synaptic element of a node (like Axonl boutons or
+   This class represents synaptic element of a node (like Axonal boutons or
    dendritic spines) used for structural plasticity.
    The synaptic elements represent connection points between two neurons. They
    grow according to a homeostatic growth rule. The dynamics of the
-   number of synaptic elements is driven by the average electrical activity of
-   the neuron (indirectly measured through the Calcium concentration of the
-   node). The probability of two neurons creating a new synapse between them,
+   number of synaptic elements is driven by the average firing rate of the
+   neuron. The probability of two neurons creating a new synapse between them,
    depends on the number of available synaptic elements of each neuron.
 
   Parameters:
    z                double  - Current number of synaptic elements. Stored as a
                               double variable but the actual usable number of
-                              synaptic elements is an integer truncated from
-  this
+                              synaptic elements is an int truncated from this
                               double value. An standard value for the growth of
-  a
-                              synaptic element is around 0.0001 elements/ms.
+                              synaptic elements is around 0.0001 elements/ms.
    continuous       boolean - Defines if the number of synaptic elements should
                               be treated as a continuous double number or as an
                               integer value. Default is false.
    growth_rate      double  - The maximum amount by which the synaptic elements
-  will
                               change between time steps. In elements/ms.
    tau_vacant       double  - Rate at which vacant synaptic elements will decay.
                               Typical is 0.1 which represents a
                               loss of 10% of the vacant synaptic elements each
-  time
-                              the structural_plasticity_update_interval is
-                              reached by the simulation time.
-   growth_curve     GrowthCurve* - Rule which defines the dynamics of this
-  synaptic element.
+                              time structural_plasticity_update_interval is
+                              called by the simulation.
+   growth_curve     GrowthCurve* - Defines the changes of this synaptic element.
 
   References:
    [1] Butz, Markus, Florentin Wörgötter, and Arjen van Ooyen.
@@ -101,9 +95,8 @@ namespace nest
  * The synaptic elements represent connection points between two neurons that
  * grow according to a homeostatic growth rule. Basically, the dynamics of the
  * number of synaptic elements is driven by the average electrical activity of
- * the neuron (indirectly measured through the Calcium concentration of the
- * node). The probability of two neurons creating a new synapse between them,
- * depends on the number of available synaptic elements of each neuron.
+ * the neuron. The probability of two neurons creating a new synapse between 
+ * them, depends on the number of available synaptic elements of each neuron.
  */
 class SynapticElement
 {
@@ -154,14 +147,14 @@ public:
 
 
   /*
-   * Updates the number of available synaptic elements according to the mean
-   * calcium concentration of the neuron at time t.
+   * Updates the number of available synaptic elements according to the 
+   * firing rate of the neuron at time t.
    * @param t Current time (in ms)
    * @param t_minus Time of last update
-   * @param Ca_minus Calcium concentration at time t_minus
-   * @param tau_Ca change in the calcium concentration on each spike
+   * @param fr_minus firing rate at time t_minus
+   * @param tau_fr decay constant for firing rate calculations
    */
-  void update( double t, double t_minus, double Ca_minus, double tau_Ca );
+  void update( double t, double t_minus, double fr_minus, double tau_fr );
 
   /**
   * \fn double get_z_value(Archiving_Node const *a, double t) const

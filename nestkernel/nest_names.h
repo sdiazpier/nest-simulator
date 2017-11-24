@@ -76,7 +76,7 @@ extern const Name autapses;         //!< Connectivity-related
 extern const Name b;    //!< Specific to Brette & Gerstner 2005 (aeif_cond-*)
 extern const Name beta; //!< Specific to amat2_*
 extern const Name
-  beta_Ca; //!< Increment in calcium concentration with each spike
+  beta_fr; //!< Constant for firing rate calculations
 extern const Name binary; //!< Recorder parameter
 
 extern const Name c;         //!< Specific to Izhikevich 2003
@@ -84,7 +84,6 @@ extern const Name c_1;       //!< Specific to stochastic neuron pp_psc_delta
 extern const Name c_2;       //!< Specific to stochastic neuron pp_psc_delta
 extern const Name c_3;       //!< Specific to stochastic neuron pp_psc_delta
 extern const Name C_m;       //!< Membrane capacitance
-extern const Name Ca;        //!< Calcium concentration
 extern const Name calibrate; //!< Command to calibrate the neuron (sli_neuron)
 extern const Name
   calibrate_node;           //!< Command to calibrate the neuron (sli_neuron)
@@ -191,6 +190,7 @@ extern const Name
   filenames; //!< Recorder parameter---keep, will disappear with NESTIO
 extern const Name flush_after_simulate; //!< Recorder parameter
 extern const Name flush_records;        //!< Recorder parameter
+extern const Name fr;             //!< Firing rate
 extern const Name frequency;            //!< Signal modulation frequency
 extern const Name frozen;               //!< Node parameter
 
@@ -483,7 +483,7 @@ extern const Name tau;           //!< Used by stdp_connection_facetshw_hom
 extern const Name tau_1;     //!< Specific to Kobayashi, Tsubo, Shinomoto 2009
 extern const Name tau_2;     //!< Specific to Kobayashi, Tsubo, Shinomoto 2009
 extern const Name tau_ahp;   //!< Specific to iaf_chxk_2008 neuron
-extern const Name tau_Ca;    //!< Rate of loss of calcium concentration
+extern const Name tau_fr;    //!< Decay constant firing rate calculations
 extern const Name tau_c;     //!< Used by stdp_dopa_connection
 extern const Name tau_D_KNa; //!< specific to Hill & Tononi 2005
 extern const Name tau_decay; //!< Synapse decay constant (beta fct decay)

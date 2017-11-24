@@ -32,14 +32,14 @@ class TestUpdateSynapticElements(unittest.TestCase):
         growth_curve_axonal = {
             'growth_curve': "gaussian",
             'growth_rate': 0.0001,  # Beta (elements/ms)
-            'eta': 0.4,
-            'eps': 0.7,
+            'eta': 4.0, #Hz
+            'eps': 7.0, #Hz
         }
         growth_curve_dendritic_E = {
             'growth_curve': "gaussian",
             'growth_rate': 0.0001,  # Beta (elements/ms)
-            'eta': 0.1,
-            'eps': 0.7,
+            'eta': 1.0, #Hz
+            'eps': 7.0, #Hz
         }
         structural_p_elements = {
             'Den_ex': growth_curve_dendritic_E,
@@ -47,8 +47,8 @@ class TestUpdateSynapticElements(unittest.TestCase):
         }
 
         new_growth_curve_axonal = {
-            'eta': 0.0,
-            'eps': 0.0,
+            'eta': 0.0, #Hz
+            'eps': 0.0, #Hz
         }
         elements_to_update = {
             'Axon': new_growth_curve_axonal

@@ -62,7 +62,7 @@ const Name autapses( "autapses" );
 
 const Name b( "b" );
 const Name beta( "beta" );
-const Name beta_Ca( "beta_Ca" );
+const Name beta_fr( "beta_fr" );
 const Name binary( "binary" );
 
 const Name c( "c" );
@@ -70,7 +70,6 @@ const Name c_1( "c_1" );
 const Name c_2( "c_2" );
 const Name c_3( "c_3" );
 const Name C_m( "C_m" );
-const Name Ca( "Ca" );
 const Name calibrate( "calibrate" );
 const Name calibrate_node( "calibrate_node" );
 const Name capacity( "capacity" );
@@ -164,6 +163,7 @@ const Name filename( "filename" );
 const Name filenames( "filenames" );
 const Name flush_after_simulate( "flush_after_simulate" );
 const Name flush_records( "flush_records" );
+const Name fr( "fr" );
 const Name frequency( "frequency" );
 const Name frozen( "frozen" );
 
@@ -423,7 +423,7 @@ const Name tau_1( "tau_1" );
 const Name tau_2( "tau_2" );
 const Name tau_ahp( "tau_ahp" );
 const Name tau_c( "tau_c" );
-const Name tau_Ca( "tau_Ca" );
+const Name tau_fr( "tau_fr" );
 const Name tau_D_KNa( "tau_D_KNa" );
 const Name tau_decay( "tau_decay" );
 const Name tau_decay_AMPA( "tau_decay_AMPA" );

@@ -609,20 +609,18 @@ public:
    */
 
   /**
-   * Return the Ca_minus value at time Ca_t which corresponds to the time of
-   * the last update in Calcium concentration which is performed each time
-   * a Node spikes.
+   * Return the firing rate at time fr_t
    * Return 0.0 if not overridden
    * @ingroup SP_functions
    */
   virtual double
-  get_Ca_minus() const
+  get_fr_minus() const
   {
     return 0.0;
   }
 
   /**
-   * Get the number of synaptic element for the current Node at Ca_t which
+   * Get the number of synaptic element for the current Node at fr_t which
    * corresponds to the time of the last spike.
    * Return 0.0 if not overridden
    * @ingroup SP_functions
@@ -665,8 +663,7 @@ public:
 
   /**
    * Triggers the update of all SynapticElements
-   * stored in the synaptic_element_map_. It also updates the calcium
-   * concentration.
+   * stored in the synaptic_element_map_. It also updates the firing rate.
    * @param t double time when the update is being performed
    * @ingroup SP_functions
    */

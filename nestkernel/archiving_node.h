@@ -75,7 +75,7 @@ public:
    * \fn double get_Ca_minus()
    * return the current value of Ca_minus
    */
-  double get_Ca_minus() const;
+  double get_fr_minus() const;
 
   /**
    * \fn double get_synaptic_elements(Name n)
@@ -171,10 +171,10 @@ public:
   void set_status( const DictionaryDatum& d );
 
   /**
-   * retrieve the current value of tau_Ca which defines the exponential decay
-   * constant of the intracellular calcium concentration
+   * retrieve the current value of tau_fr which defines an exponential decay
+   * constant for the calculation of the firing rate
    */
-  double get_tau_Ca() const;
+  double get_tau_fr() const;
 
 protected:
   /**
@@ -223,21 +223,21 @@ private:
    * Structural plasticity
    */
 
-  // Time of the last update of the Calcium concentration in ms
-  double Ca_t_;
+  // Time of the last update of the firing rate in ms
+  double fr_t_;
 
-  // Value of the calcium concentration [Ca2+] at Ca_t_. Intracellular calcium
-  // concentration has a linear factor to mean electrical activity of 10^2,
-  // this means, for example, that a [Ca2+] of 0.2 is equivalent to a mean
-  // activity of 20Hz.
-  double Ca_minus_;
+  // Value of the firing rate calculated using a low pass filter algorithm.
+  // Each time the neuron fires, beta_FR_ is added to FR_minus_. 
+  // Between spikes, in the function update_synaptic_elements,
+  // fr_minus is decreases exponentially with a time
+  // constant tau_FR_.
+  double fr_minus_;
 
-  // Time constant for exponential decay of the intracellular calcium
-  // concentration
-  double tau_Ca_;
+  // Time constant for exponential decay used to calculate the firing rate
+  double tau_fr_;
 
-  // Increase in calcium concentration [Ca2+] for each spike of the neuron
-  double beta_Ca_;
+  // Constant used to update the firing rate at each spike of the neuron
+  double beta_fr_;
 
   // Map of the synaptic elements
   std::map< Name, SynapticElement > synaptic_elements_map_;
@@ -250,15 +250,15 @@ Archiving_Node::get_spiketime_ms() const
 }
 
 inline double
-Archiving_Node::get_tau_Ca() const
+Archiving_Node::get_tau_fr() const
 {
-  return tau_Ca_;
+  return tau_fr_;
 }
 
 inline double
-Archiving_Node::get_Ca_minus() const
+Archiving_Node::get_fr_minus() const
 {
-  return Ca_minus_;
+  return fr_minus_;
 }
 
 } // of namespace

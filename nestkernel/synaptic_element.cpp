@@ -149,15 +149,15 @@ nest::SynapticElement::set( const DictionaryDatum& d )
 void
 nest::SynapticElement::update( double t,
   double t_minus,
-  double Ca_minus,
-  double tau_Ca )
+  double fr_minus,
+  double tau_fr )
 {
   if ( z_t_ != t_minus )
   {
     throw KernelException(
-      "Last update of the calcium concentration does not match the last update "
+      "Last update of the firing rate does not match the last update "
       "of the synaptic element" );
   }
-  z_ = growth_curve_->update( t, t_minus, Ca_minus, z_, tau_Ca, growth_rate_ );
+  z_ = growth_curve_->update( t, t_minus, fr_minus, z_, tau_fr, growth_rate_ );
   z_t_ = t;
 }
