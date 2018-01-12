@@ -409,7 +409,15 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
  
   if ( pre_deleted_id_global.size() > 0 && pre_deleted_n_global.size() > 0 )
   {
-   std::cout<<"Delete";
+   /*if(kernel().mpi_manager.get_rank()==0){
+     for(int i=0; i< pre_deleted_n_global.size(); i++){
+       std::cout<<"Pre Deleted N: "<<pre_deleted_n_global[i]<<" Deleted ID: "<<pre_deleted_id_global[i] <<"\n";
+     }
+   }*/
+   if(pre_deleted_id_global.size() != pre_deleted_n_global.size()){
+         std::cout<<"This is really bad pre\n";
+   }
+
    delete_synapses_from_pre( pre_deleted_id_global,
       pre_deleted_n_global,
       sp_builder->get_synapse_model(),
@@ -436,6 +444,14 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
 
   if ( post_deleted_id_global.size() > 0 && post_deleted_n_global.size() > 0 )
   {
+    /*if(kernel().mpi_manager.get_rank()==0){
+      for(int i=0; i< post_deleted_n_global.size(); i++){
+        std::cout<<"Post Deleted N: "<<post_deleted_n_global[i]<<" Deleted ID: "<<post_deleted_id_global[i] <<"\n";
+      }
+    }*/
+    if(post_deleted_id_global.size() != post_deleted_n_global.size()){
+	std::cout<<"This is really bad post\n";
+    }
     delete_synapses_from_post( post_deleted_id_global,
       post_deleted_n_global,
       sp_builder->get_synapse_model(),
@@ -571,8 +587,10 @@ SPManager::delete_synapses_from_pre( std::vector< index >& pre_deleted_id,
 
     for ( int i = 0; i < -( *n_it ); i++ ) // n is negative
     {
+      //std::cout<<"Before delete: "<< *id_it<<" to: "<< global_targets[ i ]<<"Rank: "<<kernel().mpi_manager.get_rank()<<"\n";
       delete_synapse(
         *id_it, global_targets[ i ], synapse_model, se_pre_name, se_post_name );
+      //std::cout<<"After delete " << *id_it<<" to: "<< global_targets[ i ]<<"Rank: "<<kernel().mpi_manager.get_rank()<<"\n";
     }
   }
 }
@@ -672,14 +690,17 @@ SPManager::delete_synapses_from_post( std::vector< index >& post_deleted_id,
     // elements
     if ( -( *n_it ) > static_cast< int >( global_sources.size() ) )
     {
+        std::cout<< "Delete bigger than sources"<<"\n";
         *n_it = -((int)global_sources.size());
     }
     global_shuffle( global_sources, -( *n_it ) );
-
+    
     for ( int i = 0; i < -( *n_it ); i++ ) // n is negative
     {
+      //std::cout<<"Before post delete: "<< *id_it<<" to: "<< global_sources[ i ]<<"Rank: "<<kernel().mpi_manager.get_rank()<<"\n";
       delete_synapse(
         global_sources[ i ], *id_it, synapse_model, se_pre_name, se_post_name );
+      //std::cout<<"After post delete: "<< *id_it<<" to: "<< global_sources[ i ]<<"Rank: "<<kernel().mpi_manager.get_rank()<<"\n";
     }
   }
 }
@@ -797,5 +818,39 @@ nest::SPManager::global_shuffle( std::vector< index >& v, size_t n )
   }
   v = v2;
 }
+
+/*
+ *  Enable structural plasticity
+ */
+void
+nest::SPManager::enable_structural_plasticity()
+{
+  if ( kernel().vp_manager.get_num_threads() > 1 )
+  {
+    throw KernelException(
+      "Structural plasticity can not be used with multiple threads" );
+  }
+  structural_plasticity_enabled_ = true;
+  const int thrd = kernel().vp_manager.get_thread_id();
+  for ( std::vector< Node* >::const_iterator i =
+          kernel().node_manager.get_nodes_on_thread( thrd ).begin();
+        i != kernel().node_manager.get_nodes_on_thread( thrd ).end();
+        ++i )
+  {
+    ( *i )->set_Ca_t( kernel().simulation_manager.get_time().get_ms() );
+    ( *i )->update_synaptic_elements(kernel().simulation_manager.get_time().get_ms() );
+  }
+}
+
+/*
+ *  Disable  structural plasticity
+ *   
+ */
+void
+nest::SPManager::disable_structural_plasticity()
+{
+  structural_plasticity_enabled_ = false;
+}
+
 
 } // namespace nest

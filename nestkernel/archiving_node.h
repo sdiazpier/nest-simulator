@@ -114,6 +114,14 @@ public:
   std::map< Name, double > get_synaptic_elements() const;
 
   /**
+   * \fn void set_Ca_t(long time)
+   * Sets Ca_t to time t.
+   * Used internally to set the last update to the moment when sp
+   * is enabled.
+   */
+  void set_Ca_t( long time );
+
+  /**
    * \fn void update_synaptic_elements()
    * Change the number of synaptic elements in the node depending on the
    * dynamics described by the corresponding growth curve
@@ -264,6 +272,12 @@ inline double
 Archiving_Node::get_Ca_minus() const
 {
   return Ca_minus_;
+}
+
+inline void
+Archiving_Node::set_Ca_t( long time )
+{
+  Ca_t_ = time;
 }
 
 } // of namespace

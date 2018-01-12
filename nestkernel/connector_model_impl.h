@@ -576,6 +576,7 @@ GenericConnectorModel< ConnectionT >::delete_connection( Node& tgt,
             if ( vc->size() == 1 )
             {
               ( *hc ).erase( ( *hc ).begin() + i );
+              hc->delete_connector();
               // Test if the homogeneous vector of connections went back to only
               // 1 type of synapse... then go back to the simple vector_like
               // case.

@@ -1124,6 +1124,12 @@ public:
       push_back( conn );
     }
   }
+  
+  void
+  delete_connector( )
+  {
+    --primary_end_;
+  }
 };
 
 } // of namespace nest

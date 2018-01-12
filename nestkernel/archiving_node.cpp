@@ -275,9 +275,9 @@ nest::Archiving_Node::set_status( const DictionaryDatum& d )
   {
     clear_history();
   }
-  if ( d->known( "reset_sp_time" )){
-    Ca_t_ = kernel().simulation_manager.get_time().get_ms();
-  }
+  //if ( d->known( "reset_sp_time" )){
+  //  set_Ca_t_ (kernel().simulation_manager.get_time().get_ms());
+  //}
 
   if ( d->known( names::update_synaptic_elements ) )
   {
@@ -435,6 +435,8 @@ nest::Archiving_Node::update_synaptic_elements( double t )
   }
   // Update calcium concentration
   Ca_minus_ = Ca_minus_ * std::exp( ( Ca_t_ - t ) / tau_Ca_ );
+  if (Ca_minus_ < 0.0)
+    Ca_minus_ = 0.0;
   Ca_t_ = t;
 }
 

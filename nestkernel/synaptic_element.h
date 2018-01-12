@@ -244,7 +244,8 @@ public:
   decay_z_vacant()
   {
     z_ -= get_z_vacant() * tau_vacant_;
-    z_ = std::max(z_, 0.0);
+    if(z_ < z_connected_)
+      z_ = z_connected_;
   }
 
   bool

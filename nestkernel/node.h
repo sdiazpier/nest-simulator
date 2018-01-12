@@ -609,6 +609,14 @@ public:
   virtual void decay_synaptic_elements_vacant(){};
 
   /**
+   * Sets Ca_t to time t.
+   * Used internally to set the last update to the moment when sp
+   * is enabled
+   * @ingroup SP_functions
+   */
+  virtual void set_Ca_t( long time ){};
+
+  /**
    * Is used to update the number of connected
    * synaptic elements (SynapticElement::z_connected_) when a synapse
    * is formed or deleted.
