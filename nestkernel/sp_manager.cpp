@@ -425,11 +425,11 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
       sp_builder->get_pre_synaptic_element_name(),
       sp_builder->get_post_synaptic_element_name() );
     // update the number of synaptic elements
-    /*get_synaptic_elements( sp_builder->get_pre_synaptic_element_name(),
+    get_synaptic_elements( sp_builder->get_pre_synaptic_element_name(),
       pre_vacant_id,
       pre_vacant_n,
       pre_deleted_id,
-      pre_deleted_n );*/
+      pre_deleted_n );
   }
   // Get post synaptic elements data from local nodes
   get_synaptic_elements( sp_builder->get_post_synaptic_element_name(),
@@ -442,7 +442,7 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
     post_deleted_id, post_deleted_id_global, displacements );
   kernel().mpi_manager.communicate(
     post_deleted_n, post_deleted_n_global, displacements );
-
+  
   if ( post_deleted_id_global.size() > 0 )
   {
     delete_synapses_from_post( post_deleted_id_global,
@@ -450,7 +450,7 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
       sp_builder->get_synapse_model(),
       sp_builder->get_pre_synaptic_element_name(),
       sp_builder->get_post_synaptic_element_name() );
-    /*get_synaptic_elements( sp_builder->get_pre_synaptic_element_name(),
+    get_synaptic_elements( sp_builder->get_pre_synaptic_element_name(),
       pre_vacant_id,
       pre_vacant_n,
       pre_deleted_id,
@@ -459,7 +459,7 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
       post_vacant_id,
       post_vacant_n,
       post_deleted_id,
-      post_deleted_n );*/
+      post_deleted_n );
   }
 
   // Communicate vacant elements

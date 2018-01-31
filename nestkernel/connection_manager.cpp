@@ -739,14 +739,14 @@ nest::ConnectionManager::disconnect( Node& target,
     {
       throw InexistentConnection();
     }
-    DictionaryDatum data = DictionaryDatum( new Dictionary );
+    /*DictionaryDatum data = DictionaryDatum( new Dictionary );
     def< index >( data, names::target, target.get_gid() );
     def< index >( data, names::source, sgid );
     ArrayDatum conns = kernel().connection_manager.get_connections( data );
     if ( conns.numReferences() == 0 )
     {
       throw InexistentConnection();
-    }
+    }*/
     ConnectorBase* c =
       kernel()
         .model_manager.get_synapse_prototype( syn_id, target_thread )
