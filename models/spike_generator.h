@@ -213,7 +213,7 @@ public:
   port send_test_event( Node&, rport, synindex, bool );
   void get_status( DictionaryDatum& ) const;
   void set_status( const DictionaryDatum& );
-  void update_from_backend( std::vector< double > input_spikes ) override;
+  void update_from_backend( std::vector< double > input_spikes );
 
   Type get_type() const;
   /**
@@ -262,9 +262,6 @@ public:
 
     //! Shift spike times at present to next step
     bool shift_now_spikes_;
-
-    //!< Array of input backends to use
-    // Name input_from_;
 
     SpikeParameters_();                          //!< Sets default parameter values
     SpikeParameters_( const SpikeParameters_& ); //!< Recalibrate all times
