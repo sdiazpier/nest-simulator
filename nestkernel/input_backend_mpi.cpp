@@ -98,19 +98,22 @@ nest::InputBackendMPI::prepare()
   thread thread_id_master = kernel().vp_manager.get_thread_id();
   // Create the connection with MPI
   // 1) take all the ports of the connections
-  // get port and update the list of device only for master
+  // get port and update the list of device only for mastecommr
   for ( auto& it_device : devices_[ thread_id_master ] ) {
     // add the link between MPI communicator and the device (devices can share the same MPI communicator)
     std::string port_name;
     get_port( it_device.second.second, &port_name );
     auto comm_it = commMap_.find( port_name );
-    MPI_Comm *comm;
+    MPI_Comm* comm;
+    std::vector<int>* vector_id_device;
     if ( comm_it != commMap_.end() ) {
       comm = comm_it->second.first;
-      comm_it->second.second += 1;
+      comm_it->second.second->push_back(it_device.second.second->get_node_id());
     } else {
       comm = new MPI_Comm;
-      std::pair< MPI_Comm *, int > comm_count = std::make_pair( comm, 1 );
+      vector_id_device = new std::vector<int>;
+      vector_id_device->push_back(it_device.second.second->get_node_id());
+      std::pair< MPI_Comm *, std::vector<int>* > comm_count = std::make_pair( comm, vector_id_device );
       commMap_.insert( std::make_pair( port_name, comm_count ) );
     }
     it_device.second.first = comm;
@@ -138,10 +141,7 @@ nest::InputBackendMPI::pre_run_hook()
     {
       bool value [ 1 ]  = { true } ;
       MPI_Send( value, 1, MPI_CXX_BOOL, 0, 0, *it_comm.second.first );
-    }
-    // Receive information of MPI process
-    for ( auto& it_device : devices_[ 0 ] ) {
-      receive_spike_train( *( it_device.second.first ), *( it_device.second.second ) );
+      receive_spike_train(*it_comm.second.first,*it_comm.second.second);
     }
   }
   #pragma omp barrier
@@ -265,24 +265,38 @@ nest::InputBackendMPI::get_port( const index index_node, const std::string& labe
 }
 
 void
-nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, InputDevice& device )
+nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, std::vector<int>& devices_id )
 {
-  // Send the first message with id of device
-  int message[ 1 ];
-  message[ 0 ] = device.get_node_id();
-  MPI_Send( &message, 1, MPI_INT, 0, 0, comm );
+  // Send size of the list id
+  int size_list[1];
+  size_list [0] = devices_id.size();
+  MPI_Send( &size_list, 1, MPI_INT, 0, 0, comm );
+  // Send the list of device ids
+  MPI_Send( &devices_id[0], size_list[0], MPI_INT, 0, 0, comm );
   // Receive the size of data
   MPI_Status status_mpi;
-  int shape[ 1 ];
-  MPI_Recv( &shape, 1, MPI_INT, MPI_ANY_SOURCE, message[ 0 ], comm, &status_mpi );
-  // Receive the data ( for the moment only spike time )
-  double* spikes{ new double[ shape[ 0 ] ]{} };
-  MPI_Recv( spikes, shape[ 0 ], MPI_DOUBLE, status_mpi.MPI_SOURCE, message[ 0 ], comm, &status_mpi );
-  std::vector< double > spikes_list( &spikes[ 0 ], &spikes[ shape[ 0 ] ] );
-  // Update the device with the data in all the thread
-  for (auto &thread_device : devices_) {
-      thread_device.find( device.get_node_id() )->second.second->update_from_backend( spikes_list );
-   }
-  delete[] spikes;
-  spikes = nullptr;
+  int* nb_size_data_per_id{ new int[ size_list[ 0 ] + 1 ]{} };
+  MPI_Recv( nb_size_data_per_id, size_list[ 0 ] + 1, MPI_INT, MPI_ANY_SOURCE, devices_id[0], comm, &status_mpi );
+  // Receive the data
+  double* data{ new double[ nb_size_data_per_id[ 0 ] ]{} };
+  MPI_Recv( data, nb_size_data_per_id[ 0 ], MPI_DOUBLE, status_mpi.MPI_SOURCE, devices_id[ 0 ], comm, &status_mpi );
+  int index_data = 0; // first one is the total number spikes
+  int index_id_device = 0;
+  // update all the device with spikes
+  for (auto &id : devices_id)
+  {
+    std::vector< double > data_for_device( &data[ index_data ], &data[ index_data + nb_size_data_per_id [ index_id_device+1 ] ] );
+
+    // Update the device with the data in all the thread
+    for (auto &thread_device : devices_) {
+      thread_device.find( id )->second.second->update_from_backend( data_for_device );
+    }
+    index_id_device += 1;
+    index_data += nb_size_data_per_id [ index_id_device ];
+  }
+  // clean the memory
+  delete[] data;
+  data = nullptr;
+  delete[] nb_size_data_per_id;
+  nb_size_data_per_id = nullptr;
 }
