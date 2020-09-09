@@ -189,6 +189,12 @@ private:
                                    //!< relaxation
   size_t wfr_interpolation_order_; //!< interpolation order for waveform
                                    //!< relaxation method
+  struct timeval time_save_pre_run [1000];
+  struct timeval time_save_pre_run_2 [1000];
+  struct timeval time_save_run [1000];
+  struct timeval time_save_post_run [1000];
+  struct timeval time_save_end [1000];
+  int index_time = 0;
 };
 
 inline Time const&
