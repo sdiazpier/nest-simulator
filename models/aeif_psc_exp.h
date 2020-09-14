@@ -57,15 +57,16 @@ namespace nest
  */
 extern "C" int aeif_psc_exp_dynamics( double, const double*, double*, void* );
 
-/* BeginUserDocs: neuron, integrate-and-fire, adaptive threshold, current-based
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup iaf
+@ingroup aeif
+@ingroup psc
 
-Short description
-+++++++++++++++++
+Name: aeif_psc_exp - Current-based exponential integrate-and-fire neuron
+                      model according to Brette and Gerstner (2005).
 
-Current-based exponential integrate-and-fire neuron model
-
-Description
-+++++++++++
+Description:
 
 aeif_psc_exp is the adaptive exponential integrate and fire neuron
 according to Brette and Gerstner (2005), with post-synaptic currents
@@ -76,26 +77,23 @@ solver with adaptive stepsize to integrate the differential equation.
 
 The membrane potential is given by the following differential equation:
 
-.. math::
-
- C dV/dt= -g_L(V-E_L)+g_L*\Delta_T*\exp((V-V_T)/\Delta_T)-g_e(t)(V-E_e) \\
-                                                     -g_i(t)(V-E_i)-w +I_e
+@f[ C dV/dt= -g_L(V-E_L)+g_L*\Delta_T*\exp((V-V_T)/\Delta_T)-g_e(t)(V-E_e) \\
+                                                     -g_i(t)(V-E_i)-w +I_e @f]
 
 and
 
-.. math::
-
- \tau_w * dw/dt= a(V-E_L) -W
+@f[ \tau_w * dw/dt= a(V-E_L) -W @f]
 
 
 Note that the spike detection threshold V_peak is automatically set to
-:math:`V_th+10` mV to avoid numerical instabilites that may result from
+\f$ V_th+10 \f$ mV to avoid numerical instabilites that may result from
 setting V_peak too high.
 
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary.
+
+\verbatim embed:rst
 
 ======== ======= =======================================
 **Dynamic state variables:**
@@ -105,6 +103,7 @@ The following parameters can be set in the status dictionary.
  I_in    pA      Inhibitory synaptic current
  w       pA      Spike-adaptation current
 ======== ======= =======================================
+
 
 ======== ======= =======================================
 **Membrane Parameters**
@@ -116,6 +115,7 @@ The following parameters can be set in the status dictionary.
  g_L     nS      Leak conductance
  I_e     pA      Constant external input current
 ======== ======= =======================================
+
 
 ======== ======= ==================================
 **Spike adaptation parameters**
@@ -131,10 +131,10 @@ The following parameters can be set in the status dictionary.
 =========== ======= ===========================================================
 **Synaptic parameters**
 -------------------------------------------------------------------------------
- tau_syn_ex ms      Exponential decay time constant of excitatory synaptic
-                    conductance kernel
- tau_syn_in ms      Exponential decay time constant of inhibitory synaptic
-                    conductance kernel
+ tau_syn_ex ms      Rise time of excitatory synaptic conductance (alpha
+                    function)
+ tau_syn_in ms      Rise time of the inhibitory synaptic conductance
+                    (alpha function)
 =========== ======= ===========================================================
 
 ============= ======= =========================================================
@@ -144,32 +144,25 @@ gsl_error_tol real    This parameter controls the admissible error of the
                       GSL integrator. Reduce it if NEST complains about
                       numerical instabilities
 ============= ======= =========================================================
+\endverbatim
 
-Sends
-+++++
+Author: Tanguy Fardet
 
-SpikeEvent
+Sends: SpikeEvent
 
-Receives
-++++++++
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-SpikeEvent, CurrentEvent, DataLoggingRequest
+References:
 
-References
-++++++++++
-
+\verbatim embed:rst
 .. [1] Brette R and Gerstner W (2005). Adaptive Exponential
        Integrate-and-Fire Model as an Effective Description of Neuronal
        Activity. J Neurophysiol 94:3637-3642.
        DOI: https://doi.org/10.1152/jn.00686.2005
+\endverbatim
 
-See also
-++++++++
-
-iaf_psc_exp, aeif_cond_exp
-
-EndUserDocs */
-
+SeeAlso: iaf_psc_exp, aeif_cond_exp
+*/
 class aeif_psc_exp : public Archiving_Node
 {
 
@@ -229,17 +222,17 @@ private:
     double g_L;        //!< Leak Conductance in nS
     double C_m;        //!< Membrane Capacitance in pF
     double E_L;        //!< Leak reversal Potential (aka resting potential) in mV
-    double Delta_T;    //!< Slope factor in ms
-    double tau_w;      //!< Adaptation time-constant in ms
-    double a;          //!< Subthreshold adaptation in nS
+    double Delta_T;    //!< Slope faktor in ms.
+    double tau_w;      //!< adaptation time-constant in ms.
+    double a;          //!< Subthreshold adaptation in nS.
     double b;          //!< Spike-triggered adaptation in pA
-    double V_th;       //!< Spike threshold in mV
-    double t_ref;      //!< Refractory period in ms
-    double tau_syn_ex; //!< Excitatory synaptic kernel decay time in ms
-    double tau_syn_in; //!< Inhibitory synaptic kernel decay time in ms
-    double I_e;        //!< Intrinsic current in pA
+    double V_th;       //!< Spike threshold in mV.
+    double t_ref;      //!< Refractory period in ms.
+    double tau_syn_ex; //!< Excitatory synaptic rise time.
+    double tau_syn_in; //!< Excitatory synaptic rise time.
+    double I_e;        //!< Intrinsic current in pA.
 
-    double gsl_error_tol; //!< Error bound for GSL integrator
+    double gsl_error_tol; //!< error bound for GSL integrator
 
     Parameters_(); //!< Sets default parameter values
 

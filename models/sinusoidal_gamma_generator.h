@@ -45,15 +45,14 @@
 namespace nest
 {
 
-/* BeginUserDocs: device, generator
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup generator
 
-Short description
-+++++++++++++++++
+Name: sinusoidal_gamma_generator - Generates sinusoidally modulated gamma
+                                   spike trains.
 
-Generates sinusoidally modulated gamma spike trains
-
-Description
-+++++++++++
+Description:
 
 sinusoidal_gamma_generator generates sinusoidally modulated gamma spike
 trains. By default, each target of the generator will receive a different
@@ -61,30 +60,12 @@ spike train.
 
 The instantaneous rate of the process is given by
 
-.. math::
+@f[ f(t) = rate + amplitude \sin ( 2 \pi frequency t + phase * \pi/180 ) @f]
 
- f(t) = rate + amplitude \sin ( 2 \pi frequency t + phase * \pi/180 )
-
-Remarks:
-
-- The gamma generator requires 0 <= amplitude <= rate.
-- The state of the generator is reset on calibration.
-- The generator does not support precise spike timing.
-- You can use the multimeter to sample the rate of the generator.
-- The generator will create different trains if run at different
-  temporal resolutions.
-
-Individual spike trains vs single spike train:
-By default, the generator sends a different spike train to each of its
-targets. If /individual_spike_trains is set to false using either
-SetDefaults or CopyModel before a generator node is created, the generator
-will send the same spike train to all of its targets.
-
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary:
-
+\verbatim embed:rst
 ======================== ======== ==============================================
  rate                    spikes/s Mean firing rate,
                                   default: 0 spikes/s
@@ -95,78 +76,78 @@ The following parameters can be set in the status dictionary:
  order                   real     Gamma order (>= 1), default: 1
  individual_spike_trains boolean  See note below, default: true
 ======================== ======== ==============================================
+\endverbatim
 
-Receives
-++++++++
 
-DataLoggingRequest
+Remarks:
 
-Sends
-+++++
+- The gamma generator requires 0 <= amplitude <= rate.
+- The state of the generator is reset on calibration.
+- The generator does not support precise spike timing.
+- You can use the multimeter to sample the rate of the generator.
+- The generator will create different trains if run at different
+  temporal resolutions.
 
-SpikeEvent
+- Individual spike trains vs single spike train:
+  By default, the generator sends a different spike train to each of its
+  targets. If /individual_spike_trains is set to false using either
+  SetDefaults or CopyModel before a generator node is created, the generator
+  will send the same spike train to all of its targets.
 
-References
-++++++++++
+Receives: DataLoggingRequest
 
+Sends: SpikeEvent
+
+References:
+
+\verbatim embed:rst
 .. [1] Barbieri et al. (2001). Construction and analysis of non-Poisson
        stimulus-response models of neural spiking activity. Journal of
        Neuroscience Methods, 105:25-3.
        DOI: https://doi.org/10.1016/S0165-0270(00)00344-7
+\endverbatim
 
-See also
-++++++++
+FirstVersion: October 2007, May 2013
 
-sinusoidal_poisson_generator, gamma_sup_generator
+Author: Hans E Plesser, Thomas Heiberg
 
-EndUserDocs */
+SeeAlso: sinusoidal_poisson_generator, gamma_sup_generator
+*/
 
 /**
  * AC Gamma Generator.
  * Generates AC-modulated inhomogeneous gamma process.
+ * @todo The implementation is very quick and dirty and not tuned for
+ * performance at all.
+ * @note  The simulator works by calculating the hazard h(t) for each time step
+ * and comparing h(t) dt to a [0,1)-uniform number. The hazard is given by
+ * @f[
+ *     h(t) = \frac{a \lambda(t) \Lambda(t)^{a-1} e^{-\Lambda(t)}}{\Gamma(a,
+ *                                                                  \Lambda(t))}
+ * @f]
+ * with
+ * @f[  \lambda(t) = dc + ac \sin ( 2 \pi f t + \phi ) @f]
+ * @f[  \Lambda(t) = a \int_{t_0}^t \lambda(s) ds @f]
+ * and the incomplete Gamma function \f$ Gamma(a,z) \f$; \f$ a \f$ is the order
+ * of the gamma function and \f$t_0\f$ the time of the most recent spike.
  *
- * .. todo::
- *    The implementation is very quick and dirty and not tuned for
- *    performance at all.
+ * @note This implementation includes an additional \f$ a \f$ factor in the
+ * calculation of \f$\Lambda(t)\f$ and \f$h(t)\f$ in order to keep the mean rate
+ * constant with varying \f$a\f$
  *
- * .. note::
- *    The simulator works by calculating the hazard h(t) for each time step
- *    and comparing h(t) dt to a [0,1)-uniform number. The hazard is given by
- *
- *    .. math::
- *       h(t) = \frac{a \lambda(t) \Lambda(t)^{a-1} e^{-\Lambda(t)}}{\Gamma(a, \Lambda(t))}
- *
- *     with
- *
- *     .. math::
- *        \lambda(t) = dc + ac \sin ( 2 \pi f t + \phi )
- *        \Lambda(t) = a \int_{t_0}^t \lambda(s) ds
- *
- * and the incomplete Gamma function :math:`Gamma(a,z)`; :math:`a` is the order
- * of the gamma function and :math:`t_0` the time of the most recent spike.
- *
- * .. note::
- *    This implementation includes an additional :math:`a` factor in the
- *    calculation of :math:`\Lambda(t)` and :math:`h(t)` in order to keep the mean rate
- *    constant with varying :math:`a`.
- *
- * .. note::
- *    Let :math:`t_0` be the time of the most recent spike. If stimulus parameters
- *    are changed at :math:`t_c > t_0`, then :math:`\Lambda(t)` is integrated piecewise for
- *    :math:`t>t_c` as
- *
- *    .. math::
- *
- *       \Lambda(t) &= a_{old} \int_{t_0}^{t_c]} \lambda_{old}(s) ds
- *                     &+ a_{new} \int_{t_c}^{t]} \lambda_{new}(s) ds
- *
+ * @note Let \f$t_0\f$ be the time of the most recent spike. If stimulus
+ parameters
+ * are changed at
+ *       \f$t_c > t_0\f$, then \f$\Lambda(t)\f$ is integrated piecewise for
+ *       \f$t>t_c\f$ as
+ *       @f[ \Lambda(t) = a_{old} \int_{t_0}^{t_c]} \lambda_{old}(s) ds
+ *                      + a_{new} \int_{t_c}^{t]} \lambda_{new}(s) ds @f]
  *       where "old" and "new" indicate old an new parameter values,
  *       respectively.
  *
- * .. todo::
- *    This implementation assumes that outgoing connections are all made from
- *    the same synapse type, see #737. Once #681 is fixed, we need to add a
- *    check that his assumption holds.
+ * @todo This implementation assumes that outgoing connections are all made from
+ *       the same synapse type, see #737. Once #681 is fixed, we need to add a
+         check that his assumption holds.
  */
 class sinusoidal_gamma_generator : public DeviceNode
 {

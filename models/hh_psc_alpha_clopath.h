@@ -57,15 +57,16 @@ namespace nest
  */
 extern "C" int hh_psc_alpha_clopath_dynamics( double, const double*, double*, void* );
 
-/* BeginUserDocs: neuron, Hodgkin-Huxley, current-based, Clopath plasticity
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup hh
+@ingroup psc
+@ingroup clopath_n
 
-Short description
-+++++++++++++++++
+Name: hh_psc_alpha_clopath - Hodgkin-Huxley neuron model with support for the
+Clopath synapse.
 
-Hodgkin-Huxley neuron model with support for Clopath plasticity
-
-Description
-+++++++++++
+Description:
 
 hh_psc_alpha_clopath is an implementation of a spiking neuron using the
 Hodgkin-Huxley formalism and that is capable of connecting to a Clopath
@@ -73,7 +74,7 @@ synapse.
 
 (1) Post-synaptic currents
 Incoming spike events induce a post-synaptic change of current modelled
-by an alpha function. The alpha function is normalized such that an event of
+by an alpha function. The alpha function is normalised such that an event of
 weight 1.0 results in a peak current of 1 pA.
 
 
@@ -82,11 +83,10 @@ Spike detection is done by a combined threshold-and-local-maximum search: if
 there is a local maximum above a certain threshold of the membrane potential,
 it is considered a spike.
 
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary.
-
+\verbatim embed:rst
 =========== ======  ===================================================
 **Dynamic state variables**
 -----------------------------------------------------------------------
@@ -129,17 +129,17 @@ delay_u_bars  real    Delay with which u_bar_[plus/minus] are processed
 U_ref_squared real    Reference value for u_bar_bar_^2.
 ============= ======= =======================================================
 
-
-Problems/Todo
-+++++++++++++
-
-- better spike detection
-- initial wavelet/spike at simulation onset
+\endverbatim
 
 
-References
-++++++++++
+Problems/Todo:
 
+better spike detection
+initial wavelet/spike at simulation onset
+
+References:
+
+\verbatim embed:rst
 .. [1] Gerstner W and Kistler WM (2002). Spiking neuron models: Single neurons,
        populations, plasticity. New York: Cambridge university press.
 .. [2] Dayan P and Abbott L (2001). Theoretical Neuroscience: Computational
@@ -159,25 +159,17 @@ References
        Hodgkin-Huxley neuron on ModelDB:
        https://senselab.med.yale.edu/ModelDB/showmodel.cshtml?model=144566&file
        =%2fmodeldb_package%2fstdp_cc.mod
+\endverbatim
 
+Sends: SpikeEvent
 
-Sends
-+++++
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-SpikeEvent
+Author: Jonas Stapmanns, David Dahmen, Jan Hahne
+        (adapted from hh_psc_alpha by Schrader)
 
-Receives
-++++++++
-
-SpikeEvent, CurrentEvent, DataLoggingRequest
-
-See also
-++++++++
-
-hh_psc_alpha, clopath_synapse, aeif_psc_delta_clopath
-
-EndUserDocs */
-
+SeeAlso: hh_psc_alpha, clopath_synapse, aeif_psc_delta_clopath
+*/
 class hh_psc_alpha_clopath : public Clopath_Archiving_Node
 {
 

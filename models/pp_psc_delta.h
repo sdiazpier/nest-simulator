@@ -38,15 +38,15 @@
 namespace nest
 {
 
-/* BeginUserDocs: neuron, point process, current-based
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup pp
+@ingroup psc
 
-Short description
-+++++++++++++++++
+Name: pp_psc_delta - Point process neuron with leaky integration of
+                     delta-shaped PSCs.
 
-Point process neuron with leaky integration of delta-shaped PSCs
-
-Description
-+++++++++++
+Description:
 
 pp_psc_delta is an implementation of a leaky integrator, where the potential
 jumps on each spike arrival. It produces spike stochastically, and supports
@@ -60,13 +60,11 @@ true will reset the membrane potential after each spike.
 The transfer function can be chosen to be linear, exponential or a sum of
 both by adjusting three parameters:
 
-.. math::
+@f[  rate = Rect[ c_1 * V' + c_2 * \exp(c_3 * V') ], @f]
 
-  rate = Rect[ c_1 * V' + c_2 * \exp(c_3 * V') ],
-
-where the effective potential :math:`V' = V_m - E_{sfa}` and :math:`E_{sfa}`
+where the effective potential \f$ V' = V_m - E_{sfa} \f$ and \f$ E_{sfa} \f$
 is called the adaptive threshold. Here Rect means rectifier:
-:math:`Rect(x) = {x \text{ if } x>=0, 0 \text{ else}}` (this is necessary
+\f$ Rect(x) = {x \text{ if } x>=0, 0 \text{ else}} \f$ (this is necessary
 because
 negative rates are not possible).
 
@@ -76,7 +74,7 @@ linear rate model.
 The dead time enables to include refractoriness. If dead time is 0, the
 number of spikes in one time step might exceed one and is drawn from the
 Poisson distribution accordingly. Otherwise, the probability for a spike
-is given by :math:`1 - \exp(-rate*h)`, where h is the simulation time step. If
+is given by \f$ 1 - \exp(-rate*h) \f$, where h is the simulation time step. If
 dead_time is smaller than the simulation resolution (time step), it is
 internally set to the resolution.
 
@@ -93,7 +91,7 @@ Here this is implemented by subtracting the value of the adaptive threshold
 E_sfa from the membrane potential V_m before passing the potential to the
 transfer function, see also above. E_sfa jumps by q_sfa when the neuron
 fires a spike, and decays exponentially with the time constant tau_sfa
-after (see [2]_ or [3]_). Thus, the E_sfa corresponds to the convolution of the
+after (see [2] or [3]). Thus, the E_sfa corresponds to the convolution of the
 neuron's spike train with an exponential kernel.
 This adaptation kernel may also be chosen as the sum of n exponential
 kernels. To use this feature, q_sfa and tau_sfa have to be given as a list
@@ -108,24 +106,24 @@ is True, and all adaptation terms (q_sfa) are 0, then it will reset
 it a renewal process model (where "rate" above is its hazard function,
 also known as conditional intensity).
 
-pp_psc_delta may also be called a spike-response model with escape-noise [6]_
+pp_psc_delta may also be called a spike-response model with escape-noise [6]
 (for vanishing, non-random dead_time). If c_1>0 and c_2==0, the rate is a
 convolution of the inputs with exponential filters -- which is a model known
-as a Hawkes point process (see [4]_). If instead c_1==0, then pp_psc_delta is
+as a Hawkes point process (see [4]). If instead c_1==0, then pp_psc_delta is
 a point process generalized linear model (with the canonical link function,
-and exponential input filters) (see [5,6]_).
+and exponential input filters) (see [5,6]).
 
 This model has been adapted from iaf_psc_delta. The default parameters are
-set to the mean values given in [2]_, which have been matched to spike-train
+set to the mean values given in [2], which have been matched to spike-train
 recordings. Due to the many features of pp_psc_delta and its versatility,
 parameters should be set carefully and conciously.
 
-Parameters
-++++++++++
+
+Parameters:
 
 The following parameters can be set in the status dictionary.
 
-
+\verbatim embed:rst
 =================  ======= ===================================================
  V_m               mV      Membrane potential
  C_m               pF      Capacitance of the membrane
@@ -146,11 +144,11 @@ The following parameters can be set in the status dictionary.
  c_3               1/mV    Coefficient of exponential non-linearity of
                            transfer function
 =================  ======= ===================================================
+\endverbatim
 
+References:
 
-References
-++++++++++
-
+\verbatim embed:rst
 .. [1] Cardanobile S, Rotter S (2010). Multiplicatively interacting point
        processes and applications to neural modeling. Journal of
        Computational Neuroscience 28(2):267-284
@@ -174,25 +172,17 @@ References
 .. [6] Gerstner W, Kistler WM, Naud R, Paninski L (2014). Neuronal Dynamics:
        From single neurons to networks and models of cognition.
        Cambridge University Press
+\endverbatim
 
+Sends: SpikeEvent
 
-Sends
-+++++
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-SpikeEvent
+Author:  July 2009, Deger, Helias; January 2011, Zaytsev; May 2014, Setareh
 
-Receives
-++++++++
-
-SpikeEvent, CurrentEvent, DataLoggingRequest
-
-See also
-++++++++
-
-pp_pop_psc_delta, iaf_psc_delta, iaf_psc_alpha, iaf_psc_exp, iaf_psc_delta_ps
-
-EndUserDocs */
-
+SeeAlso: pp_pop_psc_delta, iaf_psc_delta, iaf_psc_alpha, iaf_psc_exp,
+iaf_psc_delta_ps
+*/
 class pp_psc_delta : public Archiving_Node
 {
 

@@ -34,18 +34,16 @@
 namespace nest
 {
 
-/* BeginUserDocs: neuron, rate
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup rate
 
-Short description
-+++++++++++++++++
+Name: tanh_rate - rate model with hyperbolic tangent non-linearity
 
-rate model with hyperbolic tangent non-linearity
-
-Description
-+++++++++++
+Description:
 
 tanh_rate is an implementation of a nonlinear rate model with input
-function :math:`input(h) = \tanh(g * (h-\theta))`. It either models a
+function \f$ input(h) = \tanh(g * (h-\theta)) \f$. It either models a
 rate neuron with input noise (see rate_neuron_ipn), a rate neuron with
 output noise (see rate_neuron_opn) or a rate transformer (see
 rate_transformer_node). Input transformation can either be applied to
@@ -61,13 +59,13 @@ noise or output noise, respectively. Nonlinear rate transformers can
 be created by typing nest.Create('rate_transformer_tanh').
 
 
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary. Note
 that some of the parameters only apply to rate neurons and not to rate
 transformers.
 
+\verbatim embed:rst
 ==================  ======= ==============================================
  rate               real    Rate (unitless)
  tau                ms      Time constant of rate dynamics
@@ -75,10 +73,10 @@ transformers.
  sigma              real    Noise parameter
  g                  real    Gain parameter
  theta              real    Threshold
- rectify_rate       real    Rectfying rate
  linear_summation   boolean Specifies type of non-linearity (see above)
- rectify_output     boolean Switch to restrict rate to values >= rectify_rate
+ rectify_output     boolean Switch to restrict rate to values >= 0
 ==================  ======= ==============================================
+\endverbatim
 
 Note:
 
@@ -88,9 +86,9 @@ then transformed by a nonlinearity (true), or if the input from
 individual presynaptic neurons is first nonlinearly transformed and
 then summed up (false). Default is true.
 
-References
-++++++++++
+References:
 
+\verbatim embed:rst
 .. [1] Hahne J, Dahmen D, Schuecker J, Frommer A, Bolten M, Helias M,
        Diesmann M (2017). Integration of continuous-time dynamics in a
        spiking neural network simulator. Frontiers in Neuroinformatics, 11:34.
@@ -99,25 +97,17 @@ References
        (2015). A unified framework for spiking and gap-junction interactions
        in distributed neuronal network simulations. Frontiers in
        Neuroinformatics, 9:22. DOI: https://doi.org/10.3389/fninf.2015.00022
+\endverbatim
 
-Sends
-+++++
+Sends: InstantaneousRateConnectionEvent, DelayedRateConnectionEvent
 
-InstantaneousRateConnectionEvent, DelayedRateConnectionEvent
-
-Receives
-++++++++
-
-InstantaneousRateConnectionEvent, DelayedRateConnectionEvent,
+Receives: InstantaneousRateConnectionEvent, DelayedRateConnectionEvent,
 DataLoggingRequest
 
-See also
-++++++++
+Author: David Dahmen, Jan Hahne, Jannis Schuecker
 
-rate_connection_instantaneous, rate_connection_delayed
-
-EndUserDocs */
-
+SeeAlso: rate_connection_instantaneous, rate_connection_delayed
+*/
 class nonlinearities_tanh_rate
 {
 private:

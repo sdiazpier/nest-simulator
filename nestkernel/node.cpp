@@ -206,14 +206,13 @@ Node::wfr_update( Time const&, const long, const long )
 }
 
 /**
- * Default implementation of check_connection just throws IllegalConnection
+ * Default implementation of check_connection just throws UnexpectedEvent
  */
 port
 Node::send_test_event( Node&, rport, synindex, bool )
 {
-  throw IllegalConnection(
-    "Source node does not send output.\n"
-    "  Note that recorders must be connected as Connect(neuron, recorder)." );
+  throw UnexpectedEvent(
+    "Source node does not send output. Note that detectors need to be connected as Connect(neuron, detector)." );
 }
 
 /**
@@ -291,7 +290,9 @@ Node::handle( DataLoggingRequest& )
 port
 Node::handles_test_event( DataLoggingRequest&, rport )
 {
-  throw IllegalConnection( "The target node or synapse model does not support data logging requests." );
+  throw IllegalConnection(
+    "Possible cause: only static synapse types may be used to connect "
+    "devices." );
 }
 
 void
@@ -321,19 +322,23 @@ Node::handle( DoubleDataEvent& )
 port
 Node::handles_test_event( DoubleDataEvent&, rport )
 {
-  throw IllegalConnection( "The target node or synapse model does not support double data event." );
+  throw IllegalConnection();
 }
 
 port
 Node::handles_test_event( DSSpikeEvent&, rport )
 {
-  throw IllegalConnection( "The target node or synapse model does not support spike input." );
+  throw IllegalConnection(
+    "Possible cause: only static synapse types may be used to connect "
+    "devices." );
 }
 
 port
 Node::handles_test_event( DSCurrentEvent&, rport )
 {
-  throw IllegalConnection( "The target node or synapse model does not support DS current input." );
+  throw IllegalConnection(
+    "Possible cause: only static synapse types may be used to connect "
+    "devices." );
 }
 
 void
@@ -441,54 +446,8 @@ nest::Node::get_history( double, double, std::deque< histentry >::iterator*, std
 void
 nest::Node::get_LTP_history( double,
   double,
-  std::deque< histentry_extended >::iterator*,
-  std::deque< histentry_extended >::iterator* )
-{
-  throw UnexpectedEvent();
-}
-
-void
-nest::Node::get_urbanczik_history( double,
-  double,
-  std::deque< histentry_extended >::iterator*,
-  std::deque< histentry_extended >::iterator*,
-  int )
-{
-  throw UnexpectedEvent();
-}
-
-double
-nest::Node::get_C_m( int )
-{
-  throw UnexpectedEvent();
-}
-
-double
-nest::Node::get_g_L( int )
-{
-  throw UnexpectedEvent();
-}
-
-double
-nest::Node::get_tau_L( int )
-{
-  throw UnexpectedEvent();
-}
-
-double
-nest::Node::get_tau_s( int )
-{
-  throw UnexpectedEvent();
-}
-
-double
-nest::Node::get_tau_syn_ex( int )
-{
-  throw UnexpectedEvent();
-}
-
-double
-nest::Node::get_tau_syn_in( int )
+  std::deque< histentry_cl >::iterator*,
+  std::deque< histentry_cl >::iterator* )
 {
   throw UnexpectedEvent();
 }

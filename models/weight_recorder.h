@@ -34,15 +34,10 @@
 #include "nest_types.h"
 #include "recording_device.h"
 
-/* BeginUserDocs: device, recorder
-
-Short description
-+++++++++++++++++
+/* BeginDocumentation
 
 Recording weights from synapses
-
-Description
-+++++++++++
+###############################
 
 The change in synaptic weights over time is a key observable property in
 studies of plasticity in neuronal network models. To access this information, the
@@ -71,7 +66,8 @@ synapses that fulfill the given criteria.
 
    >>> nest.Connect(pre, post, syn_spec="stdp_synapse_rec")
 
-EndUserDocs */
+
+EndDocumentation */
 
 namespace nest
 {

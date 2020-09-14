@@ -28,7 +28,7 @@
 
 #include "recording_backend.h"
 
-/* BeginUserDocs: recording backend
+/* BeginDocumentation
 
 .. _ascii_backend:
 
@@ -133,7 +133,7 @@ Parameter summary
    point in ms, or just the simulation time in ms. This property
    cannot be set after Simulate has been called.
 
-EndUserDocs */
+EndDocumentation */
 
 namespace nest
 {

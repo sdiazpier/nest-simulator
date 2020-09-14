@@ -34,16 +34,14 @@
 namespace nest
 {
 
-/* BeginUserDocs: neuron, integrate-and-fire, current-based
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup iaf
+@ingroup psc
 
-Short description
-+++++++++++++++++
+Name: iaf_psc_delta - Leaky integrate-and-fire neuron model.
 
-Current-based leaky integrate-and-fire neuron model with delta-shaped
-post-synaptic currents
-
-Description
-+++++++++++
+Description:
 
 iaf_psc_delta is an implementation of a leaky integrate-and-fire model
 where the potential jumps on each spike arrival.
@@ -58,7 +56,7 @@ refractory period, dampened according to the interval between
 arrival and end of refractoriness.
 
 The linear subthresold dynamics is integrated by the Exact
-Integration scheme [1]_. The neuron dynamics is solved on the time
+Integration scheme [1]. The neuron dynamics is solved on the time
 grid given by the computation step size. Incoming as well as emitted
 spikes are forced to that grid.
 
@@ -67,7 +65,7 @@ equation represents a piecewise constant external current.
 
 The general framework for the consistent formulation of systems with
 neuron like dynamics interacting by point events is described in
-[1]_.  A flow chart can be found in [2]_.
+[1].  A flow chart can be found in [2].
 
 Critical tests for the formulation of the neuron model are the
 comparisons of simulation results for different computation step
@@ -93,11 +91,12 @@ optimization levels. A future version of iaf_psc_delta will probably
 address the problem of efficient usage of appropriate vector and
 matrix objects.
 
-Parameters
-++++++++++
+
+Parameters:
 
 The following parameters can be set in the status dictionary.
 
+\verbatim embed:rst
 ================= ======= ======================================================
  V_m              mV      Membrane potential
  E_L              mV      Resting membrane potential
@@ -111,11 +110,11 @@ The following parameters can be set in the status dictionary.
  refractory_input boolean If true, do not discard input during
                           refractory period. Default: false
 ================= ======= ======================================================
+\endverbatim
 
+References:
 
-References
-++++++++++
-
+\verbatim embed:rst
 .. [1] Rotter S,  Diesmann M (1999). Exact simulation of
        time-invariant linear systems with applications to neuronal
        modeling. Biologial Cybernetics 81:381-402.
@@ -124,25 +123,16 @@ References
        space analysis of synchronous spiking in cortical neural
        networks. Neurocomputing 38-40:565-571.
        DOI: https://doi.org/10.1016/S0925-2312(01)00409-X
+\endverbatim
 
+Sends: SpikeEvent
 
-Sends
-+++++
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-SpikeEvent
+Author:  September 1999, Diesmann, Gewaltig
 
-Receives
-++++++++
-
-SpikeEvent, CurrentEvent, DataLoggingRequest
-
-See also
-++++++++
-
-iaf_psc_alpha, iaf_psc_exp, iaf_psc_delta_ps
-
-EndUserDocs */
-
+SeeAlso: iaf_psc_alpha, iaf_psc_exp, iaf_psc_delta_ps
+*/
 class iaf_psc_delta : public Archiving_Node
 {
 

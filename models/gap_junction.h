@@ -28,35 +28,33 @@
 namespace nest
 {
 
-/* BeginUserDocs: synapse, gap junction
+/** @BeginDocumentation
+@ingroup Synapses
+@ingroup gap
 
-Short description
-+++++++++++++++++
+Name: gap_junction - Synapse type for gap-junction connections.
 
-Synapse type for gap-junction connections
+Description:
 
-Description
-+++++++++++
+gap_junction is a connector to create gap junctions between pairs
+of neurons. Gap junctions are bidirectional connections.
+In order to create one accurate gap-junction connection between
+neurons i and j two NEST connections are required: For each created
+connection a second connection with the exact same parameters in
+the opposite direction is required. NEST provides the possibility
+to create both connections with a single call to Connect via
+the make_symmetric flag:
 
-gap_junction is a connector to create gap junctions between pairs of
-neurons. Gap junctions are bidirectional connections.  In order to
-create one accurate gap-junction connection between neurons i and j
-two NEST connections are required: For each created connection a
-second connection with the exact same parameters in the opposite
-direction is required. NEST provides the possibility to create both
-connections with a single call to Connect via the make_symmetric flag.
+    i j << /rule /one_to_one /make_symmetric true >> /gap_junction Connect
 
 The value of the parameter "delay" is ignored for connections of
 type gap_junction.
 
-Sends
-+++++
+Transmits: GapJunctionEvent
 
-GapJunctionEvent
+References:
 
-References
-++++++++++
-
+\verbatim embed:rst
 .. [1] Hahne J, Helias M, Kunkel S, Igarashi J, Bolten M, Frommer A, Diesmann,
        M (2015). A unified framework for spiking and gap-junction interactions
        in distributed neuronal network simulations. Frontiers in
@@ -66,14 +64,12 @@ References
        Synchronization of electrically coupled pairs of inhibitory
        interneurons in neocortex. Journal of Neuroscience 27:2058-2073.
        DOI: https://doi.org/10.1523/JNEUROSCI.2715-06.2007
+\endverbatim
 
-See also
-++++++++
+Author: Jan Hahne, Moritz Helias, Susanne Kunkel
 
-hh_psc_alpha_gap
-
-EndUserDocs */
-
+SeeAlso: synapsedict, hh_psc_alpha_gap
+*/
 template < typename targetidentifierT >
 class GapJunction : public Connection< targetidentifierT >
 {

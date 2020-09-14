@@ -37,6 +37,7 @@ try:
     import matplotlib as mpl
     import matplotlib.path as mpath
     import matplotlib.patches as mpatches
+    import matplotlib.pyplot as plt
     HAVE_MPL = True
 except ImportError:
     HAVE_MPL = False
@@ -847,10 +848,6 @@ def SelectNodesByMask(layer, anchor, mask_obj):
 def _draw_extent(ax, xctr, yctr, xext, yext):
     """Draw extent and set aspect ration, limits"""
 
-    # import pyplot here and not at toplevel to avoid preventing users
-    # from changing matplotlib backend after importing nest
-    import matplotlib.pyplot as plt
-
     # thin gray line indicating extent
     llx, lly = xctr - xext / 2.0, yctr - yext / 2.0
     urx, ury = llx + xext, lly + yext
@@ -923,15 +920,11 @@ def PlotLayer(layer, fig=None, nodecolor='b', nodesize=20):
             plt.show()
     """
 
-    # import pyplot here and not at toplevel to avoid preventing users
-    # from changing matplotlib backend after importing nest
-    import matplotlib.pyplot as plt
-
     if not HAVE_MPL:
         raise ImportError('Matplotlib could not be imported')
 
     if not isinstance(layer, NodeCollection):
-        raise TypeError('layer must be a NodeCollection.')
+        raise TypeError("layer must be a NodeCollection.")
 
     # get layer extent
     ext = layer.spatial['extent']
@@ -1051,12 +1044,8 @@ def PlotTargets(src_nrn, tgt_layer, syn_type=None, fig=None,
             plt.show()
     """
 
-    # import pyplot here and not at toplevel to avoid preventing users
-    # from changing matplotlib backend after importing nest
-    import matplotlib.pyplot as plt
-
     if not HAVE_MPL:
-        raise ImportError("Matplotlib could not be imported")
+        raise ImportError('Matplotlib could not be imported')
 
     if not isinstance(src_nrn, NodeCollection) or len(src_nrn) != 1:
         raise TypeError("src_nrn must be a single element NodeCollection.")
@@ -1128,16 +1117,10 @@ def PlotTargets(src_nrn, tgt_layer, syn_type=None, fig=None,
 
 def _create_mask_patches(mask, periodic, extent, source_pos, face_color='yellow'):
     """Create Matplotlib Patch objects representing the mask"""
-
-    # import pyplot here and not at toplevel to avoid preventing users
-    # from changing matplotlib backend after importing nest
-    import matplotlib.pyplot as plt
-
     edge_color = 'black'
     alpha = 0.2
     line_width = 2
     mask_patches = []
-
     if 'anchor' in mask:
         offs = np.array(mask['anchor'])
     else:
@@ -1263,11 +1246,6 @@ def PlotProbabilityParameter(source, parameter=None, mask=None, edges=[-0.5, 0.5
         A matplotlib axes instance to plot in. If none is given,
         a new one is created.
     """
-
-    # import pyplot here and not at toplevel to avoid preventing users
-    # from changing matplotlib backend after importing nest
-    import matplotlib.pyplot as plt
-
     if not HAVE_MPL:
         raise ImportError('Matplotlib could not be imported')
 

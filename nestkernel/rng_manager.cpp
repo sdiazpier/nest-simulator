@@ -200,8 +200,12 @@ nest::RNGManager::create_rngs_()
   // shared_ptrs, we don't have to worry about deletion
   if ( not rng_.empty() )
   {
+    LOG( M_INFO, "Network::create_rngs_", "Deleting existing random number generators" );
+
     rng_.clear();
   }
+
+  LOG( M_INFO, "Network::create_rngs_", "Creating default RNGs" );
 
   rng_seeds_.resize( kernel().vp_manager.get_num_virtual_processes() );
 
@@ -228,7 +232,9 @@ nest::RNGManager::create_rngs_()
 
       if ( not rng )
       {
-        throw KernelException( "Error initializing knuthlfg" );
+        LOG( M_ERROR, "Network::create_rngs_", "Error initializing knuthlfg" );
+
+        throw KernelException();
       }
 
       rng_.push_back( rng );
@@ -241,6 +247,9 @@ nest::RNGManager::create_rngs_()
 void
 nest::RNGManager::create_grng_()
 {
+  // create new grng
+  LOG( M_INFO, "Network::create_grng_", "Creating new default global RNG" );
+
 // create default RNG with default seed
 #ifdef HAVE_GSL
   grng_ = librandom::RngPtr( new librandom::GslRandomGen( gsl_rng_knuthran2002, librandom::RandomGen::DefaultSeed ) );

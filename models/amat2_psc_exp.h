@@ -35,24 +35,22 @@
 
 namespace nest
 {
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup iaf
+@ingroup psc
 
-/* BeginUserDocs: neuron, integrate-and-fire, current-based
+Name: amat2_psc_exp - Non-resetting leaky integrate-and-fire neuron model
+                      with exponential PSCs and adaptive threshold.
 
-Short description
-+++++++++++++++++
-
-Non-resetting leaky integrate-and-fire neuron model with exponential
-PSCs and adaptive threshold
-
-Description
-+++++++++++
+Description:
 
 amat2_psc_exp is an implementation of a leaky integrate-and-fire model
 with exponential shaped postsynaptic currents (PSCs). Thus, postsynaptic
 currents have an infinitely short rise time.
 
 The threshold is lifted when the neuron is fired and then decreases in a
-fixed time scale toward a fixed level [3]_.
+fixed time scale toward a fixed level [3].
 
 The threshold crossing is followed by a total refractory period
 during which the neuron is not allowed to fire, even if the membrane
@@ -60,7 +58,7 @@ potential exceeds the threshold. The membrane potential is NOT reset,
 but continuously integrated.
 
 The linear subthresold dynamics is integrated by the Exact
-Integration scheme [1]_. The neuron dynamics is solved on the time
+Integration scheme [1]. The neuron dynamics is solved on the time
 grid given by the computation step size. Incoming as well as emitted
 spikes are forced to that grid.
 
@@ -69,7 +67,7 @@ equation represents a piecewise constant external current.
 
 The general framework for the consistent formulation of systems with
 neuron like dynamics interacting by point events is described in
-[1]_. A flow chart can be found in [2]_.
+[1]. A flow chart can be found in [2].
 
 Remarks:
 
@@ -78,22 +76,19 @@ Remarks:
 - If identical parameters are used, and beta==0, then this model shall
   behave exactly as mat2_psc_exp.
 - The time constants in the model must fullfill the following conditions:
-  - :math:`\tau_m != {\tau_{syn_{ex}}, \tau_{syn_{in}}}`
-  - :math:`\tau_v != {\tau_{syn_{ex}}, \tau_{syn_{in}}}`
-  - :math:`\tau_m != \tau_v`
+  - \f$ \tau_m != {\tau_{syn_{ex}}, \tau_{syn_{in}}} \f$
+  - \f$ \tau_v != {\tau_{syn_{ex}}, \tau_{syn_{in}}} \f$
+  - \f$ \tau_m != \tau_v \f$
   This is required to avoid singularities in the numerics. This is a
   problem of implementation only, not a principal problem of the model.
 - Expect unstable numerics if time constants that are required to be
   different are very close.
-- :math:`\tau_m != \tau_{syn_{ex,in}}` is required by the current
-  implementation to avoid a degenerate case of the ODE describing the
-  model [1]_.  For very similar values, numerics will be unstable.
 
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary:
 
+\verbatim embed:rst
 =========== ======= ===========================================================
  C_m        pF      Capacity of the membrane
  E_L        mV      Resting potential
@@ -113,8 +108,9 @@ The following parameters can be set in the status dictionary:
  beta       1/ms    Scaling coefficient for voltage-dependent threshold
                     component [3, eqs 16-17]
  omega      mV      Resting spike threshold (absolute value, not
-                    relative to E_L as in [3]_)
+                    relative to E_L as in [3])
 =========== ======= ===========================================================
+
 
 =========== ==== =======================================================
 **State variables that can be read out with the multimeter device**
@@ -122,10 +118,18 @@ The following parameters can be set in the status dictionary:
  V_m        mV   Non-resetting membrane potential
  V_th       mV   Two-timescale adaptive threshold
 =========== ==== =======================================================
+\endverbatim
 
-References
-++++++++++
+Remarks:
 
+\f$ \tau_m != \tau_{syn_{ex,in}} \f$ is required by the current implementation
+to
+avoid a degenerate case of the ODE describing the model [1].
+For very similar values, numerics will be unstable.
+
+References:
+
+\verbatim embed:rst
 .. [1] Rotter S, Diesmann M (1999). Exact simulation of
        time-invariant linear systems with applications to neuronal
        modeling. Biologial Cybernetics 81:381-402.
@@ -142,19 +146,17 @@ References
        for reproducing diverse firing patterns and predicting precise
        firing times. Frontiers in Computational Neuroscience, 5:42.
        DOI: https://doi.org/10.3389/fncom.2011.00042
+\endverbatim
 
-Sends
-+++++
+Sends: SpikeEvent
 
-SpikeEvent
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-Receives
-++++++++
+FirstVersion: April 2013
 
-SpikeEvent, CurrentEvent, DataLoggingRequest
-
-EndUserDocs */
-
+Author: Thomas Heiberg & Hans E. Plesser (modified mat2_psc_exp model of
+Thomas Pfeil)
+*/
 class amat2_psc_exp : public Archiving_Node
 {
 
@@ -238,7 +240,7 @@ private:
     /** Resting threshold in mV
         (relative to resting potential).
         The real resting threshold is (E_L_+omega_).
-        Called omega in [3]_. */
+        Called omega in [3]. */
     double omega_;
 
     Parameters_(); //!< Sets default parameter values

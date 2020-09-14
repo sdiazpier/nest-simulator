@@ -40,6 +40,8 @@ errors occured.
 """
 
 
+from __future__ import print_function
+
 import os
 import sys
 import re
@@ -80,6 +82,7 @@ exclude_file_regex = [re.compile(pattern) for pattern in exclude_file_patterns]
 exclude_files = [
     'doc/copyright_header.cpp',
     'doc/copyright_header.py',
+    'do_tests.py',
     'libnestutil/config.h',
     'hashtable-common.h',
     'libc_allocator_with_realloc.h',
@@ -146,7 +149,7 @@ for dirpath, _, fnames in os.walk(source_dir):
                     total_errors += 1
                     break
                 if (extension == 'py' and
-                        line_src.strip() == '#!/usr/bin/env python3'):
+                        line_src.strip() == '#!/usr/bin/env python'):
                     line_src = source_file.readline()
                 line_exp = template_line.replace('{{file_name}}', fname)
                 if line_src != line_exp:

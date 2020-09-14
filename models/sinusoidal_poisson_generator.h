@@ -37,15 +37,14 @@
 namespace nest
 {
 
-/* BeginUserDocs: device, generator
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup generator
 
-Short description
-+++++++++++++++++
+Name: sinusoidal_poisson_generator - Generates sinusoidally modulated Poisson
+                                     spike trains.
 
-Generates sinusoidally modulated Poisson spike trains
-
-Description
-+++++++++++
+Description:
 
 sinusoidal_poisson_generator generates sinusoidally modulated Poisson spike
 trains. By default, each target of the generator will receive a different
@@ -53,10 +52,24 @@ spike train.
 
 The instantaneous rate of the process is given by
 
-.. math::
-
-  f(t) = max(0, rate + amplitude \sin ( 2 \pi frequency t + phase
+@f[  f(t) = max(0, rate + amplitude \sin ( 2 \pi frequency t + phase
      * \pi/180 )) >= 0
+@f]
+Parameters:
+
+The following parameters can be set in the status dictionary:
+
+\verbatim embed:rst
+======================== ======= ==============================================
+ rate                    real    Mean firing rate in spikes/second,
+                                 default: 0 s^-1
+ amplitude               real    Firing rate modulation amplitude in
+                                 spikes/second, default: 0 s^-1
+ frequency               Hz      Modulation frequency, default: 0 Hz
+ phase                   real    Modulation phase in degree [0-360], default: 0
+ individual_spike_trains boolean See note below, default: true
+======================== ======= ==============================================
+\endverbatim
 
 Remarks:
 - If amplitude > rate, firing rate is cut off at zero. In this case, the mean
@@ -73,38 +86,16 @@ Remarks:
   SetDefaults or CopyModel before a generator node is created, the generator
   will send the same spike train to all of its targets.
 
-Parameters
-++++++++++
+Receives: DataLoggingRequest
 
-The following parameters can be set in the status dictionary:
+Sends: SpikeEvent
 
-======================== ======= ==============================================
- rate                    real    Mean firing rate in spikes/second,
-                                 default: 0 s^-1
- amplitude               real    Firing rate modulation amplitude in
-                                 spikes/second, default: 0 s^-1
- frequency               Hz      Modulation frequency, default: 0 Hz
- phase                   real    Modulation phase in degree [0-360], default: 0
- individual_spike_trains boolean See note below, default: true
-======================== ======= ==============================================
+FirstVersion: July 2006, Oct 2009, May 2013
 
-Receives
-++++++++
+Author: Hans Ekkehard Plesser
 
-DataLoggingRequest
-
-Sends
-+++++
-
-SpikeEvent
-
-See also
-++++++++
-
-poisson_generator, sinusoidal_gamma_generator
-
-EndUserDocs */
-
+SeeAlso: poisson_generator, sinusoidal_gamma_generator
+*/
 class sinusoidal_poisson_generator : public DeviceNode
 {
 

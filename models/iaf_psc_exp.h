@@ -35,18 +35,19 @@
 namespace nest
 {
 
-/* BeginUserDocs: neuron, integrate-and-fire, current-based
+/** @BeginDocumentation
 
-Short description
-+++++++++++++++++
+@ingroup Neurons
+@ingroup iaf
+@ingroup psc
 
-Leaky integrate-and-fire neuron model with exponential PSCs
+Name: iaf_psc_exp - Leaky integrate-and-fire neuron model with exponential
+                   PSCs.
 
-Description
-+++++++++++
+Description:
 
 iaf_psc_exp is an implementation of a leaky integrate-and-fire model
-with exponential shaped postsynaptic currents (PSCs) according to [1]_.
+with exponential shaped postsynaptic currents (PSCs) according to [1].
 Thus, postsynaptic currents have an infinitely short rise time.
 
 The threshold crossing is followed by an absolute refractory period (t_ref)
@@ -54,7 +55,7 @@ during which the membrane potential is clamped to the resting potential
 and spiking is prohibited.
 
 The linear subthresold dynamics is integrated by the Exact
-Integration scheme [2]_. The neuron dynamics is solved on the time
+Integration scheme [2]. The neuron dynamics is solved on the time
 grid given by the computation step size. Incoming as well as emitted
 spikes are forced to that grid.
 
@@ -63,11 +64,11 @@ equation represents a piecewise constant external current.
 
 The general framework for the consistent formulation of systems with
 neuron like dynamics interacting by point events is described in
-[2]_. A flow chart can be found in [3]_.
+[2]. A flow chart can be found in [3].
 
 Spiking in this model can be either deterministic (delta=0) or stochastic (delta
 > 0). In the stochastic case this model implements a type of spike response
-model with escape noise [4]_.
+model with escape noise [4, 5].
 
 Remarks:
 
@@ -84,38 +85,17 @@ optimization levels. A future version of iaf_psc_exp will probably
 address the problem of efficient usage of appropriate vector and
 matrix objects.
 
-If tau_m is very close to tau_syn_ex or tau_syn_in, the model
-will numerically behave as if tau_m is equal to tau_syn_ex or
-tau_syn_in, respectively, to avoid numerical instabilities.
-For details, you can check out the `IAF neurons singularity
-<https://github.com/nest/nest-simulator/blob/master/doc/model_details/IAF_neurons_singularity.ipynb>`_
-notebook in the NEST source code.
-
-iaf_psc_exp can handle current input in two ways: Current input
-through receptor_type 0 are handled as stepwise constant current
-input as in other iaf models, i.e., this current directly enters
-the membrane potential equation. Current input through
-receptor_type 1, in contrast, is filtered through an exponential
-kernel with the time constant of the excitatory synapse,
-tau_syn_ex. For an example application, see [4]_.
-
-For conversion between postsynaptic potentials (PSPs) and PSCs,
-please refer to the ``postsynaptic_potential_to_current`` function in
-:doc:`PyNEST Microcircuit: Helper Functions <../auto_examples/Potjans_2014/helpers>`.
-
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary.
 
+\verbatim embed:rst
 ===========  =======  ========================================================
  E_L          mV      Resting membrane potential
  C_m          pF      Capacity of the membrane
  tau_m        ms      Membrane time constant
- tau_syn_ex   ms      Exponential decay time constant of excitatory synaptic
-                      current kernel
- tau_syn_in   ms      Exponential decay time constant of inhibitory synaptic
-                      current kernel
+ tau_syn_ex   ms      Time constant of postsynaptic excitatory currents
+ tau_syn_in   ms      Time constant of postsynaptic inhibitory currents
  t_ref        ms      Duration of refractory period (V_m = V_reset)
  V_m          mV      Membrane potential in mV
  V_th         mV      Spike threshold in mV
@@ -123,10 +103,28 @@ The following parameters can be set in the status dictionary.
  I_e          pA      Constant input current
  t_spike      ms      Point in time of last spike
 ===========  =======  ========================================================
+\endverbatim
 
-References
-++++++++++
 
+Remarks:
+
+If tau_m is very close to tau_syn_ex or tau_syn_in, the model
+will numerically behave as if tau_m is equal to tau_syn_ex or
+tau_syn_in, respectively, to avoid numerical instabilities.
+For details, please see IAF_neurons_singularity.ipynb in the
+NEST source code (docs/model_details).
+
+iaf_psc_exp can handle current input in two ways: Current input
+through receptor_type 0 are handled as stepwise constant current
+input as in other iaf models, i.e., this current directly enters
+the membrane potential equation. Current input through
+receptor_type 1, in contrast, is filtered through an exponential
+kernel with the time constant of the excitatory synapse,
+tau_syn_ex. For an example application, see [6].
+
+References:
+
+\verbatim embed:rst
 .. [1] Tsodyks M, Uziel A, Markram H (2000). Synchrony generation in recurrent
        networks with frequency-dependent synapses. The Journal of Neuroscience,
        20,RC50:1-5. URL: https://infoscience.epfl.ch/record/183402
@@ -141,24 +139,20 @@ References
 .. [4] Schuecker J, Diesmann M, Helias M (2015). Modulated escape from a
        metastable state driven by colored noise. Physical Review E 92:052119
        DOI: https://doi.org/10.1103/PhysRevE.92.052119
+\endverbatim
+=======
 
-Sends
-+++++
 
-SpikeEvent
+Sends: SpikeEvent
 
-Receives
-++++++++
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-SpikeEvent, CurrentEvent, DataLoggingRequest
+SeeAlso: iaf_psc_exp_ps
 
-See also
-++++++++
+FirstVersion: March 2006
 
-iaf_cond_exp, iaf_psc_exp_ps
-
-EndUserDocs */
-
+Author: Moritz Helias
+*/
 class iaf_psc_exp : public Archiving_Node
 {
 

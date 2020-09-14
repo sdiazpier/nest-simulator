@@ -39,6 +39,7 @@ positive to 0.5..1.
 
 # ----------------------------------------------------------------------------
 
+import matplotlib.pyplot as plt
 import matplotlib.colors as mc
 import matplotlib.cbook as cbook
 import numpy as np

@@ -40,16 +40,15 @@
 namespace nest
 {
 
-/* BeginUserDocs: device, generator
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup generator
 
-Short description
-+++++++++++++++++
+Name: ppd_sup_generator - simulate the superimposed spike train of a population
+of Poisson processes
+with dead time.
 
-Simulate the superimposed spike train of a population of Poisson
-processes with dead time
-
-Description
-+++++++++++
+Description:
 
 The ppd_sup_generator generator simulates the pooled spike train of a
 population of neurons firing independently with Poisson process with dead
@@ -57,11 +56,10 @@ time statistics.
 The rate parameter can also be sine-modulated. The generator does not
 initialize to equilibrium in this case, initial transients might occur.
 
-Parameters
-++++++++++
+Parameters:
 
 The following parameters appear in the element's status dictionary:
-
+\verbatim embed:rst
 ===================  ======== =================================================
  rate                spikes/s Mean firing rate of the component processes,
                               default: 0 spikes/s
@@ -72,21 +70,23 @@ The following parameters appear in the element's status dictionary:
  frequency           Hz       Rate modulation frequency, default: 0 Hz
  relative_amplitude  real     Relative rate modulation amplitude, default: 0
 ===================  ======== =================================================
+\endverbatim
 
-References
-++++++++++
+Remarks:
 
+References:
+
+\verbatim embed:rst
 .. [1]  Deger M, Helias M, Boucsein C, Rotter S (2011). Statistical properties
         of superimposed stationary spike trains. Journal of Computational
         Neuroscience. DOI: https://doi.org/10.1007/s10827-011-0362-8
+\endverbatim
+Authors:
+   June 2009, Moritz Deger, Moritz Helias
 
-See also
-++++++++
-
-gamma_sup_generator, poisson_generator_ps, spike_generator
-
-EndUserDocs */
-
+SeeAlso: gamma_sup_generator, poisson_generator_ps, spike_generator, Device,
+StimulatingDevice
+*/
 class ppd_sup_generator : public DeviceNode
 {
 

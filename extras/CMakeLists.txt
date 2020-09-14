@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-install( DIRECTORY logos
+install( DIRECTORY bibliography logos
     DESTINATION ${CMAKE_INSTALL_DOCDIR}
     )
 
@@ -37,7 +37,6 @@ install( PROGRAMS
     ${PROJECT_BINARY_DIR}/extras/nest-config
     nest_indirect
     nest_serial
-    nest-server
     ${PROJECT_BINARY_DIR}/extras/nest_vars.sh
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     )

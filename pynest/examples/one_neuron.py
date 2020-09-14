@@ -45,7 +45,6 @@ See Also
 
 import nest
 import nest.voltage_trace
-import matplotlib.pyplot as plt
 
 nest.set_verbosity("M_WARNING")
 nest.ResetKernel()
@@ -93,7 +92,7 @@ nest.Simulate(1000.0)
 
 #######################################################################
 # Finally, we plot the neuron's membrane potential as a function of
-# time and display the plot using pyplot.
+# time.
 
 nest.voltage_trace.from_device(voltmeter)
-plt.show()
+nest.voltage_trace.show()

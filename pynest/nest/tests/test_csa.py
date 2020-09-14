@@ -26,6 +26,8 @@ CSA tests
 import unittest
 import nest
 
+from . import compatibility
+
 try:
     import csa
     HAVE_CSA = True

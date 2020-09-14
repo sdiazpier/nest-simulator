@@ -57,22 +57,21 @@ namespace nest
  */
 extern "C" int hh_psc_alpha_dynamics( double, const double*, double*, void* );
 
-/* BeginUserDocs: neuron, Hodgkin-Huxley, current-based
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup hh
+@ingroup psc
 
-Short description
-+++++++++++++++++
+Name: hh_psc_alpha - Hodgkin-Huxley neuron model.
 
-Hodgkin-Huxley neuron model
-
-Description
-+++++++++++
+Description:
 
 hh_psc_alpha is an implementation of a spiking neuron using the Hodgkin-Huxley
 formalism.
 
 1. Post-synaptic currents
 Incoming spike events induce a post-synaptic change of current modelled
-by an alpha function. The alpha function is normalized such that an event of
+by an alpha function. The alpha function is normalised such that an event of
 weight 1.0 results in a peak current of 1 pA.
 
 
@@ -81,11 +80,10 @@ Spike detection is done by a combined threshold-and-local-maximum search: if
 there is a local maximum above a certain threshold of the membrane potential,
 it is considered a spike.
 
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary.
-
+\verbatim embed:rst
 ========  ======  ============================================================
 V_m       mV      Membrane potential
 E_L       mV      Leak reversal potential
@@ -102,17 +100,16 @@ Inact_h   real    Inactivation variable h
 Act_n     real    Activation variable n
 I_e       pA      External input current
 ========  ======  ============================================================
+\endverbatim
 
-Problems/Todo
-+++++++++++++
+Problems/Todo:
 
-- better spike detection
-- initial wavelet/spike at simulation onset
+better spike detection
+initial wavelet/spike at simulation onset
 
-References
-++++++++++
+References:
 
-
+\verbatim embed:rst
 .. [1] Gerstner W, Kistler W (2002). Spiking neuron models: Single neurons,
        populations, plasticity. New York: Cambridge University Press
 .. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
@@ -122,24 +119,16 @@ References
        membrane current and its application to conduction and excitation in
        nerve. The Journal of Physiology 117.
        DOI: https://doi.org/10.1113/jphysiol.1952.sp004764
+\endverbatim
 
-Sends
-+++++
+Sends: SpikeEvent
 
-SpikeEvent
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-Receives
-++++++++
+Authors: Schrader
 
-SpikeEvent, CurrentEvent, DataLoggingRequest
-
-See also
-++++++++
-
-hh_cond_exp_traub
-
-EndUserDocs */
-
+SeeAlso: hh_cond_exp_traub
+*/
 class hh_psc_alpha : public Archiving_Node
 {
 

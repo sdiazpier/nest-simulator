@@ -64,8 +64,7 @@ enum class RegisterConnectionModelFlags : unsigned
   HAS_DELAY = 1 << 3,
   SUPPORTS_WFR = 1 << 4,
   REQUIRES_SYMMETRIC = 1 << 5,
-  REQUIRES_CLOPATH_ARCHIVING = 1 << 6,
-  REQUIRES_URBANCZIK_ARCHIVING = 1 << 7
+  REQUIRES_CLOPATH_ARCHIVING = 1 << 6
 };
 
 template <>
@@ -217,9 +216,6 @@ double get_value( const ParameterDatum& param );
 bool is_spatial( const ParameterDatum& param );
 std::vector< double > apply( const ParameterDatum& param, const NodeCollectionDatum& nc );
 std::vector< double > apply( const ParameterDatum& param, const DictionaryDatum& positions );
-
-Datum* node_collection_array_index( const Datum* datum, const long* array, unsigned long n );
-Datum* node_collection_array_index( const Datum* datum, const bool* array, unsigned long n );
 }
 
 

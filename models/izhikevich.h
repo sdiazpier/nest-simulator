@@ -34,54 +34,45 @@
 namespace nest
 {
 
-/* BeginUserDocs: neuron, integrate-and-fire
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup iaf
 
-Short description
-+++++++++++++++++
+Name: izhikevich - Izhikevich neuron model
 
-Izhikevich neuron model
-
-Description
-+++++++++++
-
+Description:
 Implementation of the simple spiking neuron model introduced by Izhikevich
-[1]_. The dynamics are given by:
+[1]. The dynamics are given by:
+  @f[
+  dv/dt = 0.04*v^2 + 5*v + 140 - u + I \\
+     du/dt = a*(b*v - u)] @f]
 
-.. math::
+    if  \f$ v >= V_{th} \f$:
+      v is set to c
+      u is incremented by d
 
-   dV_m/dt &= 0.04 V_m^2 + 5 V_m + 140 - u + I
-   du/dt &= a (b V_m - u)
+    v jumps on each spike arrival by the weight of the spike.
 
-
-.. math::
-
-   &\text{if}\;\;\; V_m \geq V_{th}:\\
-   &\;\;\;\; V_m \text{ is set to } c\\
-   &\;\;\;\; u \text{ is incremented by } d\\
-   & \, \\
-   &v \text{ jumps on each spike arrival by the weight of the spike}
-
-As published in [1]_, the numerics differs from the standard forward Euler
+As published in [1], the numerics differs from the standard forward Euler
 technique in two ways:
-
-1) the new value of :math:`u` is calculated based on the new value of
-   :math:`V_m`, rather than the previous value
-2) the variable :math:`V_m` is updated using a time step half the size of that
-   used to update variable :math:`u`.
+1) the new value of u is calculated based on the new value of v, rather than
+the previous value
+2) the variable v is updated using a time step half the size of that used to
+update variable u.
 
 This model offers both forms of integration, they can be selected using the
-boolean parameter ``consistent_integration``. To reproduce some results
-published on the basis of this model, it is necessary to use the published form
-of the dynamics. In this case, ``consistent_integration`` must be set to false.
-For all other purposes, it is recommended to use the standard technique for
-forward Euler integration. In this case, ``consistent_integration`` must be set
-to true (default).
+boolean parameter consistent_integration. To reproduce some results published
+on the basis of this model, it is necessary to use the published form of the
+dynamics. In this case, consistent_integration must be set to false. For all
+other purposes, it is recommended to use the standard technique for forward
+Euler integration. In this case, consistent_integration must be set to true
+(default).
 
-Parameters
-++++++++++
 
+Parameters:
 The following parameters can be set in the status dictionary.
 
+\verbatim embed:rst
 ======================= =======  ==============================================
  V_m                    mV       Membrane potential
  U_m                    mV       Membrane potential recovery variable
@@ -94,30 +85,27 @@ The following parameters can be set in the status dictionary.
  d                      mV       After-spike reset value of U_m
  consistent_integration boolean  Use standard integration technique
 ======================= =======  ==============================================
+\endverbatim
 
-References
-++++++++++
+References:
 
+\verbatim embed:rst
 .. [1] Izhikevich EM (2003). Simple model of spiking neurons. IEEE Transactions
-       on Neural Networks, 14:1569-1572. DOI: https://doi.org/10.1109/TNN.2003.820440
+on
+       Neural Networks, 14:1569-1572.
+       DOI: https://doi.org/10.1109/TNN.2003.820440
+\endverbatim
 
-Sends
-+++++
+Sends: SpikeEvent
 
-SpikeEvent
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-Receives
-++++++++
+FirstVersion: 2009
 
-SpikeEvent, CurrentEvent, DataLoggingRequest
+Author: Hanuschkin, Morrison, Kunkel
 
-See also
-++++++++
-
-iaf_psc_delta, mat2_psc_exp
-
-EndUserDocs */
-
+SeeAlso: iaf_psc_delta, mat2_psc_exp
+*/
 class izhikevich : public Archiving_Node
 {
 

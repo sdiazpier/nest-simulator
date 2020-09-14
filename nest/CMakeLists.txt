@@ -50,9 +50,6 @@ else ()
     set_target_properties( nest_lib
         PROPERTIES
         OUTPUT_NAME nest
-        
-        # delay lookup of symbols from libpython when building with MPI4Py
-        LINK_FLAGS "-Wl,-undefined -Wl,dynamic_lookup"
         )
 endif ()
 
@@ -98,8 +95,8 @@ if ( HAVE_PYTHON )
 endif ()
 
 install( TARGETS nest nest_lib
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/nest
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/nest
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 

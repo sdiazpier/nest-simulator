@@ -73,8 +73,9 @@ Functions related to connection
 |                                             | *is given by synapse_model,*                  |
 |                                             | *not model.*                                  |
 +---------------------------------------------+-----------------------------------------------+
-| nest.DataConnect(pre, post)                 | *Use* nest.Connect(np.array, np.array,        |
-|                                             | conn_spec="one_to_one")                       |
+| nest.DataConnect(pre, params=None,          | *Use* nest.Connect(np.array, np.array,        |
+| model="static_synapse")                     | conn_spec=None, syn_spec=None,                |
+|                                             | return_SynapseCollection=False)               |
 +---------------------------------------------+-----------------------------------------------+
 | nest.CGConnect(list, list, cg,              | nest.CGConnect(:green:`nest.NodeCollection`,  |
 | parameter_map=None, model='static           | :green:`nest.NodeCollection`, cg,             |

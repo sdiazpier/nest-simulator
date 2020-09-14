@@ -31,9 +31,9 @@ import textwrap
 import subprocess
 import os
 import re
-import shlex
 import sys
 import numpy
+import json
 
 from string import Template
 
@@ -117,8 +117,9 @@ def show_deprecation_warning(func_name, alt_func_name=None, text=None):
     if func_name in _deprecation_warning:
         if not _deprecation_warning[func_name]['deprecation_issued']:
             if text is None:
-                text = ("{0} is deprecated and will be removed in a future version of NEST.\n"
-                        "Please use {1} instead!").format(func_name, alt_func_name)
+                text = "{0} is deprecated and will be removed in a future \
+                version of NEST.\nPlease use {1} instead!\
+                ".format(func_name, alt_func_name)
                 text = get_wrapped_text(text)
 
             warnings.warn('\n' + text)   # add LF so text starts on new line
@@ -325,8 +326,9 @@ def broadcast(item, length, allowed_types, name="item"):
     elif len(item) == 1:
         return length * item
     elif len(item) != length:
-        raise TypeError(
-            "'{0}' must be a single value, a list with one element or a list with {1} elements.".format(name, length))
+        raise TypeError("'{0}' must be a single value, a list with " +
+                        "one element or a list with {1} elements.".format(
+                            name, length))
     return item
 
 
@@ -442,6 +444,16 @@ def show_help_with_pager(hlpobj, pager=None):
         pager to use, False if you want to display help using print().
     """
 
+    if sys.version_info < (2, 7, 8):
+        print("NEST help is only available with Python 2.7.8 or later.\n")
+        return
+
+    if 'NEST_INSTALL_DIR' not in os.environ:
+        print(
+            'NEST help needs to know where NEST is installed.'
+            'Please source nest_vars.sh or define NEST_INSTALL_DIR manually.')
+        return
+
     # check that help is available
     objf = get_help_filepath(hlpobj)
     if objf is None:
@@ -487,8 +499,7 @@ def show_help_with_pager(hlpobj, pager=None):
         return
 
     try:
-        pagerl = shlex.split(pager)
-        subprocess.check_call(pagerl + [objf])
+        subprocess.check_call([pager, objf])
     except (OSError, IOError, subprocess.CalledProcessError):
         print('Displaying help with pager "{}" failed. '
               'Please define a working parser in file .nestrc '
@@ -496,7 +507,7 @@ def show_help_with_pager(hlpobj, pager=None):
 
 
 def model_deprecation_warning(model):
-    """Checks whether the model is to be removed in a future version of NEST.
+    """Checks whether the model is to be removed in a future verstion of NEST.
     If so, a deprecation warning is issued.
 
     Parameters
@@ -507,8 +518,10 @@ def model_deprecation_warning(model):
 
     if model in _deprecation_warning:
         if not _deprecation_warning[model]['deprecation_issued']:
-            text = ("The {0} model is deprecated and will be removed in a future version of NEST, "
-                    "use {1} instead.").format(model, _deprecation_warning[model]['replacement'])
+            text = "The {0} model is deprecated and will be removed in a \
+            future version of NEST, use {1} instead.\
+            ".format(model, _deprecation_warning[model]['replacement'])
+            text = get_wrapped_text(text)
             show_deprecation_warning(model, text=text)
 
 
@@ -614,7 +627,8 @@ def get_parameters_hierarchical_addressing(nc, params):
         if type(value_list) != tuple:
             value_list = (value_list,)
     else:
-        raise TypeError('First argument must be a string, specifying path into hierarchical dictionary')
+        raise TypeError('First argument must be a string, specifying' +
+                        ' path into hierarchical dictionary')
 
     result = restructure_data(value_list, None)
 

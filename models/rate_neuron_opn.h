@@ -44,38 +44,32 @@
 namespace nest
 {
 
-/* BeginUserDocs: neuron, rate
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup rate
 
-Short description
-+++++++++++++++++
+Name: rate_neuron_opn - Base class for rate model with output noise.
 
-Base class for rate model with output noise
-
-Description
-+++++++++++
+Description:
 
 Base class for rate model with output noise of the form
-
-.. math::
-
- \tau dX_i(t) / dt = - X_i(t) + \mu + \phi( \sum w_{ij} \cdot
+@f[
+\tau dX_i(t) / dt = - X_i(t) + \mu + \phi( \sum w_{ij} \cdot
                      \psi( X_j(t-d_{ij}) + \sqrt{\tau} \cdot
                      \sigma \cdot \xi_j(t) ) )
-
+@f]
 or
-
-.. math::
-
- \tau dX_i(t) / dt = - X_i(t) + \mu
+@f[
+\tau dX_i(t) / dt = - X_i(t) + \mu
                      + \text{mult_coupling_ex}( X_i(t) ) \cdot \\
                      \phi( \sum w^{ > 0 }_{ij} \cdot \psi( X_j(t-d_{ij}) \\
                      + \sqrt{\tau} \cdot \sigma \cdot \xi_j(t) ) ) \\
                      + \text{mult_coupling_in}( X_i(t) ) \cdot \\
                      \phi( \sum w^{ < 0 }_{ij} \cdot \psi( X_j(t-d_{ij}) \\
                      + \sqrt{\tau} \cdot \sigma \cdot \xi_j(t) ) )
+@f]
 
-
-Here :math:`xi_j(t)` denotes a Gaussian white noise.
+Here \f$ xi_j(t) \f$ denotes a Gaussian white noise.
 
 This template class needs to be instantiated with a class
 containing the following functions:
@@ -89,21 +83,19 @@ represents phi) or to each input individually (False, input represents psi).
 In case of multiplicative coupling the nonlinearity is applied separately
 to the summed excitatory and inhibitory inputs if linear_summation=True.
 
-References
-++++++++++
+References:
 
+\verbatim embed:rst
 .. [1] Hahne J, Dahmen D, Schuecker J, Frommer A, Bolten M, Helias M,
        Diesmann M (2017). Integration of continuous-time dynamics in a
        spiking neural network simulator. Frontiers in Neuroinformatics, 11:34.
        DOI:  https://doi.org./10.3389/fninf.2017.00034
+\endverbatim
 
-See also
-++++++++
+Author: David Dahmen, Jan Hahne, Jannis Schuecker
 
-lin_rate, tanh_rate, threshold_lin_rate
-
-EndUserDocs  */
-
+SeeAlso: lin_rate, tanh_rate, threshold_lin_rate
+ */
 template < class TNonlinearities >
 class rate_neuron_opn : public Archiving_Node
 {

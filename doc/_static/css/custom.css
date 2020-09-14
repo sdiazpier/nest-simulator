@@ -1,7 +1,3 @@
-.keep-us-sustainable {
-   background-color: #272525;
-}
-
 t.rst-content tt.literal, .rst-content tt.literal, .rst-content code.literal {
     color: #f63;
 }
@@ -15,8 +11,8 @@ p {
 }
 
 .wy-side-nav-search {
-    background: linear-gradient(45deg, #fff, #eee);
-    color: #888;
+	background: linear-gradient(45deg, #fff, #eee);
+	color: #888;
     border-bottom: 1px solid #e1e4e5;
 }
 
@@ -25,14 +21,14 @@ p {
 }
 
 .wy-nav-side {
-   background: linear-gradient(90deg, #fff, #eee);
-   color: #888;
-   border-right: 1px solid #e1e4e5;
+	background: linear-gradient(90deg, #fff, #eee);
+	color: #888;
+	border-right: 1px solid #e1e4e5;
 }
 
 .wy-menu-vertical a,
 .wy-menu-vertical a:visited {
-   color: #444;
+	color: #444;
 }
 
 .wy-menu-vertical a:hover {
@@ -40,13 +36,13 @@ p {
 }
 
 .wy-menu-vertical header, .wy-menu-vertical p.caption {
-    background-color: #c1c1c1;
+	background-color: #c1c1c1;
     color: #6f6f6f;
     border-top: 1px solid #aaa;
 }
 
 .wy-menu-vertical li.current a {
-    color: #888;
+	color: #888;
 }
 
 .wy-nav-top {
@@ -81,19 +77,16 @@ video {
 a:visited {
     color: #f63;
 }
-
 a {
     color: #f63;
     text-decoration: none;
     background-color: transparent;
     cursor: pointer;
 }
-
 a:hover {
     color: #f63;
     text-decoration: underline;
 }
-
 code.descclassname {
     display: none;
 }
@@ -101,7 +94,6 @@ code.descclassname {
 .rst-content dl:not(.docutils) dt  em[class^='property']{
      display:none;
 }
-
 .rst-content pre.literal-block, .rst-content div[class^='highlight'] pre, .rst-content .linenodiv pre {
     line-height: 1.3em;
 }
@@ -144,8 +136,8 @@ code.descclassname {
     background: #e0e0e0;
 
 }
-
 /* override table width restrictions */
+
 @media screen and (min-width: 767px) {
 
    .wy-table-responsive table td {
@@ -155,12 +147,11 @@ code.descclassname {
    }
 
    .wy-table-responsive {
-      overflow: visible !important;
+      overflow: scroll;
       word-wrap: break-word;
    }
 
 }
-
 /*html body div.wy-table-responsive {
   margin-bottom: 0;
 }
@@ -169,6 +160,7 @@ html body div.wy-table-responsive .footnote td {
   padding-top: 1px;
   padding-bottom: 4px;
 }*/
+
 
 .maroon {
     color: maroon;
@@ -300,4 +292,3 @@ html body div.wy-table-responsive .footnote td {
       padding: .4045em 5.663em !important;
   }
 } */
-

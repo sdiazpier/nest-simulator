@@ -28,15 +28,15 @@
 namespace nest
 {
 
-/* BeginUserDocs: synapse, instantaneous rate
+/** @BeginDocumentation
+@ingroup Synapses
+@ingroup inst_rate
 
-Short description
-+++++++++++++++++
+Name: diffusion_connection - Synapse type for instantaneous rate connections
+between neurons of type siegert_neuron.
 
-Synapse type for instantaneous rate connections between neurons of type siegert_neuron
 
-Description
-+++++++++++
+Description:
 
 diffusion_connection is a connector to create
 instantaneous connections between neurons of type siegert_neuron. The
@@ -48,42 +48,35 @@ These two factor origin from the mean-field reduction of networks of
 leaky-integrate-and-fire neurons. In this reduction the input to the
 neurons is characterized by its mean and its variance. The mean is
 obtained by a sum over presynaptic activities (e.g as in eq.28 in
-[1]_), where each term of the sum consists of the presynaptic activity
+[1]), where each term of the sum consists of the presynaptic activity
 multiplied with the drift_factor. Similarly, the variance is obtained
-by a sum over presynaptic activities (e.g as in eq.29 in [1]_), where
+by a sum over presynaptic activities (e.g as in eq.29 in [1]), where
 each term of the sum consists of the presynaptic activity multiplied
 with the diffusion_factor. Note that in general the drift and
 diffusion factors might differ from the ones given in eq. 28 and 29.,
 for example in case of a reduction on the single neuron level or in
-case of distributed in-degrees (see discussion in chapter 5.2 of [1]_)
+case of distributed in-degrees (see discussion in chapter 5.2 of [1])
 
 The values of the parameters delay and weight are ignored for
 connections of this type.
 
-Transmits
-+++++++++
+Transmits: DiffusionConnectionEvent
 
-DiffusionConnectionEvent
+References:
 
-References
-++++++++++
-
-
+\verbatim embed:rst
 .. [1] Hahne J, Dahmen D, Schuecker J, Frommer A,
        Bolten M, Helias M, Diesmann, M. (2017).
        Integration of continuous-time dynamics in a
        spiking neural network simulator.
        Frontiers in Neuroinformatics, 11:34.
        DOI: https://doi.org/10.3389/fninf.2017.00034
+\endverbatim
 
+Author: David Dahmen, Jan Hahne, Jannis Schuecker
 
-See also
-++++++++
-
-siegert_neuron, rate_connection_instantaneous
-
-EndUserDocs */
-
+SeeAlso: siegert_neuron, rate_connection_instantaneous
+*/
 template < typename targetidentifierT >
 class DiffusionConnection : public Connection< targetidentifierT >
 {

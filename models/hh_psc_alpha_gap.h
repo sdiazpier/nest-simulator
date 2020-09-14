@@ -58,23 +58,24 @@ namespace nest
  */
 extern "C" int hh_psc_alpha_gap_dynamics( double, const double*, double*, void* );
 
-/* BeginUserDocs: neuron, current-based, Hodgkin-Huxley, gap junction
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup psc
+@ingroup hh
+@ingroup gap
 
-Short description
-+++++++++++++++++
+Name: hh_psc_alpha_gap - Hodgkin-Huxley neuron model with gap-junction support.
 
-Hodgkin-Huxley neuron model with gap-junction support
-
-Description
-+++++++++++
+Description:
 
 hh_psc_alpha_gap is an implementation of a spiking neuron using the
 Hodgkin-Huxley formalism. In contrast to hh_psc_alpha the implementation
 additionally supports gap junctions.
 
+
 1. Post-synaptic currents
 Incoming spike events induce a post-synaptic change of current modelled
-by an alpha function. The alpha function is normalized such that an event of
+by an alpha function. The alpha function is normalised such that an event of
 weight 1.0 results in a peak current of 1 pA.
 
 2. Spike Detection
@@ -84,13 +85,13 @@ it is considered a spike.
 
 3. Gap Junctions
 Gap Junctions are implemented by a gap current of the form
-:math:`g_{ij}( V_i - V_j)`.
+\f$ g_ij( V_i - V_j) \f$.
 
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary.
 
+\verbatim embed:rst
 ===========  ====== ============================================================
 tau_ex       ms      Rise time of the excitatory synaptic alpha function
 tau_in       ms      Rise time of the inhibitory synaptic alpha function
@@ -111,10 +112,11 @@ Inact_h      real    Inactivation variable h
 Act_n        real    Activation variable n
 I_e          pA      External input current
 ===========  ====== ============================================================
+\endverbatim
 
-References
-++++++++++
+References:
 
+\verbatim embed:rst
 .. [1] Gerstner W, Kistler W. Spiking neuron models: Single neurons,
        populations, plasticity. Cambridge University Press
 .. [2] Mancilla JG, Lewis TG, Pinto DJ, Rinzel J, Connors BW (2007).
@@ -130,24 +132,17 @@ References
        (2015). A unified framework for spiking and gap-junction interactions
        in distributed neuronal netowrk simulations. Frontiers in
        Neuroinformatics, 9:22. DOI: https://doi.org/10.3389/fninf.2015.00022
+\endverbatim
 
-Sends
-+++++
 
-SpikeEvent, GapJunctionEvent
+Sends: SpikeEvent, GapJunctionEvent
 
-Receives
-++++++++
+Receives: SpikeEvent, GapJunctionEvent, CurrentEvent, DataLoggingRequest
 
-SpikeEvent, GapJunctionEvent, CurrentEvent, DataLoggingRequest
+Author: Jan Hahne, Moritz Helias, Susanne Kunkel
 
-See also
-++++++++
-
-hh_psc_alpha, hh_cond_exp_traub, gap_junction
-
-EndUserDocs */
-
+SeeAlso: hh_psc_alpha, hh_cond_exp_traub, gap_junction
+*/
 class hh_psc_alpha_gap : public Archiving_Node
 {
 

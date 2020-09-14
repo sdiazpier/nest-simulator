@@ -36,27 +36,36 @@
 namespace nest
 {
 
-/* BeginUserDocs: synapse, spike-timing-dependent plasticity
+/** @BeginDocumentation
+@ingroup Synapses
+@ingroup stdp
 
-Short description
-+++++++++++++++++
+Name: stdp_dopamine_synapse - Synapse type for dopamine-modulated
+                              spike-timing dependent plasticity.
 
-Synapse type for dopamine-modulated spike-timing dependent plasticity
-
-Description
-+++++++++++
+Description:
 
 stdp_dopamine_synapse is a connection to create synapses with
 dopamine-modulated spike-timing dependent plasticity (used as a
-benchmark model in [1]_, based on [2]_). The dopaminergic signal is a
+benchmark model in [1], based on [2]). The dopaminergic signal is a
 low-pass filtered version of the spike rate of a user-specific pool
 of neurons. The spikes emitted by the pool of dopamine neurons are
 delivered to the synapse via the assigned volume transmitter. The
 dopaminergic dynamics is calculated in the synapse itself.
 
-Parameters
-++++++++++
+Examples:
 
+    /volume_transmitter Create /vol Set
+    /iaf_psc_alpha Create /pre_neuron Set
+    /iaf_psc_alpha Create /post_neuron Set
+    /iaf_psc_alpha Create /neuromod_neuron Set
+    /stdp_dopamine_synapse  << /vt vol >>  SetDefaults
+    neuromod_neuron vol Connect
+    pre_neuron post_neuron /stdp_dopamine_synapse Connect
+
+Parameters:
+
+\verbatim embed:rst
 =========  ======= ======================================================
 **Common properties**
 -------------------------------------------------------------------------
@@ -100,15 +109,15 @@ Parameters
  c  real    Eligibility trace
  n  real    Neuromodulator concentration
 === ======  =====================================
+\endverbatim
 
 Remarks:
-
 The common properties can only be set by SetDefaults and apply to all
 synapses of the model.
 
-References
-++++++++++
+References:
 
+\verbatim embed:rst
 .. [1] Potjans W, Morrison A, Diesmann M (2010). Enabling functional neural
        circuit simulations with distributed computing of neuromodulated
        plasticity. Frontiers in Computational Neuroscience, 4:141.
@@ -116,19 +125,18 @@ References
 .. [2] Izhikevich EM (2007). Solving the distal reward problem through linkage
        of STDP and dopamine signaling. Cerebral Cortex, 17(10):2443-2452.
        DOI: https://doi.org/10.1093/cercor/bhl152
+\endverbatim
 
-Transmits
-+++++++++
+Transmits: SpikeEvent
 
-SpikeEvent
+Author: Susanne Kunkel
 
-See also
-++++++++
+Remarks:
+- based on an earlier version by Wiebke Potjans
+- major changes to code after code revision in Apr 2013
 
-volume_transmitter
-
-EndUserDocs */
-
+SeeAlso: volume_transmitter
+*/
 /**
  * Class containing the common properties for all synapses of type dopamine
  * connection.

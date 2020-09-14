@@ -23,6 +23,8 @@
 
 import nest
 import numpy
+import pylab
+from pylab import show, savefig
 
 __all__ = [
     'extract_events',
@@ -30,7 +32,9 @@ __all__ = [
     'from_device',
     'from_file',
     'from_file_numpy',
-    'from_file_pandas'
+    'from_file_pandas',
+    'show',
+    'savefig',
 ]
 
 
@@ -242,9 +246,7 @@ def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0,
     xlabel : str, optional
         Label for x-axis
     """
-    import matplotlib.pyplot as plt
-
-    plt.figure()
+    pylab.figure()
 
     if grayscale:
         color_marker = ".k"
@@ -261,42 +263,42 @@ def _make_plot(ts, ts1, node_ids, neurons, hist=True, hist_binwidth=5.0,
     ylabel = "Neuron ID"
 
     if hist:
-        ax1 = plt.axes([0.1, 0.3, 0.85, 0.6])
-        plotid = plt.plot(ts1, node_ids, color_marker)
-        plt.ylabel(ylabel)
-        plt.xticks([])
-        xlim = plt.xlim()
+        ax1 = pylab.axes([0.1, 0.3, 0.85, 0.6])
+        plotid = pylab.plot(ts1, node_ids, color_marker)
+        pylab.ylabel(ylabel)
+        pylab.xticks([])
+        xlim = pylab.xlim()
 
-        plt.axes([0.1, 0.1, 0.85, 0.17])
+        pylab.axes([0.1, 0.1, 0.85, 0.17])
         t_bins = numpy.arange(
             numpy.amin(ts), numpy.amax(ts),
             float(hist_binwidth)
         )
-        n, _ = _histogram(ts, bins=t_bins)
+        n, bins = _histogram(ts, bins=t_bins)
         num_neurons = len(numpy.unique(neurons))
         heights = 1000 * n / (hist_binwidth * num_neurons)
 
-        plt.bar(t_bins, heights, width=hist_binwidth, color=color_bar,
-                edgecolor=color_edge)
-        plt.yticks([
+        pylab.bar(t_bins, heights, width=hist_binwidth, color=color_bar,
+                  edgecolor=color_edge)
+        pylab.yticks([
             int(x) for x in
             numpy.linspace(0.0, int(max(heights) * 1.1) + 5, 4)
         ])
-        plt.ylabel("Rate (Hz)")
-        plt.xlabel(xlabel)
-        plt.xlim(xlim)
-        plt.axes(ax1)
+        pylab.ylabel("Rate (Hz)")
+        pylab.xlabel(xlabel)
+        pylab.xlim(xlim)
+        pylab.axes(ax1)
     else:
-        plotid = plt.plot(ts1, node_ids, color_marker)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
+        plotid = pylab.plot(ts1, node_ids, color_marker)
+        pylab.xlabel(xlabel)
+        pylab.ylabel(ylabel)
 
     if title is None:
-        plt.title("Raster plot")
+        pylab.title("Raster plot")
     else:
-        plt.title(title)
+        pylab.title(title)
 
-    plt.draw()
+    pylab.draw()
 
     return plotid
 

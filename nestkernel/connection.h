@@ -398,7 +398,10 @@ Connection< targetidentifierT >::trigger_update_weight( const thread,
   const double,
   const CommonSynapseProperties& )
 {
-  throw IllegalConnection( "Connection does not support updates that are triggered by a volume transmitter." );
+  throw IllegalConnection(
+    "Connection::trigger_update_weight: "
+    "Connection does not support updates that are triggered by the volume "
+    "transmitter." );
 }
 
 } // namespace nest

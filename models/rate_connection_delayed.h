@@ -29,15 +29,13 @@
 namespace nest
 {
 
-/* BeginUserDocs: synapse, connection with delay, rate
+/** @BeginDocumentation
+@ingroup Synapses
+@ingroup cont_delay
 
-Short description
-+++++++++++++++++
+Name: rate_connection_delayed - Synapse type for rate connections with delay.
 
-Synapse type for rate connections with delay
-
-Description
-+++++++++++
+Description:
 
 rate_connection_delayed is a connector to create connections with delay
 between rate model neurons.
@@ -45,25 +43,21 @@ between rate model neurons.
 To create instantaneous rate connections please use
 the synapse type rate_connection_instantaneous.
 
-Transmits
-+++++++++
+Transmits: DelayedRateConnectionEvent
 
-DelayedRateConnectionEvent
+References:
 
-References
-++++++++++
-
+\verbatim embed:rst
 .. [1] Hahne J, Dahmen D, Schuecker J, Frommer A, Bolten M, Helias M,
        Diesmann M (2017). Integration of continuous-time dynamics in a
        spiking neural network simulator. Frontiers in Neuroinformatics, 11:34.
        DOI: https://doi.org/10.3389/fninf.2017.00034
+\endverbatim
 
-See also
-++++++++
+Author: David Dahmen, Jan Hahne, Jannis Schuecker
 
-rate_connection_instantaneous, rate_neuron_ipn, rate_neuron_opn
-
-EndUserDocs */
+SeeAlso: rate_connection_instantaneous, rate_neuron_ipn, rate_neuron_opn
+*/
 
 /**
  * Class representing a delayed rate connection. A rate_connection_delayed

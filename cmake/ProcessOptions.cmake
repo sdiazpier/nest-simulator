@@ -213,35 +213,21 @@ function( NEST_PROCESS_STATIC_LIBRARIES )
     # (but later on when installing)
     set( CMAKE_BUILD_WITH_INSTALL_RPATH FALSE PARENT_SCOPE )
 
-    # set run-time search path (RPATH) so that dynamic libraries in ``lib/nest`` can be located
-
-    # Note: "$ORIGIN" (on Linux) and "@loader_path" (on MacOS) are not CMake variables, but special keywords for the
-    # Linux resp. the macOS dynamic loader. They refer to the path in which the object is located, e.g.
-    # ``${CMAKE_INSTALL_PREFIX}/bin`` for the nest and sli executables, ``${CMAKE_INSTALL_PREFIX}/lib/nest`` for all
-    # dynamic libraries except PyNEST (libnestkernel.so, etc.), and  something like
-    # ``${CMAKE_INSTALL_PREFIX}/lib/python3.x/site-packages/nest`` for ``pynestkernel.so``. The RPATH is relative to
-    # this origin, so the binary ``bin/nest`` can find the files in the relative location ``../lib/nest``, and
-    # similarly for PyNEST and the other libraries. For simplicity, we set all the possibilities on all generated
-    # objects.
-
-    # PyNEST can only act as an entry point; it does not need to be included in the other objects' RPATH itself.
-
+    # set the rpath only when installed
     if ( APPLE )
       set( CMAKE_INSTALL_RPATH
-          # for binaries
+          "@loader_path/../${CMAKE_INSTALL_LIBDIR}"
           "@loader_path/../${CMAKE_INSTALL_LIBDIR}/nest"
-          # for libraries (except pynestkernel)
-          "@loader_path/../../${CMAKE_INSTALL_LIBDIR}/nest"
-          # for pynestkernel: origin at <prefix>/lib/python3.x/site-packages/nest
+          # for pynestkernel: @loader_path at <prefix>/lib/python2.7/site-packages/nest
+          "@loader_path/../../.."
           "@loader_path/../../../nest"
           PARENT_SCOPE )
     else ()
       set( CMAKE_INSTALL_RPATH
-          # for binaries
+          "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
           "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}/nest"
-          # for libraries (except pynestkernel)
-          "\$ORIGIN/../../${CMAKE_INSTALL_LIBDIR}/nest"
-          # for pynestkernel: origin at <prefix>/lib/python3.x/site-packages/nest
+          # for pynestkernel: origin at <prefix>/lib/python2.7/site-packages/nest
+          "\$ORIGIN/../../.."
           "\$ORIGIN/../../../nest"
           PARENT_SCOPE )
     endif ()
@@ -393,12 +379,16 @@ endfunction()
 function( NEST_PROCESS_WITH_PYTHON )
   # Find Python
   set( HAVE_PYTHON OFF PARENT_SCOPE )
-  if ( ${with-python} STREQUAL "2" )
-    message( FATAL_ERROR "Python 2 is not supported anymore, please use Python 3 by setting with-python=ON" )
-  elseif ( ${with-python} STREQUAL "ON" )
+  if ( ${with-python} STREQUAL "ON" OR  ${with-python} STREQUAL "2" OR  ${with-python} STREQUAL "3" )
 
     # Localize the Python interpreter
-    find_package( PythonInterp 3 REQUIRED )
+    if ( ${with-python} STREQUAL "ON" )
+      find_package( PythonInterp )
+    elseif ( ${with-python} STREQUAL "2" )
+      find_package( PythonInterp 2 REQUIRED )
+    elseif ( ${with-python} STREQUAL "3" )
+      find_package( PythonInterp 3 REQUIRED )
+    endif ()
 
     if ( PYTHONINTERP_FOUND )
       set( PYTHONINTERP_FOUND "${PYTHONINTERP_FOUND}" PARENT_SCOPE )
@@ -472,7 +462,7 @@ function( NEST_PROCESS_WITH_OPENMP )
   if ( NOT TARGET OpenMP::OpenMP_CXX )
     add_library(OpenMP::OpenMP_CXX INTERFACE IMPORTED)
   endif()
-
+ 
 endfunction()
 
 function( NEST_PROCESS_WITH_MPI )
@@ -568,7 +558,7 @@ function( NEST_PROCESS_WITH_SIONLIB )
   set( HAVE_SIONLIB OFF )
   if ( with-sionlib )
     if ( NOT ${with-sionlib} STREQUAL "ON" )
-      set( SIONLIB_ROOT_DIR "${with-sionlib}" CACHE INTERNAL "sionlib" )
+      set( SIONLIB_ROOT_DIR "${with-sionlib}" CACHE INTERNAL "cmake sucks" )
     endif()
 
     if ( NOT HAVE_MPI )
@@ -580,7 +570,7 @@ function( NEST_PROCESS_WITH_SIONLIB )
 
     # is linked in nestkernel/CMakeLists.txt
     if ( SIONLIB_FOUND )
-      set( HAVE_SIONLIB ON CACHE INTERNAL "sionlib" )
+      set( HAVE_SIONLIB ON CACHE INTERNAL "cmake sucks" )
     endif ()
   endif ()
 endfunction()
@@ -594,20 +584,16 @@ function( NEST_PROCESS_WITH_BOOST )
       set( BOOST_ROOT "${with-boost}" )
     endif ()
 
-    set(Boost_USE_DEBUG_LIBS OFF)  # ignore debug libs
-    set(Boost_USE_RELEASE_LIBS ON) # only find release libs
-    # Needs Boost version >=1.62.0 to use Boost sorting, JUNIT logging
-    find_package( Boost 1.62.0 )
+    # Needs Boost version >=1.58.0 to use Boost sorting
+    find_package( Boost 1.58.0 COMPONENTS unit_test_framework )
     if ( Boost_FOUND )
       # export found variables to parent scope
       set( HAVE_BOOST ON PARENT_SCOPE )
       # Boost uses lower case in variable names
       set( BOOST_FOUND "${Boost_FOUND}" PARENT_SCOPE )
       set( BOOST_LIBRARIES "${Boost_LIBRARIES}" PARENT_SCOPE )
-      set( BOOST_INCLUDE_DIR "${Boost_INCLUDE_DIRS}" PARENT_SCOPE )
+      set( BOOST_INCLUDE_DIR "${Boost_INCLUDE_DIR}" PARENT_SCOPE )
       set( BOOST_VERSION "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}" PARENT_SCOPE )
-      
-      include_directories( ${Boost_INCLUDE_DIRS} )
     endif ()
   endif ()
 endfunction()
@@ -628,7 +614,7 @@ endfunction()
 function( NEST_DEFAULT_MODULES )
     # requires HAVE_LIBNEUROSIM set
     # Static modules
-    set( SLI_MODULES models topology )
+    set( SLI_MODULES models precise topology )
     if ( HAVE_LIBNEUROSIM )
       set( SLI_MODULES ${SLI_MODULES} conngen )
     endif ()
@@ -652,25 +638,3 @@ function( NEST_PROCESS_WITH_MPI4PY )
 
   endif ()
 endfunction ()
-
-function( NEST_PROCESS_WITH_RECORDINGBACKEND_ARBOR )
-  if (with-recordingbackend-arbor)
-	if (NOT HAVE_MPI)  
-	  message( FATAL_ERROR "Recording backend Arbor needs MPI." )
-    endif ()
-	
-	if (NOT HAVE_PYTHON) 
-	  message( FATAL_ERROR "Recording backend Arbor needs Python." )
-	endif ()  
-	
-    include( FindPythonModule )	
-    
-	find_python_module(mpi4py)
-	if ( HAVE_MPI4PY )
-	  include_directories( "${PY_MPI4PY}/include" )
-	else ()
-	  message( FATAL_ERROR "CMake cannot find mpi4py, needed for recording backend Arbor" )
-    endif ()
-	set( HAVE_RECORDINGBACKEND_ARBOR ON PARENT_SCOPE )
-  endif()
-endfunction()

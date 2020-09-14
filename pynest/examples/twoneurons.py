@@ -33,7 +33,6 @@ See Also
 
 import nest
 import nest.voltage_trace
-import matplotlib.pyplot as plt
 
 weight = 20.0
 delay = 1.0
@@ -50,4 +49,4 @@ nest.Connect(voltmeter, neuron2)
 nest.Simulate(100.0)
 
 nest.voltage_trace.from_device(voltmeter)
-plt.show()
+nest.voltage_trace.show()

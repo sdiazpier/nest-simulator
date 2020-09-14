@@ -40,24 +40,21 @@
 namespace nest
 {
 
-/* BeginUserDocs: device, generator
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup generator
 
-Short description
-+++++++++++++++++
-
-Simulate the superimposed spike train of a population of gamma process
-
-Description
-+++++++++++
+Name: gamma_sup_generator - simulate the superimposed spike train of a
+                            population of gamma process.
+Description:
 
 The gamma_sup_generator generator simulates the pooled spike train of a
 population of neurons firing independently with gamma process statistics.
 
-Parameters
-++++++++++
+Parameters:
 
 The following parameters appear in the element's status dictionary:
-
+\verbatim embed:rst
 ============  ======== =========================================================
  rate         spikes/s Mean firing rate of the component processes,
                        default: 0 spikes/s
@@ -65,21 +62,22 @@ The following parameters appear in the element's status dictionary:
  n_proc       integer  Number of superimposed independent component processes,
                        default: 1
 ============  ======== =========================================================
+\endverbatim
 
-References
-++++++++++
+References:
 
+\verbatim embed:rst
 .. [1] Deger, Helias, Boucsein, Rotter (2011). Statistical properties of
        superimposed stationary spike trains. Journal of Computational
        Neuroscience. DOI: https://doi.org/10.1007/s10827-011-0362-8
+\endverbatim
 
-See also
-++++++++
+Author:
+   Jan 2011, Moritz Deger
 
-ppd_sup_generator, poisson_generator_ps, spike_generator
-
-EndUserDocs */
-
+SeeAlso: ppd_sup_generator, poisson_generator_ps, spike_generator, Device,
+StimulatingDevice
+*/
 class gamma_sup_generator : public DeviceNode
 {
 
@@ -143,7 +141,7 @@ private:
   struct Parameters_
   {
     double rate_;               //!< rate of component gamma process [Hz]
-    unsigned long gamma_shape_; //!< gamma shape parameter [1]_
+    unsigned long gamma_shape_; //!< gamma shape parameter [1]
     unsigned long n_proc_;      //!< number of component processes
 
     /**
@@ -157,7 +155,7 @@ private:
     Parameters_(); //!< Sets default parameter values
 
     void get( DictionaryDatum& ) const;             //!< Store current values in dictionary
-    void set( const DictionaryDatum&, Node* node ); //!< Set values from dictionary
+    void set( const DictionaryDatum&, Node* node ); //!< Set values from dicitonary
   };
 
   // ------------------------------------------------------------

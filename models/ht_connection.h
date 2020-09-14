@@ -29,58 +29,55 @@
 namespace nest
 {
 
-/* BeginUserDocs: synapse, Hill-Tononi plasticity
+/** @BeginDocumentation
+@ingroup Synapses
+@ingroup ht_synapse
 
-Short description
-+++++++++++++++++
+Name: ht_synapse - Synapse with depression after Hill & Tononi (2005).
 
-Synapse with depression after Hill & Tononi (2005)
-
-Description
-+++++++++++
+Description:
 
 This synapse implements the depression model described in [1, p 1678].
 See docs/model_details/HillTononi.ipynb for details.
 
 Synaptic dynamics are given by
 
+@f[
 P'(t) = ( 1 - P ) / \tau_P
 P(T+) = (1 - \delta_P) P(T-)    \text{ for T : time of a spike } \\
 P(t=0) = 1
+@f]
+@f[
+w(t) = w_{max} * P(t)  @f] is the resulting synaptic weight
 
-w(t) = w_{max} * P(t)   is the resulting synaptic weight
-
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary:
-
+\verbatim embed:rst
 ========  ======  =========================================================
  tau_P    ms      Synaptic vesicle pool recovery time constant
  delta_P  real    Fractional change in vesicle pool on incoming spikes
                   (unitless)
  P        real    Current size of the vesicle pool [unitless, 0 <= P <= 1]
 ========  ======  =========================================================
+\endverbatim
 
-References
-++++++++++
+References:
 
+\verbatim embed:rst
 .. [1] Hill S, Tononi G (2005). Modeling sleep and wakefulness in the
        thalamocortical system. Journal of Neurophysiology. 93:1671-1698.
        DOI: https://doi.org/10.1152/jn.00915.2004
+\endverbatim
 
-Transmits
-+++++++++
+Sends: SpikeEvent
 
-SpikeEvent
+FirstVersion: March 2009
 
-See also
-++++++++
+Author: Hans Ekkehard Plesser, based on markram_synapse
 
-ht_neuron, tsodyks_synapse, stdp_synapse, static_synapse
-
-EndUserDocs */
-
+SeeAlso: ht_neuron, tsodyks_synapse, stdp_synapse, static_synapse
+*/
 template < typename targetidentifierT >
 class HTConnection : public Connection< targetidentifierT >
 {
@@ -161,12 +158,12 @@ public:
   }
 
 private:
-  double weight_; //!< Synaptic weight
+  double weight_; //!< synpatic weight
 
-  double tau_P_;   //!< Time constant for recovery [ms]
-  double delta_P_; //!< Fractional decrease in pool size per spike
+  double tau_P_;   //!< [ms] time constant for recovery
+  double delta_P_; //!< fractional decrease in pool size per spike
 
-  double p_; //!< Current pool size
+  double p_; //!< current pool size
 
   double t_lastspike_; //!< Time point of last spike emitted
 };

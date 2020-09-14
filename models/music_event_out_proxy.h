@@ -43,15 +43,14 @@
 namespace nest
 {
 
-/* BeginUserDocs: device, MUSIC, spike
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup music
 
-Short description
-+++++++++++++++++
+Name: music_event_out_proxy - Device to forward spikes to remote applications
+                              using MUSIC.
 
-Device to forward spikes to remote applications using MUSIC
-
-Description
-+++++++++++
+Description:
 
 A music_event_out_proxy is used to send spikes to a remote application that
 also uses MUSIC.
@@ -62,13 +61,11 @@ events is determined during connection setup by using the parameter
 music_channel of the connection. The name of the port is set via
 SetStatus (see Parameters section below).
 
-This model is only available if NEST was compiled with MUSIC
-
-Parameters
-++++++++++
+Parameters:
 
 The following properties are available in the status dictionary:
 
+\verbatim embed:rst
 =========== ======= ========================================================
  port_name  string  The name of the MUSIC output_port to forward events to
                     (default: event_out)
@@ -76,16 +73,24 @@ The following properties are available in the status dictionary:
  published  boolean A bool indicating if the port has been already published
                     with MUSIC
 =========== ======= ========================================================
+\endverbatim
 
 The parameter port_name can be set using SetStatus.
 
-See also
-++++++++
+Examples:
 
-music_event_in_proxy, music_cont_in_proxy, music_message_in_proxy
+    /iaf_psc_alpha Create /n Set
+    /music_event_out_proxy Create /meop Set
+    n meop << /music_channel 2 >> Connect
 
-EndUserDocs */
+Author: Moritz Helias, Jochen Martin Eppler
 
+FirstVersion: March 2009
+
+Availability: Only when compiled with MUSIC
+
+SeeAlso: music_event_in_proxy, music_cont_in_proxy, music_message_in_proxy
+*/
 class music_event_out_proxy : public DeviceNode
 {
 

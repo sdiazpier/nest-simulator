@@ -22,10 +22,6 @@
 
 #pragma once
 
-// Generated includes:
-#include "config.h"
-
-#ifdef HAVE_RECORDINGBACKEND_ARBOR
 #include "mpiutil.h"
 
 #include <algorithm>
@@ -208,4 +204,3 @@ get_comm_info( bool is_arbor, MPI_Comm comm )
 
 } // namespace shadow
 } // namespace arb
-#endif // HAVE_RECORDINGBACKEND_ARBOR

@@ -91,7 +91,7 @@ SeeAlso: rdevdict::binomial
 
 
 % compute kalpha to compare against 
-% Python code to get value:
+% python code to get value:
 % import scipy.stats
 % import scipy.optimize
 % alpha = 0.05

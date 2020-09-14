@@ -31,42 +31,42 @@
 namespace nest
 {
 
-/* BeginUserDocs: synapse, static
+/** @BeginDocumentation
+@ingroup Synapses
+@ingroup static
 
-Short description
-+++++++++++++++++
+Name: bernoulli_synapse - Static synapse with stochastic transmission.
 
-Static synapse with stochastic transmission
+Description:
 
-Description
-+++++++++++
+Spikes are transmitted by bernoulli_synapse following a Bernoulli trial with
+success probability p_transmit. This synaptic mechanism was inspired by the
+results described in [1] of greater transmission probability for stronger
+excitatory connections and it was previously applied in [2] and [3].
 
-Spikes are transmitted by bernoulli_synapse following a Bernoulli
-trial with success probability p_transmit. This synaptic mechanism was
-inspired by the results described in [1]_ of greater transmission
-probability for stronger excitatory connections and it was previously
-applied in [2]_ and [3].
+bernoulli_synapse does not support any kind of plasticity. It simply stores
+the parameters target, weight, transmission probability, delay and
+receiver port for each connection.
 
-bernoulli_synapse does not support any kind of plasticity. It simply
-stores the parameters target, weight, transmission probability, delay
-and receiver port for each connection.
-
-Parameters
-++++++++++
-
+Parameters:
+\verbatim embed:rst
 =========== ====== ===================================================
  p_transmit real   Transmission probability, must be between 0 and 1
 =========== ====== ===================================================
+\endverbatim
 
-Transmits
-+++++++++
+FirstVersion: June 2017
 
-SpikeEvent, RateEvent, CurrentEvent, ConductanceEvent,
-DoubleDataEvent, DataLoggingRequest
+Author: Susanne Kunkel, Maximilian Schmidt, Milena Menezes Carvalho
 
-References
-++++++++++
+Transmits: SpikeEvent, RateEvent, CurrentEvent, ConductanceEvent,
+           DoubleDataEvent, DataLoggingRequest
 
+SeeAlso: synapsedict, static_synapse, static_synapse_hom_w
+
+References:
+
+\verbatim embed:rst
 .. [1] Lefort S, Tomm C, Sarria J-C F, Petersen CCH (2009). The excitatory
        neuronal network of the C2 barrel column in mouse primary
        somatosensory cortex. Neuron, 61(2):301-316.
@@ -80,14 +80,8 @@ References
        network model for burst generation during hippocampal sharp waves.
        Journal of Neuroscience, 35(43):14585-14601.
        DOI: https://doi.org/10.1523/JNEUROSCI.4944-14.2015
-
-See also
-++++++++
-
-static_synapse, static_synapse_hom_w
-
-EndUserDocs */
-
+\endverbatim
+*/
 template < typename targetidentifierT >
 class BernoulliConnection : public Connection< targetidentifierT >
 {

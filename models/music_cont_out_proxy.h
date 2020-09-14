@@ -51,15 +51,14 @@
 namespace nest
 {
 
-/* BeginUserDocs: device, MUSIC
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup music
 
-Short description
-+++++++++++++++++
+Name: music_cont_out_proxy - A device which sends continuous data from NEST to
+MUSIC.
 
-A device which sends continuous data from NEST to MUSIC
-
-Description
-+++++++++++
+Description:
 
 A music_cont_out_proxy can be used to send continuous data from
 neurons over MUSIC to remote applications. It works in a similar fashion like
@@ -82,13 +81,11 @@ receiving buffer via the following access pattern:
 
     we want to get "V_m" for neuron with node ID 5: buffer[ 1*1 + 0 ]
 
-This model is only available if NEST was compiled with MUSIC.
-
-Parameters
-++++++++++
+Parameters:
 
 The following properties are available in the status dictionary:
 
+\verbatim embed:rst
 ============ ========  ========================================================
  interval    ms        Recording interval
  targets     array     Global id list of neurons to be observed
@@ -101,14 +98,17 @@ The following properties are available in the status dictionary:
                        from, obtained from the /recordables entry of the
                        model from which one wants to record
 ============ ========  ========================================================
+\endverbatim
 
-See also
-++++++++
+Author: Martin Asghar Schulze, Forschungszentrum fur Informatik Karlsruhe (FZI)
 
-music_cont_in_proxy, music_event_out_proxy, music_event_in_proxy, music_message_in_proxy
+FirstVersion: March 2016
 
-EndUserDocs */
+Availability: Only when compiled with MPI and MUSIC
 
+SeeAlso: music_cont_in_proxy, music_event_out_proxy, music_event_in_proxy,
+music_message_in_proxy
+*/
 class music_cont_out_proxy : public DeviceNode
 {
 

@@ -93,7 +93,7 @@ pattern = ConnectionPattern(layerList, connList, synTypes = \
     ((SynType('Asyn',  1.0, 'orange'),
       SynType('Bsyn',  2.5, 'r'),
       SynType('Csyn',  0.5, (1.0, 0.5, 0.0))),  # end first group
-     (SynType('Dsyn', -1.5, matplotlib.cm.jet),
+     (SynType('Dsyn', -1.5, matplotlib.pylab.cm.jet),
       SynType('Esyn', -3.2, '0.95'))))
 # See documentation of class ConnectionPattern for more options.
 
@@ -151,6 +151,7 @@ pattern.toLaTeX('pattern.tex', standalone=True)
 
 from . import colormaps as cm
 
+import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 import warnings
@@ -1482,15 +1483,13 @@ class ConnectionPattern(object):
         figure created
         """
 
-        import matplotlib.pyplot as plt
-
         # translate new to old paramter names (per v 0.5)
         normalize = globalColors
         if colorLimits:
             normalize = True
 
         if selectSyns:
-            if aggrGroups or aggrSyns:
+            if aggrPops or aggrSyns:
                 raise ValueError(
                     'selectSyns cannot be combined with aggregation.')
             selected = selectSyns

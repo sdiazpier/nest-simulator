@@ -47,15 +47,14 @@
 namespace nest
 {
 
-/* BeginUserDocs: device, MUSIC
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup music
 
-Short description
-+++++++++++++++++
 
-A device which receives continuous data from MUSIC
+Name: music_cont_in_proxy - A device which receives continuous data from MUSIC.
 
-Description
-+++++++++++
+Description:
 
 A music_cont_in_proxy can be used to receive continuous data from
 remote MUSIC applications in NEST.
@@ -65,13 +64,10 @@ The music_cont_in_proxy represents a complete port to which MUSIC can
 connect and send data. The music_cont_in_proxy can queried using
 GetStatus to retrieve the messages.
 
-This model is only available if NEST was compiled with MUSIC.
-
-Parameters
-++++++++++
+Parameters:
 
 The following properties are available in the status dictionary:
-
+\verbatim embed:rst
 =========== ======= ========================================================
  port_name  string  The name of the MUSIC input port to listen to (default:
                     cont_in)
@@ -80,16 +76,23 @@ The following properties are available in the status dictionary:
  published  boolean A bool indicating if the port has been already published
                     with MUSIC
 =========== ======= ========================================================
-
+\endverbatim
 The parameter port_name can be set using SetStatus.
 
-See also
-++++++++
+Examples:
 
-music_event_out_proxy, music_event_in_proxy, music_message_in_proxy
+    /music_cont_in_proxy Create /mcip Set
+    10 Simulate
+    mcip GetStatus /data get /gaze_directions Set
 
-EndUserDocs */
+Author: Jochen Martin Eppler
 
+FirstVersion: July 2010
+
+Availability: Only when compiled with MUSIC
+
+SeeAlso: music_event_out_proxy, music_event_in_proxy, music_message_in_proxy
+*/
 class music_cont_in_proxy : public DeviceNode
 {
 

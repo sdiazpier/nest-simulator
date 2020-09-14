@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+# NOTE: Remember to update the help-generation section in 
+#       MyModule/CMakeLists.txt
+
 
 if ( NOT CMAKE_CROSSCOMPILING )
 
@@ -26,37 +29,43 @@ if ( NOT CMAKE_CROSSCOMPILING )
   find_package( PythonInterp )
   if ( PYTHONINTERP_FOUND )
 
-    # Extract help from all source files in the source code, put
-    # them in doc/help and generate a local help index in the
-    # build directory containing links to the help files.
-    install( CODE
-      "execute_process(
-         COMMAND ${PYTHON_EXECUTABLE} -B generate_help.py \"${PROJECT_SOURCE_DIR}\" \"${PROJECT_BINARY_DIR}\"
-         WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}/extras/help_generator\"
-         )"
-      )
+    # We skip help generation for Python versions < 2.7.8 due to
+    # problems with implementation of 're' in those.
+    if( ${PYTHON_VERSION_STRING} VERSION_GREATER "2.7.7" )
 
-    # Copy the local doc/help directory to the global installation
-    # directory for documentation.
-    install( DIRECTORY "${PROJECT_BINARY_DIR}/doc/help"
-      DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}"
-      OPTIONAL
-      )
+        # Extract help from all source files in the source code, put
+        # them in doc/help and generate a local help index in the
+        # build directory containing links to the help files.
+        install( CODE
+          "execute_process(
+             COMMAND ${PYTHON_EXECUTABLE} -B generate_help.py \"${PROJECT_SOURCE_DIR}\" \"${PROJECT_BINARY_DIR}\"
+             WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}/extras/help_generator\"
+             )"
+          )
 
-    # Update the global help index to include all help files in
-    # the global installation directory for documentation.
-    install( CODE
-      "execute_process(
-         COMMAND ${PYTHON_EXECUTABLE} -B generate_helpindex.py \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}\"
-         WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}/extras/help_generator\"
-         )"
-      )
+        # Copy the local doc/help directory to the global installation
+        # directory for documentation.
+        install( DIRECTORY "${PROJECT_BINARY_DIR}/doc/help"
+          DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}"
+          OPTIONAL
+          )
+
+        # Update the global help index to include all help files in
+        # the global installation directory for documentation.
+        install( CODE
+          "execute_process(
+             COMMAND ${PYTHON_EXECUTABLE} -B generate_helpindex.py \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}\"
+             WORKING_DIRECTORY \"${PROJECT_SOURCE_DIR}/extras/help_generator\"
+             )"
+          )
+
+    endif ()
 
   endif ()
 
 endif ()
 
-install( DIRECTORY model_details
+install( DIRECTORY conngen model_details
     DESTINATION ${CMAKE_INSTALL_DOCDIR} )
 
 install( FILES index.html doc_header.txt

@@ -31,18 +31,18 @@
 namespace nest
 {
 
-/* BeginUserDocs: synapse, short-term plasticity
+/** @BeginDocumentation
+@ingroup Synapses
+@ingroup stp
 
-Short description
-+++++++++++++++++
+Name: tsodyks_synapse_hom - Synapse type with short term plasticity using
+                            homogeneous parameters, i.e. all synapses have
+                            the same parameters.
 
-Synapse type with short term plasticity using homogenous parameters
-
-Description
-+++++++++++
+Description:
 
 This synapse model implements synaptic short-term depression and short-term
-facilitation according to [1]_. In particular it solves Eqs (3) and (4) from
+facilitation according to [1]. In particular it solves Eqs (3) and (4) from
 this paper in an exact manner.
 
 Synaptic depression is motivated by depletion of vesicles in the readily
@@ -50,10 +50,10 @@ releasable pool of synaptic vesicles (variable x in equation (3)). Synaptic
 facilitation comes about by a presynaptic increase of release probability,
 which is modeled by variable U in Eq (4).
 The original interpretation of variable y is the amount of glutamate
-concentration in the synaptic cleft. In [1]_ this variable is taken to be
+concentration in the synaptic cleft. In [1] this variable is taken to be
 directly proportional to the synaptic current caused in the postsynaptic
 neuron (with the synaptic weight w as a proportionality constant). In order
-to reproduce the results of [1]_ and to use this model of synaptic plasticity
+to reproduce the results of [1] and to use this model of synaptic plasticity
 in its original sense, the user therefore has to ensure the following
 conditions:
 
@@ -84,12 +84,11 @@ might choose to have a synaptic current that is not necessarily identical to
 the concentration of transmitter y(t) in the synaptic cleft. It may realize
 an arbitrary postsynaptic effect depending on y(t).
 
-Parameters
-++++++++++
+Parameters:
 
-========  ======  ========================================================
- U        real    Parameter determining the increase in u with each spike
-                  [0,1]
+\verbatim embed:rst
+========  ======  ======================================================
+ U        real    Maximum probability of release [0,1]
  tau_psc  ms      Time constant of synaptic current
  tau_fac  ms      Time constant for facilitation
  tau_rec  ms      Time constant for depression
@@ -97,7 +96,8 @@ Parameters
                   releasable pool [0,1]
  y        real    Initial fraction of synaptic vesicles in the synaptic
                   cleft [0,1]
-========  ======  ========================================================
+========  ======  ======================================================
+\endverbatim
 
 Remarks:
 
@@ -105,30 +105,28 @@ The weight and the parameters U, tau_psc, tau_fac, and tau_rec are common to
 all synapses of the model and must be set using SetDefaults on the synapse
 model.
 
-References
-++++++++++
+References:
 
+\verbatim embed:rst
 .. [1] Tsodyks M, Uziel A, Markram H (2000). Synchrony generation in recurrent
        networks with frequency-dependent synapses. Journal of Neuroscience,
        20 RC50. URL: http://infoscience.epfl.ch/record/183402
+\endverbatim
 
-Transmits
-+++++++++
+Transmits: SpikeEvent
 
-SpikeEvent
+FirstVersion: March 2006
 
-See also
-++++++++
+Author: Susanne Kunkel, Moritz Helias
 
-tsodyks_synapse, stdp_synapse_hom, static_synapse_hom_w
-
-EndUserDocs */
+SeeAlso: synapsedict, tsodyks_synapse, stdp_synapse_hom, static_synapse_hom_w,
+iaf_psc_exp, iaf_psc_exp_htum
+*/
 
 /**
  * Class containing the common properties for all synapses of type
  * TsodyksConnectionHom.
  */
-
 class TsodyksHomCommonProperties : public CommonPropertiesHomW
 {
 

@@ -26,7 +26,7 @@
 // Includes from nestkernel:
 #include "recording_backend.h"
 
-/* BeginUserDocs: recording backend
+/* BeginDocumentation
 
 Store data in main memory
 #########################
@@ -87,7 +87,7 @@ Parameter summary
    ms under key ``times``. This property cannot be set after Simulate
    has been called.
 
-EndUserDocs */
+EndDocumentation */
 
 namespace nest
 {

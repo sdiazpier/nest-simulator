@@ -32,18 +32,17 @@
 namespace nest
 {
 
-/* BeginUserDocs: synapse, spike-timing-dependent plasticity
+/** @BeginDocumentation
+@ingroup Synapses
+@ingroup stdp
 
-Short description
-+++++++++++++++++
+Name: stdp_synapse_hom - Synapse type for spike-timing dependent
+plasticity using homogeneous parameters.
 
-Synapse type for spike-timing dependent plasticity using homogeneous parameters
-
-Description
-+++++++++++
+Description:
 
 stdp_synapse_hom is a connector to create synapses with spike time
-dependent plasticity (as defined in [1]_). Here the weight dependence
+dependent plasticity (as defined in [1]). Here the weight dependence
 exponent can be set separately for potentiation and depression.
 
  Parameters controlling plasticity are identical for all synapses of the
@@ -51,14 +50,14 @@ exponent can be set separately for potentiation and depression.
 
 Examples:
 
-* multiplicative STDP [2]_  mu_plus = mu_minus = 1.0
-* additive STDP       [3]_  mu_plus = mu_minus = 0.0
-* Guetig STDP         [1]_  mu_plus = mu_minus = [0.0,1.0]
-* van Rossum STDP     [4]_  mu_plus = 0.0 mu_minus = 1.0
+    multiplicative STDP [2]  mu_plus = mu_minus = 1.0
+    additive STDP       [3]  mu_plus = mu_minus = 0.0
+    Guetig STDP         [1]  mu_plus = mu_minus = [0.0,1.0]
+    van Rossum STDP     [4]  mu_plus = 0.0 mu_minus = 1.0
 
-Parameters
-++++++++++
+Parameters:
 
+\verbatim embed:rst
 ========= =======  ======================================================
  tau_plus ms       Time constant of STDP window, potentiation
                    (tau_minus defined in post-synaptic neuron)
@@ -69,20 +68,18 @@ Parameters
  mu_minus real     Weight dependence exponent, depression
  Wmax     real     Maximum allowed weight
 ========= =======  ======================================================
+\endverbatim
 
 Remarks:
 
 The parameters are common to all synapses of the model and must be set using
 SetDefaults on the synapse model.
 
-Transmits
-+++++++++
+Transmits: SpikeEvent
 
-SpikeEvent
+References:
 
-References
-++++++++++
-
+\verbatim embed:rst
 .. [1] Guetig et al. (2003). Learning input correlations through nonlinear
        temporally asymmetric hebbian plasticity. Journal of Neuroscience,
        23:3697-3714 DOI: https://doi.org/10.1523/JNEUROSCI.23-09-03697.2003
@@ -97,19 +94,18 @@ References
        from spike timing-dependent plasticity. Journal of Neuroscience,
        20(23):8812-8821.
        DOI: https://doi.org/10.1523/JNEUROSCI.20-23-08812.2000
+\endverbatim
 
-See also
-++++++++
+FirstVersion: March 2006
 
-tsodyks_synapse, static_synapse
+Author: Moritz Helias, Abigail Morrison
 
-EndUserDocs */
-
+SeeAlso: synapsedict, tsodyks_synapse, static_synapse
+*/
 /**
  * Class containing the common properties for all synapses of type
  * STDPConnectionHom.
  */
-
 class STDPHomCommonProperties : public CommonSynapseProperties
 {
 

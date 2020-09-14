@@ -55,48 +55,48 @@ namespace nest
  */
 extern "C" int hh_cond_exp_traub_dynamics( double, const double*, double*, void* );
 
-/* BeginUserDocs: neuron, Hodgkin-Huxley, conductance-based
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup hh
+@ingroup cond
 
-Short description
-+++++++++++++++++
+Name: hh_cond_exp_traub - Hodgkin-Huxley model for Brette et al (2007) review
 
-Hodgkin-Huxley model for Brette et al (2007) review
+Description:
 
-Description
-+++++++++++
+hh_cond_exp_traub is an implementation of a modified Hodgkin-Huxley model
 
-hh_cond_exp_traub is an implementation of a modified Hodgkin-Huxley model.
-
-This model was specifically developed for a major review of simulators [1]_,
-based on a model of hippocampal pyramidal cells by Traub and Miles [2]_.
-The key differences between the current model and the model in [2]_ are:
+This model was specifically developed for a major review of simulators [1],
+based on a model of hippocampal pyramidal cells by Traub and Miles[2].
+The key differences between the current model and the model in [2] are:
 
 - This model is a point neuron, not a compartmental model.
 - This model includes only I_Na and I_K, with simpler I_K dynamics than
-  in [2]_, so it has only three instead of eight gating variables;
+  in [2], so it has only three instead of eight gating variables;
   in particular, all Ca dynamics have been removed.
 - Incoming spikes induce an instantaneous conductance change followed by
   exponential decay instead of activation over time.
 
 This model is primarily provided as reference implementation for hh_coba
 example of the Brette et al (2007) review. Default parameter values are chosen
-to match those used with NEST 1.9.10 when preparing data for [1]_. Code for all
-simulators covered is available from ModelDB [3]_.
+to match those used with NEST 1.9.10 when preparing data for [1]. Code for all
+simulators covered is available from ModelDB [3].
 
 Note:
-In this model, a spike is emitted if :math:`V_m \geq V_T + 30` mV and :math:`V_m`
-has fallen during the current time step.
+In this model, a spike is emitted if
+
+@f[ V_m >= V_T + 30 mV and V_m has fallen during the current time step @f]
 
 To avoid that this leads to multiple spikes during the falling flank of a
 spike, it is essential to chose a sufficiently long refractory period.
-Traub and Miles used  :math:`t_{ref} = 3` ms ([2]_, p 118), while we used
-:math:`t_{ref} = 2` ms in [2]_.
+Traub and Miles used \f$ t_ref = 3 ms \f$ [2, p 118], while we used
+\f$ t_ref = 2 ms \f$ in [2].
 
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary.
 
+\verbatim embed:rst
 =========== ======  =========================================================
 V_m          mV     Membrane potential
 V_T          mV     Voltage offset that controls dynamics. For default
@@ -118,34 +118,28 @@ E_K          mV     Potassium reversal potential
 g_K          nS     Potassium peak conductance
 I_e          pA     External input current
 =========== ======  =========================================================
+\endverbatim
 
-References
-++++++++++
 
+References:
+
+\verbatim embed:rst
 .. [1] Brette R et al. (2007). Simulation of networks of spiking neurons: A
        review of tools and strategies. Journal of Computational Neuroscience
        23:349-98. DOI: https://doi.org/10.1007/s10827-007-0038-6
 .. [2] Traub RD and Miles R (1991). Neuronal networks of the hippocampus.
        Cambridge University Press, Cambridge UK.
 .. [3] http://modeldb.yale.edu/83319
+\envverbatim
 
-Sends
-+++++
+Sends: SpikeEvent
 
-SpikeEvent
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
-Receives
-++++++++
+Author: Schrader
 
-SpikeEvent, CurrentEvent, DataLoggingRequest
-
-See also
-++++++++
-
-hh_psc_alpha
-
-EndUserDocs */
-
+SeeAlso: hh_psc_alpha
+*/
 class hh_cond_exp_traub : public Archiving_Node
 {
 

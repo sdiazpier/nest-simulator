@@ -39,27 +39,24 @@
 namespace nest
 {
 
-/* BeginUserDocs: device, generator
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup generator
 
-Short description
-+++++++++++++++++
+Name: inhomogeneous_poisson_generator - provides Poisson spike trains
+    at a piecewise constant rate
 
-Provides Poisson spike trains at a piecewise constant rate
-
-Description
-+++++++++++
-
+Description:
 The inhomogeneous Poisson generator provides Poisson spike trains at a
 piecewise constant rate to the connected node(s). The rate of the process
 is changed at the specified times. The unit of the instantaneous rate
 is spikes/s. By default, each target of the generator will receive
 a different spike train.
 
-Parameters
-++++++++++
-
+Parameters:
 The following parameters can be set in the status dictionary:
 
+\verbatim embed:rst
 ==================== ================ =========================================
  rate_times          list of ms       Times at which rate changes
  rate_values         list of spikes/s Rate of Poisson spike train
@@ -72,24 +69,28 @@ The following parameters can be set in the status dictionary:
                                       step,otherwise they are rounded up to the
                                       *end* of the step. Default: false
 ==================== ================ =========================================
+\endverbatim
 
-Receives
-++++++++
+Examples:
 
-DataLoggingRequest
+The rate can be altered in the following way:
 
-Sends
-+++++
+    /inhomogeneous_poisson_generator Create /sc Set
+    sc << /rate_times [0.2 0.5] /rate_values [2.0 4.0] >> SetStatus
 
-SpikeEvent
+The average firing rate of each realization of the Poisson process will be
+0.0 in the time interval [0, 0.2), 2.0 in the interval [0.2, 0.5)
+and 4.0 from then on.
 
-See also
-++++++++
+Receives: DataLoggingRequest
 
-sinusoidal_poisson_generator, step_current_generator
+Sends: SpikeEvent
 
-EndUserDocs */
+Authors: Renato Duarte, Barna Zajzon
 
+SeeAlso: sinusoidal_poisson_generator, step_current_generator, Device,
+       StimulatingDevice
+*/
 class inhomogeneous_poisson_generator : public DeviceNode
 {
 

@@ -56,35 +56,36 @@ namespace nest
  */
 extern "C" int iaf_cond_exp_sfa_rr_dynamics( double, const double*, double*, void* );
 
-/* BeginUserDocs: neuron, integrate-and-fire, conductance-based
+/** @BeginDocumentation
+@ingroup Neurons
+@ingroup iaf
+@ingroup cond
 
-Short description
-+++++++++++++++++
+Name: iaf_cond_exp_sfa_rr - Simple conductance based leaky integrate-and-fire
+                            neuron model.
 
-Conductance based leaky integrate-and-fire model with spike-frequency
-adaptation and relative refractory mechanisms
+Description:
 
-Description
-+++++++++++
+iaf_cond_exp_sfa_rr is an iaf_cond_exp_sfa_rr i.e. an implementation of a
+spiking neuron using IAF dynamics with conductance-based synapses,
+with additional spike-frequency adaptation and relative refractory
+mechanisms as described in Dayan+Abbott, 2001, page 166.
 
-iaf_cond_exp_sfa_rr is an implementation of a spiking neuron using
-integrate-and-fire dynamics with conductance-based synapses, with additional
-spike-frequency adaptation and relative refractory mechanisms as described in
-[2]_, page 166.
+As for the iaf_cond_exp_sfa_rr, Incoming spike events induce a post-synaptic
+change  of  conductance  modelled  by an  exponential  function.  The
+exponential function is  normalised such that an event  of weight 1.0
+results in a peak current of 1 nS.
 
-Incoming spike events induce a post-synaptic change of conductance modelled by
-an exponential function. The exponential function is normalized such that an
-event of weight 1.0 results in a peak current of 1 nS.
+Outgoing spike events induce a change of the adaptation and relative
+refractory conductances by q_sfa and q_rr, respectively.  Otherwise
+these conductances decay exponentially with time constants tau_sfa
+and tau_rr, respectively.
 
-Outgoing spike events induce a change of the adaptation and relative refractory
-conductances by q_sfa and q_rr, respectively. Otherwise these conductances
-decay exponentially with time constants tau_sfa and tau_rr, respectively.
-
-Parameters
-++++++++++
+Parameters:
 
 The following parameters can be set in the status dictionary.
 
+\verbatim embed:rst
 =========== ======  ===========================================================
  V_m        mV      Membrane potential
  E_L        mV      Leak reversal potential
@@ -95,10 +96,8 @@ The following parameters can be set in the status dictionary.
  E_ex       mV      Excitatory reversal potential
  E_in       mV      Inhibitory reversal potential
  g_L        nS      Leak conductance
- tau_syn_ex ms      Exponential decay time constant of excitatory synaptic
-                    conductance kernel
- tau_syn_in ms      Exponential decay time constant of inhibitory synaptic
-                    conductance kernel
+ tau_syn_ex ms      Rise time of the excitatory synaptic alpha function
+ tau_syn_in ms      Rise time of the inhibitory synaptic alpha function
  q_sfa      nS      Outgoing spike activated quantal spike-frequency adaptation
                     conductance increase in nS
  q_rr       nS      Outgoing spike activated quantal relative refractory
@@ -111,21 +110,16 @@ The following parameters can be set in the status dictionary.
                     potential in mV
  I_e        pA      Constant input current
 =========== ======  ===========================================================
+\endverbatim
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
 
-Sends
-+++++
+References:
 
-SpikeEvent
-
-Receives
-++++++++
-
-SpikeEvent, CurrentEvent, DataLoggingRequest
-
-References
-++++++++++
-
+\verbatim embed:rst
 .. [1] Meffin H, Burkitt AN, Grayden DB (2004). An analytical
        model for the large, fluctuating synaptic conductance state typical of
        neocortical neurons in vivo. Journal of Computational Neuroscience,
@@ -133,16 +127,15 @@ References
        DOI: https://doi.org/10.1023/B:JCNS.0000014108.03012.81
 .. [2] Dayan P, Abbott LF (2001). Theoretical neuroscience: Computational and
        mathematical modeling of neural systems. Cambridge, MA: MIT Press.
-       https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=item_3006127
+       https://pure.mpg.de/pubman/faces/ViewItemOverviewPage.jsp?itemId=
+                                                            item_3006127
+\endverbatim
 
+Author: Sven Schrader, Eilif Muller
 
-See also
-++++++++
-
-aeif_cond_alpha, aeif_cond_exp, iaf_chxk_2008
-
-EndUserDocs */
-
+SeeAlso: iaf_cond_exp_sfa_rr, aeif_cond_alpha, iaf_psc_delta, iaf_psc_exp,
+iaf_cond_alpha
+*/
 class iaf_cond_exp_sfa_rr : public Archiving_Node
 {
 
@@ -203,8 +196,8 @@ private:
     double E_ex;     //!< Excitatory reversal Potential in mV
     double E_in;     //!< Inhibitory reversal Potential in mV
     double E_L;      //!< Leak reversal Potential (aka resting potential) in mV
-    double tau_synE; //!< Time constant for excitatory synaptic kernel in ms
-    double tau_synI; //!< Time constant for inhibitory synaptic kernel in ms
+    double tau_synE; //!< Synaptic Time Constant Excitatory Synapse in ms
+    double tau_synI; //!< Synaptic Time Constant for Inhibitory Synapse in ms
     double I_e;      //!< Constant Current in pA
     double tau_sfa;  //!< spike-frequency adaptation (sfa) time constant
     double tau_rr;   //!< relative refractory (rr) time constant

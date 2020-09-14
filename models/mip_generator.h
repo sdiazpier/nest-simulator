@@ -35,24 +35,41 @@
 
 namespace nest
 {
+//! class mip_generator
+/*! Class mip_generator generates spike trains as described
+    in the MIP model.
+*/
 
-/* BeginUserDocs: device, generator
 
-Short description
-+++++++++++++++++
+/** @BeginDocumentation
+@ingroup Devices
+@ingroup generator
 
-create spike trains as described by the MIP model
+Name: mip_generator - create spike trains as described by the MIP model.
 
-Description
-+++++++++++
+Description:
 
 The mip_generator generates correlated spike trains using an Multiple
-Interaction Process (MIP) as described in [1]_. Underlying principle is a
+Interaction Process (MIP) as described in [1]. Underlying principle is a
 Poisson mother process with rate r, the spikes of which are copied into the
 child processes with a certain probability p. Every node the mip_generator is
 connected to receives a distinct child process as input, whose rate is p*r.
 The value of the pairwise correlation coefficient of two child processes
 created by a MIP process equals p.
+
+
+Parameters:
+
+The following parameters appear in the element's status dictionary:
+
+\verbatim embed:rst
+============  ======== ================================================
+ rate         spikes/s Mean firing rate of the mother process
+ p_copy       real     Copy probability
+ mother_rng   rng      Random number generator of mother process
+ mother_seed  integer  Seed of RNG of mother process
+============  ======== ================================================
+\endverbatim
 
 Remarks:
 
@@ -69,39 +86,25 @@ IMPORTANT: The mother_seed of mpi_generator must be different from any
            seeds used for the global or thread-specific RNGs set in
            the kernel.
 
-TODO: Better handling of private random number generator, see #143.
+@todo Better handling of private random number generator, see #143.
       Most important: If RNG is changed in prototype by SetDefaults,
       then this is
 
-Parameters
-++++++++++
+Sends: SpikeEvent
 
-The following parameters appear in the element's status dictionary:
+References:
 
-============  ======== ================================================
- rate         spikes/s Mean firing rate of the mother process
- p_copy       real     Copy probability
- mother_rng   rng      Random number generator of mother process
- mother_seed  integer  Seed of RNG of mother process
-============  ======== ================================================
-
-Sends
-+++++
-
-SpikeEvent
-
-References
-++++++++++
-
+\verbatim embed:rst
 .. [1] Kuhn A, Aertsen A, Rotter S (2003). Higher-order statistics of input
        ensembles and the response of simple model neurons. Neural Computation
        15:67-101.
        DOI: https://doi.org/10.1162/089976603321043702
+ \endverbatim
 
-EndUserDocs */
+Author: May 2006, Helias
 
-/*! Class mip_generator generates spike trains as described
-    in the MIP model.
+SeeAlso: Device
+
 */
 class mip_generator : public DeviceNode
 {
