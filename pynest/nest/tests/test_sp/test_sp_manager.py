@@ -87,7 +87,8 @@ class TestStructuralPlasticityManager(unittest.TestCase):
 
     def test_getting_kernel_status(self):
         """
-        This tests the functionality of the structural plasticity status via GetKernelStatus.
+        This tests the functionality of the structural plasticity status
+        via GetKernelStatus.
         """
         neuron_model = 'iaf_psc_alpha'
         nest.CopyModel('static_synapse', 'synapse_ex')
@@ -135,8 +136,7 @@ class TestStructuralPlasticityManager(unittest.TestCase):
             'structural_plasticity_update_interval'
         )
         assert (sp_interval == 10000.)
-    
-    
+
     def test_synapse_creation(self):
         for syn_model in nest.Models('synapses'):
             if syn_model not in self.exclude_synapse_model:
