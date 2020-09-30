@@ -98,25 +98,55 @@ nest::InputBackendMPI::prepare()
   thread thread_id_master = kernel().vp_manager.get_thread_id();
   // Create the connection with MPI
   // 1) take all the ports of the connections
-  // get port and update the list of device only for mastecommr
+  // get port and update the list of device only for master
   for ( auto& it_device : devices_[ thread_id_master ] ) {
     // add the link between MPI communicator and the device (devices can share the same MPI communicator)
     std::string port_name;
     get_port( it_device.second.second, &port_name );
     auto comm_it = commMap_.find( port_name );
     MPI_Comm* comm;
-    std::vector<int>* vector_id_device;
     if ( comm_it != commMap_.end() ) {
       comm = comm_it->second.first;
-      comm_it->second.second->push_back(it_device.second.second->get_node_id());
+      // add the id of the device if it's need.
+      if (kernel().connection_manager.get_device_connected(thread_id_master,it_device.second.second->get_local_device_id(),kernel().mpi_manager.get_rank())){
+        comm_it->second.second->push_back(it_device.second.second->get_node_id());
+      }
     } else {
       comm = new MPI_Comm;
-      vector_id_device = new std::vector<int>;
-      vector_id_device->push_back(it_device.second.second->get_node_id());
+      auto vector_id_device = new std::vector<int>;
+      // add the id of the device if it's need.
+      if (kernel().connection_manager.get_device_connected(thread_id_master,it_device.second.second->get_local_device_id(),kernel().mpi_manager.get_rank())){
+        vector_id_device->push_back(it_device.second.second->get_node_id());
+      }
+//      std::cerr<<"# connection MPI : "<<kernel().mpi_manager.get_rank()<<" thread "<<thread_id_master<<" id "<<it_device.second.second->get_local_device_id()<<std::endl;std::cerr.flush();
       std::pair< MPI_Comm *, std::vector<int>* > comm_count = std::make_pair( comm, vector_id_device );
       commMap_.insert( std::make_pair( port_name, comm_count ) );
     }
     it_device.second.first = comm;
+  }
+
+  // Add the id of device of the other thread
+  for (int id_thread = 0; id_thread<kernel().vp_manager.get_num_threads(); id_thread++)
+  {
+    if ( id_thread != thread_id_master )
+    {
+      for ( auto& it_device : devices_[ thread_id_master ] )
+        if ( kernel().connection_manager.get_device_connected(
+               thread_id_master, it_device.second.second->get_local_device_id() ,kernel().mpi_manager.get_rank()) )
+        {
+          std::string port_name;
+          get_port( it_device.second.second, &port_name );
+          auto comm_it = commMap_.find( port_name );
+          if ( comm_it != commMap_.end() )
+          {
+            comm_it->second.second->push_back( it_device.second.second->get_node_id() );
+          }
+          else
+          {
+            throw KernelException( "The MPI port was not define in the master thread" );
+          }
+        }
+    }
   }
 
   // 2) connect the master thread to the MPI process it needs to be connected to
@@ -265,38 +295,43 @@ nest::InputBackendMPI::get_port( const index index_node, const std::string& labe
 }
 
 void
-nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, std::vector<int>& devices_id )
+nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, std::vector<int>& devices_id)
 {
   // Send size of the list id
   int size_list[1];
   size_list [0] = devices_id.size();
   MPI_Send( &size_list, 1, MPI_INT, 0, 0, comm );
-  // Send the list of device ids
-  MPI_Send( &devices_id[0], size_list[0], MPI_INT, 0, 0, comm );
-  // Receive the size of data
-  MPI_Status status_mpi;
-  int* nb_size_data_per_id{ new int[ size_list[ 0 ] + 1 ]{} };
-  MPI_Recv( nb_size_data_per_id, size_list[ 0 ] + 1, MPI_INT, MPI_ANY_SOURCE, devices_id[0], comm, &status_mpi );
-  // Receive the data
-  double* data{ new double[ nb_size_data_per_id[ 0 ] ]{} };
-  MPI_Recv( data, nb_size_data_per_id[ 0 ], MPI_DOUBLE, status_mpi.MPI_SOURCE, devices_id[ 0 ], comm, &status_mpi );
-  int index_data = 0; // first one is the total number spikes
-  int index_id_device = 0;
-  // update all the device with spikes
-  for (auto &id : devices_id)
+  if (size_list[0] != 0)
   {
-    std::vector< double > data_for_device( &data[ index_data ], &data[ index_data + nb_size_data_per_id [ index_id_device+1 ] ] );
+    // Send the list of device ids
+    MPI_Send( &devices_id[ 0 ], size_list[ 0 ], MPI_INT, 0, 0, comm );
+    // Receive the size of data
+    MPI_Status status_mpi;
+    int* nb_size_data_per_id { new int[ size_list[ 0 ] + 1 ] {} };
+    MPI_Recv( nb_size_data_per_id, size_list[ 0 ] + 1, MPI_INT, MPI_ANY_SOURCE, devices_id[ 0 ], comm, &status_mpi );
+    // Receive the data
+    double* data { new double[ nb_size_data_per_id[ 0 ] ] {} };
+    MPI_Recv( data, nb_size_data_per_id[ 0 ], MPI_DOUBLE, status_mpi.MPI_SOURCE, devices_id[ 0 ], comm, &status_mpi );
+    int index_data = 0; // first one is the total number spikes
+    int index_id_device = 0;
+    // update all the device with spikes
+    for ( auto& id : devices_id )
+    {
+      std::vector< double > data_for_device(
+        &data[ index_data ], &data[ index_data + nb_size_data_per_id[ index_id_device + 1 ] ] );
 
-    // Update the device with the data in all the thread
-    for (auto &thread_device : devices_) {
-      thread_device.find( id )->second.second->update_from_backend( data_for_device );
+      // Update the device with the data in all the thread
+      for ( auto& thread_device : devices_ )
+      { // TODO need to be in parallel
+        thread_device.find( id )->second.second->update_from_backend( data_for_device );
+      }
+      index_id_device += 1;
+      index_data += nb_size_data_per_id[ index_id_device ];
     }
-    index_id_device += 1;
-    index_data += nb_size_data_per_id [ index_id_device ];
+    // clean the memory
+    delete[] data;
+    data = nullptr;
+    delete[] nb_size_data_per_id;
+    nb_size_data_per_id = nullptr;
   }
-  // clean the memory
-  delete[] data;
-  data = nullptr;
-  delete[] nb_size_data_per_id;
-  nb_size_data_per_id = nullptr;
 }

@@ -216,6 +216,7 @@ public:
   const std::vector< Target >& get_remote_targets_of_local_node( const thread tid, const index lid ) const;
 
   index get_target_node_id( const thread tid, const synindex syn_id, const index lcid ) const;
+  bool get_device_connected( thread tid, index lcid, int rank) const;
 
   /**
    * Triggered by volume transmitter in update.
@@ -778,6 +779,12 @@ inline index
 ConnectionManager::get_target_node_id( const thread tid, const synindex syn_id, const index lcid ) const
 {
   return connections_[ tid ][ syn_id ]->get_target_node_id( tid, lcid );
+}
+
+inline bool
+ConnectionManager::get_device_connected( const thread tid, const index lcid, const int rank) const
+{
+  return target_table_devices_.get_devices_connected(tid, lcid, rank);
 }
 
 inline void

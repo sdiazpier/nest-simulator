@@ -201,6 +201,8 @@ public:
     ConnectorModel& cm,
     const DictionaryDatum& dict,
     const index lcid );
+
+  bool get_devices_connected( thread tid, index lcid, int rank) const;
 };
 
 inline void
@@ -239,6 +241,28 @@ TargetTableDevices::send_from_device( const thread tid,
       ( *it )->send_to_all( tid, cm, e );
     }
   }
+}
+
+inline bool
+TargetTableDevices::get_devices_connected( const thread tid, const index lcid, const int rank) const
+{
+  for ( auto& it_synapse :target_from_devices_[ tid ][ lcid ] )
+  {
+//    std::cerr<<"# connection => rank :"<<rank<<" thread id : "<<tid<<" synape_id : "<<it_synapse<<" id neurons : "<<lcid<<std::endl;
+    if (it_synapse != nullptr){
+      std::deque< ConnectionID > conns;
+      it_synapse->get_all_connections( lcid, 0, tid, UNLABELED_CONNECTION, conns );
+//      std::cerr<<"# connection => rank :"<<rank<<" thread id : "<<tid<<" id neurons : "<<lcid<<" size syn: "<<it_synapse->size()<<" size: "<<conns.size()<<std::endl;
+      if ( !conns.empty())
+      {
+//        for (auto& connection : conns){
+//          std::cerr<<"# connection => rank :"<<rank<<" thread id : "<<tid<<" id neurons : "<<lcid<<" conn "<<connection.get_target_node_id()<<std::endl;
+//        }
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 } // namespace nest
