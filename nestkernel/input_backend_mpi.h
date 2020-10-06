@@ -122,12 +122,16 @@ private:
    * A map of MPI communicator use by the master thread for the MPI communication.
    * This map contains also the number of the device by MPI communicator.
    */
-  typedef std::map< std::string, std::pair< MPI_Comm*, std::vector<int>* > > comm_map;
+  typedef std::map< std::string, std::tuple< MPI_Comm*, std::vector<int>*, int* > > comm_map;
   comm_map commMap_;
+
+  thread thread_master;
 
   static void get_port( InputDevice* device, std::string* port_name );
   static void get_port( index index_node, const std::string& label, std::string* port_name );
-  void receive_spike_train( const MPI_Comm& comm, std::vector<int>& device_id );
+  static std::pair<int*,double*> receive_spike_train( const MPI_Comm& comm, std::vector<int>& device_id );
+  void update_device(int* array_index, std::vector<int>& devices_id,std::pair<int*,double*> data );
+  void clean_memory_input_data(std::pair<int*,double*>* data );
 };
 
 } // namespace
