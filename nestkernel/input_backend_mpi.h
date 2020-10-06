@@ -125,12 +125,32 @@ private:
   typedef std::map< std::string, std::tuple< MPI_Comm*, std::vector<int>*, int* > > comm_map;
   comm_map commMap_;
 
-  thread thread_master;
-
+  /**
+   *  Getting the port name for the MPI connection
+   * @param device : input device for finding the file with the port
+   * @param port_name : result of the port name
+   */
   static void get_port( InputDevice* device, std::string* port_name );
   static void get_port( index index_node, const std::string& label, std::string* port_name );
+  /**
+   * MPI communication for receiving the data before each run. This function is use only by the master thread.
+   * The allocation of this function is clean by the function clean_memory_input_data
+   * @param comm : the MPI communicator for send and receive message
+   * @param device_id : the list of ID which need to be updated
+   * @return pair( size of data by device, the continuous array with all the data for the device )
+   */
   static std::pair<int*,double*> receive_spike_train( const MPI_Comm& comm, std::vector<int>& device_id );
+  /**
+   * Update all the device with the data receiving
+   * @param array_index : number of device by thread
+   * @param devices_id : the devices id order by thread
+   * @param data : the data receiving for update all the device
+   */
   void update_device(int* array_index, std::vector<int>& devices_id,std::pair<int*,double*> data );
+  /**
+   * clean all the memory allocated for the updating device. The function is use only by the master thread
+   * @param data
+   */
   void clean_memory_input_data(std::pair<int*,double*>* data );
 };
 

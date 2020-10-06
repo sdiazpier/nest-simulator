@@ -56,11 +56,13 @@ nest::InputBackendMPI::enroll( InputDevice& device, const DictionaryDatum& param
     thread tid = device.get_thread();
     index node_id = device.get_node_id();
 
+    // for each thread, add the input device if it's not already in the map
     auto device_it = devices_[ tid ].find( node_id );
     if ( device_it != devices_[ tid ].end() )
     {
       devices_[ tid ].erase( device_it );
     }
+    // the MPI communication will be initialise during the prepare function
     std::pair< MPI_Comm*, InputDevice* > pair = std::make_pair( nullptr, &device );
     devices_[ tid ].insert( std::make_pair( node_id, pair ) );
   }
@@ -76,6 +78,7 @@ nest::InputBackendMPI::disenroll( InputDevice& device )
   thread tid = device.get_thread();
   index node_id = device.get_node_id();
 
+  // remove the device from the map
   auto device_it = devices_[ tid ].find( node_id );
   if ( device_it != devices_[ tid ].end() )
   {
@@ -94,53 +97,52 @@ nest::InputBackendMPI::set_value_names( const InputDevice& device,
 void
 nest::InputBackendMPI::prepare()
 {
-  // need to be run only by the master thread : it is the case because it's not run in parallel
-  thread_master = kernel().vp_manager.get_thread_id();
+  // need to be run only by the master thread : it is the case because this part is not running in parallel
+  thread thread_id_master = kernel().vp_manager.get_thread_id();
   // Create the connection with MPI
   // 1) take all the ports of the connections
   // get port and update the list of device only for master
-  for ( auto& it_device : devices_[ thread_master ] ) {
+  for ( auto& it_device : devices_[ thread_id_master ] ) {
     // add the link between MPI communicator and the device (devices can share the same MPI communicator)
     std::string port_name;
     get_port( it_device.second.second, &port_name );
     auto comm_it = commMap_.find( port_name );
     MPI_Comm* comm;
     if ( comm_it != commMap_.end() ) {
+      // it's not a new communicator
       comm = std::get<0>(comm_it->second);
-      // add the id of the device if it's need.
-      std::cerr << " thread "<< thread_master<<" push  ? id "<< it_device.second.second->get_node_id()<< " local "<<it_device.second.second->get_local_device_id()<<std::endl;
-      if (kernel().connection_manager.get_device_connected(thread_master,it_device.second.second->get_local_device_id(),kernel().mpi_manager.get_rank())){
+      // add the id of the device if there are a connection with the device.
+      if (kernel().connection_manager.get_device_connected(thread_id_master,it_device.second.second->get_local_device_id(),kernel().mpi_manager.get_rank())){
         std::get<1>(comm_it->second)->push_back(it_device.second.second->get_node_id());
-        std::cerr << " thread "<< thread_master<<" push id "<< it_device.second.second->get_node_id()<< " local "<<it_device.second.second->get_local_device_id()<<std::endl;
-        std::get<2>(comm_it->second)[thread_master]+=1;
+        std::get<2>(comm_it->second)[thread_id_master]+=1;
       }
     } else {
+      // create a new MPI communicator for the MPI process. Only the master thread is using MPI function.
+      // The cause it's the management of the thread is MPI_THREAD_FUNNELED (mpi_manager 119).
       comm = new MPI_Comm;
-      auto vector_id_device = new std::vector<int>;
-      int* vector_nb_device_th { new int[ kernel().vp_manager.get_num_threads() ] {} };
+      auto vector_id_device = new std::vector<int>; // vector of ID device for the rank
+      int* vector_nb_device_th { new int[ kernel().vp_manager.get_num_threads() ] {} }; // number of device by thread
       std::fill_n(vector_nb_device_th,kernel().vp_manager.get_num_threads(),0);
-      // add the id of the device if it's need.
-      std::cerr << " thread "<< thread_master<<" push  ? id "<< it_device.second.second->get_node_id()<< " local "<<it_device.second.second->get_local_device_id()<<std::endl;
-      if (kernel().connection_manager.get_device_connected(thread_master,it_device.second.second->get_local_device_id(),kernel().mpi_manager.get_rank())){
+      // add the id of the device if there are a connection with the device.
+      if (kernel().connection_manager.get_device_connected(thread_id_master,it_device.second.second->get_local_device_id(),kernel().mpi_manager.get_rank())){
         vector_id_device->push_back(it_device.second.second->get_node_id());
-        std::cerr << " thread "<< thread_master<<" push id "<< it_device.second.second->get_node_id()<< " local "<<it_device.second.second->get_local_device_id()<<std::endl;
-        vector_nb_device_th[thread_master]+=1;
+        vector_nb_device_th[thread_id_master]+=1;
       }
-//      std::cerr<<"# connection MPI : "<<kernel().mpi_manager.get_rank()<<" thread "<<thread_id_master<<" id "<<it_device.second.second->get_local_device_id()<<std::endl;std::cerr.flush();
       std::tuple< MPI_Comm *, std::vector<int>*, int* > comm_count = std::make_tuple( comm, vector_id_device, vector_nb_device_th );
       commMap_.insert( std::make_pair( port_name, comm_count ) );
     }
     it_device.second.first = comm;
   }
 
-  // Add the id of device of the other thread
+  // Add the id of device of the other thread in the vector_id_device and update the count of all device
   for (int id_thread = 0; id_thread<kernel().vp_manager.get_num_threads(); id_thread++)
   {
-    if ( id_thread != thread_master )
+    // don't do it again for the master thread
+    if ( id_thread != thread_id_master )
     {
       for ( auto& it_device : devices_[ id_thread ] )
       {
-                std::cerr << " thread "<< id_thread<<" push  ? id "<< it_device.second.second->get_node_id() << " local "<<it_device.second.second->get_local_device_id()<<std::endl;
+        // add the id of the device if there are a connection with the device.
         if ( kernel().connection_manager.get_device_connected(
                id_thread, it_device.second.second->get_local_device_id(), kernel().mpi_manager.get_rank() ) )
         {
@@ -150,12 +152,11 @@ nest::InputBackendMPI::prepare()
           if ( comm_it != commMap_.end() )
           {
             std::get< 1 >( comm_it->second )->push_back( it_device.second.second->get_node_id() );
-            std::cerr << " thread " << id_thread << " push id " << it_device.second.second->get_node_id() << " local "
-                      << it_device.second.second->get_local_device_id() << std::endl;
             std::get< 2 >( comm_it->second )[ id_thread ] += 1;
           }
           else
           {
+            // should be impossible
             throw KernelException( "The MPI port was not define in the master thread" );
           }
         }
@@ -179,10 +180,12 @@ nest::InputBackendMPI::prepare()
 void
 nest::InputBackendMPI::pre_run_hook()
 {
+  // create the variable which will contains the receiving data from the communication
   auto data { new std::pair<int*,double*>[ commMap_.size() ] {} };
   int index = 0;
   #pragma omp master
   {
+    // receive all the information from all the MPI connection
     for ( auto& it_comm : commMap_ )
     {
       bool value [ 1 ]  = { true } ;
@@ -195,24 +198,23 @@ nest::InputBackendMPI::pre_run_hook()
   comm_map* communication_map_shared = &commMap_;
   #pragma omp parallel default(none) shared(data,communication_map_shared)
  {
+   // Each thread update its own devices.
    int index_it = 0;
     for ( auto& it_comm : *communication_map_shared )
     {
-      printf("thread %d device %d index %d\n",kernel().vp_manager.get_thread_id(),std::get<2>(it_comm.second)[kernel().vp_manager.get_thread_id()],index_it);
       update_device(std::get<2>(it_comm.second),*std::get<1>(it_comm.second),data[index_it]);
       index_it+=1;
     }
-     printf("end thread %d index %d\n",kernel().vp_manager.get_thread_id(),index_it);
   }
+  #pragma omp barrier
   #pragma omp master
   {
+    // Master thread clean all the allocated memory
     clean_memory_input_data( data );
     delete[] data;
     data = nullptr;
   }
   #pragma omp barrier
-  std::cout.flush();
-  std::cerr<<" end update "<<std::endl;std::cerr.flush();
 }
 
 void
@@ -249,6 +251,9 @@ nest::InputBackendMPI::cleanup()
       MPI_Send( value, 1, MPI_CXX_BOOL, 0, 2, *std::get<0>(it_comm.second) );
       MPI_Comm_disconnect( std::get<0>(it_comm.second) );
       delete std::get<0>(it_comm.second);
+      delete std::get<1>(it_comm.second);
+      delete[] std::get<2>(it_comm.second);
+      std::get<2>(it_comm.second) = nullptr;
     }
     // clear map of devices
     commMap_.clear();
@@ -305,12 +310,14 @@ nest::InputBackendMPI::get_port( const index index_node, const std::string& labe
   // (file contains only one line with name of the port)
   std::ostringstream basename;
   const std::string& path = kernel().io_manager.get_data_path();
+  // get the path from the kernel
   if ( not path.empty() )
   {
     basename << path << '/';
   }
   basename << kernel().io_manager.get_data_prefix();
 
+  // add the path from the label of the device
   if ( not label.empty() )
   {
     basename << label;
@@ -319,12 +326,14 @@ nest::InputBackendMPI::get_port( const index index_node, const std::string& labe
   {
     throw MPIFilePortsUnknown( index_node );
   }
+  // add the id of the device to the path
   char add_path[ 150 ];
   sprintf( add_path, "/%zu.txt", index_node );
   basename << add_path;
   std::cout << basename.rdbuf() << std::endl;
-  std::ifstream file( basename.str() );
 
+  // read the file
+  std::ifstream file( basename.str() );
   if ( file.is_open() )
   {
     getline( file, *port_name );
@@ -345,17 +354,16 @@ nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, std::vector<in
     MPI_Send( &devices_id[ 0 ], size_list[ 0 ], MPI_INT, 0, 0, comm );
     // Receive the size of data
     MPI_Status status_mpi;
-    int* nb_size_data_per_id { new int[ size_list[ 0 ] + 1 ] {} };
+    // Receive the size of the data in total and for each devices
+    int* nb_size_data_per_id { new int[ size_list[ 0 ] + 1 ] {} }; // delete in the function clean_memory_input_data
     MPI_Recv( nb_size_data_per_id, size_list[ 0 ] + 1, MPI_INT, MPI_ANY_SOURCE, devices_id[ 0 ], comm, &status_mpi );
-    for (int i =0; i !=size_list[ 0 ] + 1;i++ ){
-      std::cerr<<" rank "<<kernel().mpi_manager.get_rank()<<" value :"<<i<<" nb_neurons "<<nb_size_data_per_id[i]<<" device "<<devices_id[i]<<"  ";
-    }
-    std::cerr<<std::endl;std::cerr.flush();
     // Receive the data
-    double* data { new double[ nb_size_data_per_id[ 0 ] ] {} };
+    double* data { new double[ nb_size_data_per_id[ 0 ] ] {} }; // delete in the function clean_memory_input_data
     MPI_Recv( data, nb_size_data_per_id[ 0 ], MPI_DOUBLE, status_mpi.MPI_SOURCE, devices_id[ 0 ], comm, &status_mpi );
+    // return the size of the data by device and the data
     return std::make_pair(nb_size_data_per_id,data);
   }
+  // if there are no data return nullptr
   return std::make_pair(nullptr ,nullptr);
 }
 
@@ -363,53 +371,36 @@ void
 nest::InputBackendMPI::update_device(int* array_index, std::vector<int>& devices_id,std::pair<int*,double*> data )
 {
   if (data.first != nullptr){
-    std::cerr<<"data first";
-    for (int i = 0; i < sizeof( data.first ) / sizeof( data.first[ 0 ] ); i++){
-      std::cerr<<' '<<data.first[i];
-    }
-    std::cerr<<std::endl;std::cerr.flush();
+    // if there are some device
     if (data.first[0] != 0)
     {
+      // if there are some data
       thread thread_id = kernel().vp_manager.get_thread_id();
-      int index_id_device;
+      int index_id_device = 0; // the index for the array of device in the data
+      // get the first id of the device for the current thread
+      // if the thread_id == 0, the index_id_device equals 0
       if ( thread_id != 0 )
       {
-        index_id_device =
-          std::accumulate( array_index, array_index + thread_id - 1, 0 ); // first one is the total number spikes
+        index_id_device = std::accumulate( array_index, array_index + thread_id - 1, 0 );
       }
-      else
-      {
-        index_id_device = 0;
-      }
+      // get the index of the last device by adding the number of device in the thread
       int index_id_device_end = index_id_device + array_index[ thread_id ];
+      // get the index of the data receiving by summing all the size of data of the previous devices
       int index_data = std::accumulate( data.first + 1, data.first+1+index_id_device, 0 );
       if ( index_id_device != index_id_device_end )
       {
-        std::cerr << "loop over all "<<  " thread " << thread_id << " thread master " << thread_master
-                    << " rank " << kernel().mpi_manager.get_rank()
-                    << std::endl;
-        // update all the device with spikes
+        // update all the device with spikes if there are devices
         for ( int i = index_id_device; i != index_id_device_end; i++ )
         {
           int id = devices_id[ i ];
-          std::cerr  << "################### index " << index_data
-                    << " more " << data.first[ index_id_device + 1 ] << " end "
-                    << index_data + data.first[ index_id_device + 1 ] << " size "
-                    << sizeof( data.second ) / sizeof( data.second[ 0 ] ) << " device id "
-                    << id << " thread " << thread_id << " thread master " << thread_master
-                    << " rank " << kernel().mpi_manager.get_rank()
-                    << std::endl;
-          std::cerr.flush();
+          // create a vector with the data of the device
           std::vector< double > data_for_device(
             &data.second[ index_data ], &data.second[ index_data + data.first[ index_id_device + 1 ] ] );
 
-          // Update the device with the data in all the thread
-          for ( auto& i : data_for_device){
-            std::cerr<<' ' << i ;
-          }
-          std::cerr<<std::endl;std::cerr.flush();
-
+          // Update the device with the data in the current thread
           devices_[ thread_id ].find( id )->second.second->update_from_backend( data_for_device );
+
+          // update the index of the data and the index_id_device
           index_data += data.first[ index_id_device + 1 ];
           index_id_device += 1;
         }
@@ -420,16 +411,17 @@ nest::InputBackendMPI::update_device(int* array_index, std::vector<int>& devices
 
 void
 nest::InputBackendMPI::clean_memory_input_data(std::pair<int*,double*>* data ){
+  // for all the pair of data free the memory of data and the array with teh size
   for (size_t i =0; i != commMap_.size();  i++){
-    std::cerr<< " rank " << kernel().mpi_manager.get_rank() << " thread "<< kernel().vp_manager.get_thread_id() <<" i " << i << " nb_thread " << kernel().vp_manager.get_num_threads()  << " data " << data[i].first << " "<<  data[i].second << std::endl;std::cerr.flush();
     std::pair<int*,double*> pair_data = data[i];
     if (pair_data.first != nullptr)
     {
-      // clean the memory
+      // clean the memory allocate in the function receive_spike_train
       delete[] pair_data.first;
       pair_data.first = nullptr;
     }
     if(pair_data.second != nullptr){
+      // clean the memory allocate in the function receive_spike_train
       delete[] pair_data.second;
       pair_data.second = nullptr;
     }
