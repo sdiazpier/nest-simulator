@@ -98,6 +98,7 @@ void
 nest::InputBackendMPI::prepare()
 {
   // need to be run only by the master thread : it is the case because this part is not running in parallel
+  gettimeofday(&time_prepare_init[index_time],NULL);
   thread thread_id_master = kernel().vp_manager.get_thread_id();
   // Create the connection with MPI
   // 1) take all the ports of the connections
@@ -175,6 +176,7 @@ nest::InputBackendMPI::prepare()
     msg << "Connect to " << it_comm.first.data() << "\n";
     LOG(M_INFO, "MPI Input connect", msg.str());
   }
+  gettimeofday(&time_prepare_end[index_time],NULL);
 }
 
 void
@@ -185,11 +187,17 @@ nest::InputBackendMPI::pre_run_hook()
   int index = 0;
   #pragma omp master
   {
+    gettimeofday(&time_pre_run_init[index_time],NULL);
+    bool first = true;
     // receive all the information from all the MPI connection
     for ( auto& it_comm : commMap_ )
     {
       bool value [ 1 ]  = { true } ;
       MPI_Send( value, 1, MPI_CXX_BOOL, 0, 0, *std::get<0>(it_comm.second) );
+      if (first){
+        gettimeofday(&time_pre_run_wait[index_time],NULL);
+        first = false;
+      }
       data[index] = receive_spike_train(*std::get<0>(it_comm.second),*std::get<1>(it_comm.second));
       index+=1;
     }
@@ -205,6 +213,7 @@ nest::InputBackendMPI::pre_run_hook()
       update_device(std::get<2>(it_comm.second),*std::get<1>(it_comm.second),data[index_it]);
       index_it+=1;
     }
+    gettimeofday(&time_pre_run_end[index_time],NULL);
   }
   #pragma omp barrier
   #pragma omp master
@@ -228,12 +237,15 @@ nest::InputBackendMPI::post_run_hook()
 {
   #pragma omp master
   {
+    gettimeofday(&time_post_run_init[index_time],NULL);
     // Send information about the end of the running part
     for ( auto& it_comm : commMap_ )
     {
       bool value [ 1 ]  = { true } ;
       MPI_Send( value, 1, MPI_CXX_BOOL, 0, 1, *std::get<0>(it_comm.second) );
     }
+    gettimeofday(&time_post_run_end[index_time],NULL);
+    index_time+=1;
   }
   #pragma omp barrier
 }
@@ -260,6 +272,22 @@ nest::InputBackendMPI::cleanup()
     thread thread_id_master = kernel().vp_manager.get_thread_id();
     for ( auto& it_device : devices_[thread_id_master] ) {
       it_device.second.first = nullptr;
+    }
+    std::ofstream myfile (kernel().io_manager.get_data_path()+"/timer_input_"+std::to_string(kernel().mpi_manager.get_rank())+".txt");
+    if (myfile.is_open())
+    {
+      myfile <<
+        std::to_string((double) (time_prepare_init[0].tv_sec + time_prepare_init[0].tv_usec/1000000.0) ) <<";" <<
+        std::to_string((double) (time_prepare_end[0].tv_sec + time_prepare_end[0].tv_usec/1000000.0) )<<std::endl;
+      for(int count = 0; count < index_time; count ++){
+          myfile <<
+          std::to_string((double) (time_pre_run_init[count].tv_sec + time_pre_run_init[count].tv_usec/1000000.0) )<< ";" <<
+          std::to_string((double) (time_pre_run_end[count].tv_sec + time_pre_run_end[count].tv_usec/1000000.0) )<< ";" <<
+          std::to_string((double) (time_pre_run_wait[count].tv_sec + time_pre_run_wait[count].tv_usec/1000000.0) ) <<";" <<
+          std::to_string((double) (time_post_run_init[count].tv_sec + time_post_run_init[count].tv_usec/1000000.0) ) <<";" <<
+          std::to_string((double) (time_post_run_end[count].tv_sec + time_post_run_end[count].tv_usec/1000000.0) )<<std::endl;
+      }
+      myfile.close();
     }
   }
   #pragma omp barrier

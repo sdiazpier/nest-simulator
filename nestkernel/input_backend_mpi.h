@@ -152,6 +152,15 @@ private:
    * @param data
    */
   void clean_memory_input_data(std::pair<int*,double*>* data );
+  struct timeval time_prepare_init  [2];
+  struct timeval time_prepare_end  [2];
+  struct timeval time_pre_run_init  [100000];
+  struct timeval time_pre_run_end   [100000];
+  struct timeval time_pre_run_wait  [100000];
+  struct timeval time_post_run_init [100000];
+  struct timeval time_post_run_end [100000];
+
+  int index_time = 0;
 };
 
 } // namespace
