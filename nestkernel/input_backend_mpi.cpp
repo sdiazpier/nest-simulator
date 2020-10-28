@@ -179,28 +179,26 @@ nest::InputBackendMPI::prepare()
   gettimeofday(&time_prepare_end[index_time],NULL);
 }
 
-void
-nest::InputBackendMPI::pre_run_hook()
+bool
+nest::InputBackendMPI::pre_run_hook(bool first_test)
 {
   // create the variable which will contains the receiving data from the communication
   auto data { new std::pair<int*,double*>[ commMap_.size() ] {} };
   int index = 0;
+  bool first_test_init = first_test;
   #pragma omp master
   {
     gettimeofday(&time_pre_run_init[index_time],NULL);
-    bool first = true;
     // receive all the information from all the MPI connection
     for ( auto& it_comm : commMap_ )
     {
       bool value [ 1 ]  = { true } ;
       MPI_Send( value, 1, MPI_CXX_BOOL, 0, 0, *std::get<0>(it_comm.second) );
-      if (first){
-        gettimeofday(&time_pre_run_wait[index_time],NULL);
-        first = false;
-      }
-      data[index] = receive_spike_train(*std::get<0>(it_comm.second),*std::get<1>(it_comm.second));
+      data[index] = receive_spike_train(*std::get<0>(it_comm.second),*std::get<1>(it_comm.second),first_test_init);
+      if (first_test_init){first_test_init=false;};
       index+=1;
     }
+    gettimeofday(&time_pre_run_receive_data[index_time],NULL);
   }
   #pragma omp barrier
   comm_map* communication_map_shared = &commMap_;
@@ -213,7 +211,6 @@ nest::InputBackendMPI::pre_run_hook()
       update_device(std::get<2>(it_comm.second),*std::get<1>(it_comm.second),data[index_it]);
       index_it+=1;
     }
-    gettimeofday(&time_pre_run_end[index_time],NULL);
   }
   #pragma omp barrier
   #pragma omp master
@@ -222,8 +219,10 @@ nest::InputBackendMPI::pre_run_hook()
     clean_memory_input_data( data );
     delete[] data;
     data = nullptr;
+    gettimeofday(&time_pre_run_end[index_time],NULL);
   }
   #pragma omp barrier
+  return false;
 }
 
 void
@@ -282,6 +281,7 @@ nest::InputBackendMPI::cleanup()
       for(int count = 0; count < index_time; count ++){
           myfile <<
           std::to_string((double) (time_pre_run_init[count].tv_sec + time_pre_run_init[count].tv_usec/1000000.0) )<< ";" <<
+          std::to_string((double) (time_pre_run_receive_data[count].tv_sec + time_pre_run_receive_data[count].tv_usec/1000000.0) )<< ";" <<
           std::to_string((double) (time_pre_run_end[count].tv_sec + time_pre_run_end[count].tv_usec/1000000.0) )<< ";" <<
           std::to_string((double) (time_pre_run_wait[count].tv_sec + time_pre_run_wait[count].tv_usec/1000000.0) ) <<";" <<
           std::to_string((double) (time_post_run_init[count].tv_sec + time_post_run_init[count].tv_usec/1000000.0) ) <<";" <<
@@ -370,7 +370,7 @@ nest::InputBackendMPI::get_port( const index index_node, const std::string& labe
 }
 
 std::pair<int*,double*>
-nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, std::vector<int>& devices_id)
+nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, std::vector<int>& devices_id, bool first_test)
 {
   // Send size of the list id
   int size_list[1];
@@ -385,6 +385,9 @@ nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, std::vector<in
     // Receive the size of the data in total and for each devices
     int* nb_size_data_per_id { new int[ size_list[ 0 ] + 1 ] {} }; // delete in the function clean_memory_input_data
     MPI_Recv( nb_size_data_per_id, size_list[ 0 ] + 1, MPI_INT, MPI_ANY_SOURCE, devices_id[ 0 ], comm, &status_mpi );
+    if (first_test){
+      gettimeofday(&time_pre_run_wait[index_time],NULL);
+    }
     // Receive the data
     double* data { new double[ nb_size_data_per_id[ 0 ] ] {} }; // delete in the function clean_memory_input_data
     MPI_Recv( data, nb_size_data_per_id[ 0 ], MPI_DOUBLE, status_mpi.MPI_SOURCE, devices_id[ 0 ], comm, &status_mpi );

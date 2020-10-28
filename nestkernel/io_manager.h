@@ -141,6 +141,10 @@ private:
    * A mapping from names to registered input backends
    */
   std::map< Name, InputBackend* > input_backends_;
+  struct timeval time_pre_run_init  [100000];
+  struct timeval time_pre_run_recorder  [100000];
+  struct timeval time_pre_run_end [100000];
+  int index_time = 0;
 };
 
 } // namespace nest

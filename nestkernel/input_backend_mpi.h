@@ -94,7 +94,7 @@ public:
 
   void get_status( DictionaryDatum& ) const override;
 
-  void pre_run_hook() override;
+  bool pre_run_hook(bool first_test) override;
 
   void post_run_hook() override;
 
@@ -139,7 +139,7 @@ private:
    * @param device_id : the list of ID which need to be updated
    * @return pair( size of data by device, the continuous array with all the data for the device )
    */
-  static std::pair<int*,double*> receive_spike_train( const MPI_Comm& comm, std::vector<int>& device_id );
+  std::pair<int*,double*> receive_spike_train( const MPI_Comm& comm, std::vector<int>& device_id ,bool first);
   /**
    * Update all the device with the data receiving
    * @param array_index : number of device by thread
@@ -157,6 +157,7 @@ private:
   struct timeval time_pre_run_init  [100000];
   struct timeval time_pre_run_end   [100000];
   struct timeval time_pre_run_wait  [100000];
+  struct timeval time_pre_run_receive_data  [100000];
   struct timeval time_post_run_init [100000];
   struct timeval time_post_run_end [100000];
 
