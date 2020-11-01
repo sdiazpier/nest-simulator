@@ -98,7 +98,6 @@ void
 nest::InputBackendMPI::prepare()
 {
   // need to be run only by the master thread : it is the case because this part is not running in parallel
-  gettimeofday(&time_prepare_init[index_time],NULL);
   thread thread_id_master = kernel().vp_manager.get_thread_id();
   // Create the connection with MPI
   // 1) take all the ports of the connections
@@ -176,7 +175,6 @@ nest::InputBackendMPI::prepare()
     msg << "Connect to " << it_comm.first.data() << "\n";
     LOG(M_INFO, "MPI Input connect", msg.str());
   }
-  gettimeofday(&time_prepare_end[index_time],NULL);
 }
 
 bool
@@ -185,20 +183,16 @@ nest::InputBackendMPI::pre_run_hook(bool first_test)
   // create the variable which will contains the receiving data from the communication
   auto data { new std::pair<int*,double*>[ commMap_.size() ] {} };
   int index = 0;
-  bool first_test_init = first_test;
   #pragma omp master
   {
-    gettimeofday(&time_pre_run_init[index_time],NULL);
     // receive all the information from all the MPI connection
     for ( auto& it_comm : commMap_ )
     {
       bool value [ 1 ]  = { true } ;
       MPI_Send( value, 1, MPI_CXX_BOOL, 0, 0, *std::get<0>(it_comm.second) );
-      data[index] = receive_spike_train(*std::get<0>(it_comm.second),*std::get<1>(it_comm.second),first_test_init);
-      if (first_test_init){first_test_init=false;};
+      data[index] = receive_spike_train(*std::get<0>(it_comm.second),*std::get<1>(it_comm.second));
       index+=1;
     }
-    gettimeofday(&time_pre_run_receive_data[index_time],NULL);
   }
   #pragma omp barrier
   comm_map* communication_map_shared = &commMap_;
@@ -219,7 +213,6 @@ nest::InputBackendMPI::pre_run_hook(bool first_test)
     clean_memory_input_data( data );
     delete[] data;
     data = nullptr;
-    gettimeofday(&time_pre_run_end[index_time],NULL);
   }
   #pragma omp barrier
   return false;
@@ -236,15 +229,12 @@ nest::InputBackendMPI::post_run_hook()
 {
   #pragma omp master
   {
-    gettimeofday(&time_post_run_init[index_time],NULL);
     // Send information about the end of the running part
     for ( auto& it_comm : commMap_ )
     {
       bool value [ 1 ]  = { true } ;
       MPI_Send( value, 1, MPI_CXX_BOOL, 0, 1, *std::get<0>(it_comm.second) );
     }
-    gettimeofday(&time_post_run_end[index_time],NULL);
-    index_time+=1;
   }
   #pragma omp barrier
 }
@@ -271,23 +261,6 @@ nest::InputBackendMPI::cleanup()
     thread thread_id_master = kernel().vp_manager.get_thread_id();
     for ( auto& it_device : devices_[thread_id_master] ) {
       it_device.second.first = nullptr;
-    }
-    std::ofstream myfile (kernel().io_manager.get_data_path()+"/timer_input_"+std::to_string(kernel().mpi_manager.get_rank())+".txt");
-    if (myfile.is_open())
-    {
-      myfile <<
-        std::to_string((double) (time_prepare_init[0].tv_sec + time_prepare_init[0].tv_usec/1000000.0) ) <<";" <<
-        std::to_string((double) (time_prepare_end[0].tv_sec + time_prepare_end[0].tv_usec/1000000.0) )<<std::endl;
-      for(int count = 0; count < index_time; count ++){
-          myfile <<
-          std::to_string((double) (time_pre_run_init[count].tv_sec + time_pre_run_init[count].tv_usec/1000000.0) )<< ";" <<
-          std::to_string((double) (time_pre_run_receive_data[count].tv_sec + time_pre_run_receive_data[count].tv_usec/1000000.0) )<< ";" <<
-          std::to_string((double) (time_pre_run_end[count].tv_sec + time_pre_run_end[count].tv_usec/1000000.0) )<< ";" <<
-          std::to_string((double) (time_pre_run_wait[count].tv_sec + time_pre_run_wait[count].tv_usec/1000000.0) ) <<";" <<
-          std::to_string((double) (time_post_run_init[count].tv_sec + time_post_run_init[count].tv_usec/1000000.0) ) <<";" <<
-          std::to_string((double) (time_post_run_end[count].tv_sec + time_post_run_end[count].tv_usec/1000000.0) )<<std::endl;
-      }
-      myfile.close();
     }
   }
   #pragma omp barrier
@@ -370,7 +343,7 @@ nest::InputBackendMPI::get_port( const index index_node, const std::string& labe
 }
 
 std::pair<int*,double*>
-nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, std::vector<int>& devices_id, bool first_test)
+nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, std::vector<int>& devices_id)
 {
   // Send size of the list id
   int size_list[1];
@@ -385,9 +358,6 @@ nest::InputBackendMPI::receive_spike_train( const MPI_Comm& comm, std::vector<in
     // Receive the size of the data in total and for each devices
     int* nb_size_data_per_id { new int[ size_list[ 0 ] + 1 ] {} }; // delete in the function clean_memory_input_data
     MPI_Recv( nb_size_data_per_id, size_list[ 0 ] + 1, MPI_INT, MPI_ANY_SOURCE, devices_id[ 0 ], comm, &status_mpi );
-    if (first_test){
-      gettimeofday(&time_pre_run_wait[index_time],NULL);
-    }
     // Receive the data
     double* data { new double[ nb_size_data_per_id[ 0 ] ] {} }; // delete in the function clean_memory_input_data
     MPI_Recv( data, nb_size_data_per_id[ 0 ], MPI_DOUBLE, status_mpi.MPI_SOURCE, devices_id[ 0 ], comm, &status_mpi );

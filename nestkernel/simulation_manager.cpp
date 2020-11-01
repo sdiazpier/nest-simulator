@@ -515,11 +515,9 @@ nest::SimulationManager::assert_valid_simtime( Time const& t )
 void
 nest::SimulationManager::run( Time const& t )
 {
-  gettimeofday(&time_save_pre_run[index_time],NULL);
   assert_valid_simtime( t );
 
   kernel().io_manager.pre_run_hook();
-  gettimeofday(&time_save_pre_run_2[index_time],NULL);
 
   if ( not prepared_ )
   {
@@ -570,13 +568,9 @@ nest::SimulationManager::run( Time const& t )
       "the minimal delay." );
   }
 
-  gettimeofday(&time_save_run[index_time],NULL);
   call_update_();
 
-  gettimeofday(&time_save_post_run[index_time],NULL);
   kernel().io_manager.post_run_hook();
-  gettimeofday(&time_save_end[index_time],NULL);
-  index_time+=1;
 }
 
 void
@@ -609,19 +603,6 @@ nest::SimulationManager::cleanup()
 
   kernel().node_manager.finalize_nodes();
   prepared_ = false;
-  std::ofstream myfile (kernel().io_manager.get_data_path()+"/timer_"+std::to_string(kernel().mpi_manager.get_rank())+".txt");
-  if (myfile.is_open())
-  {
-    for(int count = 0; count < index_time; count ++){
-        myfile <<
-        std::to_string((double) (time_save_pre_run[count].tv_sec + time_save_pre_run[count].tv_usec/1000000.0) )<< ";" <<
-        std::to_string((double) (time_save_pre_run_2[count].tv_sec + time_save_pre_run_2[count].tv_usec/1000000.0) )<< ";" <<
-        std::to_string((double) (time_save_run[count].tv_sec + time_save_run[count].tv_usec/1000000.0) ) <<";" <<
-        std::to_string((double) (time_save_post_run[count].tv_sec + time_save_post_run[count].tv_usec/1000000.0) ) <<";" <<
-        std::to_string((double) (time_save_end[count].tv_sec + time_save_end[count].tv_usec/1000000.0) )<<std::endl;
-    }
-    myfile.close();
-  }
 }
 
 void
