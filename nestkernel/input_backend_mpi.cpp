@@ -177,8 +177,8 @@ nest::InputBackendMPI::prepare()
   }
 }
 
-bool
-nest::InputBackendMPI::pre_run_hook(bool first_test)
+void
+nest::InputBackendMPI::pre_run_hook()
 {
   // create the variable which will contains the receiving data from the communication
   auto data { new std::pair<int*,double*>[ commMap_.size() ] {} };
@@ -215,7 +215,6 @@ nest::InputBackendMPI::pre_run_hook(bool first_test)
     data = nullptr;
   }
   #pragma omp barrier
-  return false;
 }
 
 void

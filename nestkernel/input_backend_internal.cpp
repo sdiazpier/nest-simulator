@@ -111,10 +111,9 @@ nest::InputBackendInternal::set_status( const DictionaryDatum& d )
   // nothing to do
 }
 
-bool
-nest::InputBackendInternal::pre_run_hook(bool first)
+void
+nest::InputBackendInternal::pre_run_hook()
 {
-  return true;
   // nothing to do
 }
 

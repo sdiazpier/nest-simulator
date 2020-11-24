@@ -245,11 +245,9 @@ IOManager::pre_run_hook()
   {
     it.second->pre_run_hook();
   }
-  bool first_test = true;
   for ( auto& it : input_backends_ )
   {
-    bool first_test_return = it.second->pre_run_hook(first_test);
-    first_test = first_test and first_test_return;
+    it.second->pre_run_hook();
   }
 }
 

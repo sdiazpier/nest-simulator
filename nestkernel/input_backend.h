@@ -134,7 +134,7 @@ public:
    *
    * @ingroup NESTio
    */
-  virtual bool pre_run_hook(bool first_test) = 0;
+  virtual void pre_run_hook() = 0;
 
   /**
    * Clean up the backend at the end of a Run.

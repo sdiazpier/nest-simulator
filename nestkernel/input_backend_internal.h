@@ -72,7 +72,7 @@ public:
 
   void get_status( DictionaryDatum& ) const override;
 
-  bool pre_run_hook(bool first) override;
+  void pre_run_hook() override;
 
   void post_run_hook() override;
 
