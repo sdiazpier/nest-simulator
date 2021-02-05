@@ -53,6 +53,8 @@ nest::Archiving_Node::Archiving_Node()
   , Ca_minus_( 0.0 )
   , tau_Ca_( 10000.0 )
   , beta_Ca_( 0.001 )
+  , max_delete_z ( 2 )
+  , const_z_deletion ( 0.05 )
   , synaptic_elements_map_()
 {
 }
@@ -73,6 +75,8 @@ nest::Archiving_Node::Archiving_Node( const Archiving_Node& n )
   , Ca_minus_( n.Ca_minus_ )
   , tau_Ca_( n.tau_Ca_ )
   , beta_Ca_( n.beta_Ca_ )
+  , max_delete_z ( 2 )
+  , const_z_deletion (0.05)
   , synaptic_elements_map_( n.synaptic_elements_map_ )
 {
 }
@@ -394,6 +398,24 @@ nest::Archiving_Node::get_synaptic_elements_vacant( Name n ) const
     return 0;
   }
 }
+
+int
+nest::Archiving_Node::get_synaptic_elements_to_delete( Name n ) const
+{
+  
+  std::map< Name, SynapticElement >::const_iterator se_it;
+  se_it = synaptic_elements_map_.find( n );
+
+  if ( se_it != synaptic_elements_map_.end() )
+  {
+    return std::floor(se_it->second.get_z_connected()*(const_z_deletion + std::floor( Ca_minus_ * max_delete_z ))); 
+  }
+  else
+  {
+    return 0;
+  }
+}
+
 
 int
 nest::Archiving_Node::get_synaptic_elements_connected( Name n ) const

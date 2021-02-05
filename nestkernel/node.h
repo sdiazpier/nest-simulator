@@ -622,6 +622,17 @@ public:
   }
 
   /**
+   * Get the number of synaptic element to delete per sp update in Node
+   * Return 0 if not overridden
+   * @ingroup SP_functions
+   */
+  virtual int get_synaptic_elements_to_delete( Name ) const
+  {
+    return 0;
+  }
+
+
+  /**
    * Get the number of connected synaptic element for the current Node
    * Return 0 if not overridden
    * @ingroup SP_functions
@@ -650,7 +661,7 @@ public:
    * @ingroup SP_functions
    */
   virtual void update_synaptic_elements( double ){};
-
+  
   /**
    * Is used to reduce the number of synaptic elements in the node through
    * time. This amount is defined by tau_vacant.

@@ -175,6 +175,7 @@ nest::GrowthCurveSigmoid::update( double t,
 
   double z_value = z_minus;
   double Ca = Ca_minus;
+  double max_z = 100;
 
   for ( double lag = t_minus; lag < ( t - h / 2.0 ); lag += h )
   {
@@ -182,6 +183,8 @@ nest::GrowthCurveSigmoid::update( double t,
     const double dz = h * growth_rate * ( ( 2.0 / ( 1.0 + exp( ( Ca - eps_ ) / psi_ ) ) ) - 1.0 );
     z_value = z_value + dz;
   }
+  z_value = std::max( z_value, 0.0 );
+  z_value = std::min( z_value, max_z ); 
 
-  return std::max( z_value, 0.0 );
+  return z_value;
 }

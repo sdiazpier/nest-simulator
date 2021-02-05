@@ -663,6 +663,7 @@ nest::SPManager::get_synaptic_elements( std::string se_name,
   index n_deleted_id = 0;
   index gid;
   int n;
+  int del;
   size_t n_nodes = kernel().node_manager.size();
   se_vacant_id.clear();
   se_vacant_n.clear();
@@ -688,6 +689,8 @@ nest::SPManager::get_synaptic_elements( std::string se_name,
     {
       gid = ( *node_it )->get_gid();
       n = ( *node_it )->get_synaptic_elements_vacant( se_name );
+      del = ( *node_it )->get_synaptic_elements_to_delete( se_name );
+      // Think about what happens if n would ever be lower than 0...
       if ( n > 0 )
       {
         ( *vacant_id_it ) = gid;
@@ -696,10 +699,10 @@ nest::SPManager::get_synaptic_elements( std::string se_name,
         vacant_id_it++;
         vacant_n_it++;
       }
-      if ( n < 0 )
+      if ( del > 0 )
       {
         ( *deleted_id_it ) = gid;
-        ( *deleted_n_it ) = n;
+        ( *deleted_n_it ) = del;
         n_deleted_id++;
         deleted_id_it++;
         deleted_n_it++;

@@ -95,6 +95,13 @@ public:
   int get_synaptic_elements_vacant( Name n ) const;
 
   /**
+   * \fn int get_synaptic_elements_to_delete(Name n)
+   * Get the number of synaptic elements to be deleted per sp update
+   * depending on the neuron's firing rate
+   */
+  int get_synaptic_elements_to_delete( Name n ) const;
+
+  /**
    * \fn int get_synaptic_elements_connected(Name n)
    * get the number of synaptic element of type n which are currently
    * connected
@@ -252,6 +259,12 @@ private:
 
   // Time of the last update of the Calcium concentration in ms
   double Ca_t_;
+
+  // Max number of deleted synapses per update step dependent on the firing rate 
+  int max_delete_z;
+
+  // constant deleted synaptic elements per update step
+  int const_z_deletion;
 
   // Value of the calcium concentration [Ca2+] at Ca_t_. Intracellular calcium
   // concentration has a linear factor to mean electrical activity of 10^2,
