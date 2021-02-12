@@ -702,7 +702,7 @@ nest::SPManager::get_synaptic_elements( std::string se_name,
       if ( del > 0 )
       {
         ( *deleted_id_it ) = gid;
-        ( *deleted_n_it ) = del;
+        ( *deleted_n_it ) = -del;
         n_deleted_id++;
         deleted_id_it++;
         deleted_n_it++;
