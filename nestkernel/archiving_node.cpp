@@ -35,6 +35,9 @@
 // Includes from sli:
 #include "dictutils.h"
 
+// Includes from librandom
+#include "binomial_randomdev.h"
+
 namespace nest
 {
 
@@ -54,7 +57,7 @@ nest::Archiving_Node::Archiving_Node()
   , tau_Ca_( 10000.0 )
   , beta_Ca_( 0.001 )
   , max_delete_z ( 0.05 )
-  , const_z_deletion ( 0.01 )
+  , const_z_deletion ( 0.0001 )
   , synaptic_elements_map_()
 {
 }
@@ -76,7 +79,7 @@ nest::Archiving_Node::Archiving_Node( const Archiving_Node& n )
   , tau_Ca_( n.tau_Ca_ )
   , beta_Ca_( n.beta_Ca_ )
   , max_delete_z ( 0.05 )
-  , const_z_deletion ( 0.01 )
+  , const_z_deletion ( 0.0001 )
   , synaptic_elements_map_( n.synaptic_elements_map_ )
 {
 }
@@ -406,11 +409,19 @@ nest::Archiving_Node::get_synaptic_elements_to_delete( Name n ) const
   std::map< Name, SynapticElement >::const_iterator se_it;
   se_it = synaptic_elements_map_.find( n );
 
+
   if ( se_it != synaptic_elements_map_.end() )
   {
      
     //std::cout << "("<< std::floor(se_it->second.get_z_connected()*std::min(const_z_deletion + 0.02 * Ca_minus_ / tau_Ca_*10000. , max_delete_z)) << "," << const_z_deletion + 0.02 * Ca_minus_ / tau_Ca_*10000. << ") "; 
-    return std::floor(se_it->second.get_z_connected()*std::min(const_z_deletion + 0.02 * Ca_minus_ / tau_Ca_*10000. , max_delete_z)); 
+    //std::cout<<Ca_minus_ * 1000.<<" ";
+    librandom::RngPtr rng = kernel().rng_manager.get_rng( get_thread() );
+    librandom::BinomialRandomDev bino_dev ;
+    double pbino =  const_z_deletion +  max_delete_z /(1. + std::exp( - (Ca_minus_ *1000. - 100.) /10. ));
+    int nbino = se_it->second.get_z_connected();
+    bino_dev.set_p_n( pbino, nbino);
+    
+    return bino_dev.ldev( rng ); 
   }
   else
   {
