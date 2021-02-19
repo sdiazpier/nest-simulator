@@ -89,6 +89,7 @@
 
 // Includes from nestkernel:
 #include "growth_curve.h"
+#include "deletion_curve.h"
 
 // Includes from sli:
 #include "dictdatum.h"
@@ -178,6 +179,13 @@ public:
   {
     return std::floor( z_ ) - z_connected_;
   }
+
+  int
+  get_z_deletion() const
+  {
+    return z_deletion_;
+  }
+
   /*
    * Retrieves the current number of synaptic elements bound to a synapse
    */
@@ -220,6 +228,18 @@ public:
       growth_curve_ = &g;
     }
   }
+  /*
+   * Used to define the dynamics of the synaptic elements using a Deletion Curve
+   */
+  void
+  set_deletion_curve( DeletionCurve& d )
+  {
+    if ( del_curve_ != &d )
+    {
+      delete del_curve_;
+      del_curve_ = &d;
+    }
+  }
 
   /*
    * Retrieves the current value of the growth rate
@@ -229,6 +249,16 @@ public:
   {
     return growth_rate_;
   }
+
+  /*
+   * Retrieves the current value of the deletion rate
+   */
+  double
+  get_deletion_rate() const
+  { 
+    return deletion_rate_;
+  }
+
 
   void
   set_z( const double z_new )
@@ -272,10 +302,12 @@ private:
   // The maximum amount by which the synaptic elements will change between time
   // steps.
   double growth_rate_;
+  double deletion_rate_;
   // Rate at which vacant synaptic elements will decay
   double tau_vacant_;
   // Growth curve which defines the dynamics of this synaptic element.
   GrowthCurve* growth_curve_;
+  DeletionCurve* del_curve_;
 };
 
 } // of namespace

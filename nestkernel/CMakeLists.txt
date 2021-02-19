@@ -70,6 +70,7 @@ set( nestkernel_sources
     nest.h nest_impl.h nest.cpp
     synaptic_element.h synaptic_element.cpp
     growth_curve.h growth_curve.cpp
+    deletion_curve.h deletion_curve.cpp
     growth_curve_factory.h
     kernel_manager.h kernel_manager.cpp
     vp_manager.h vp_manager_impl.h vp_manager.cpp

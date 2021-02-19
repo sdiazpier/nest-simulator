@@ -111,6 +111,7 @@ const Name dead_time_shape( "dead_time_shape" );
 const Name delay( "delay" );
 const Name delay_u_bars( "delay_u_bars" );
 const Name delays( "delays" );
+const Name deletion_probability("deletion_probability");
 const Name deliver_interval( "deliver_interval" );
 const Name delta( "delta" );
 const Name delta_P( "delta_P" );
