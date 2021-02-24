@@ -181,9 +181,9 @@ public:
   }
 
   int
-  get_z_deletion() const
+  get_z_deletion( double Ca_minus, thread thrd ) const
   {
-    return z_deletion_;
+    return deletion_curve_->update( z_connected_, Ca_minus, thrd );
   }
 
   /*
@@ -234,10 +234,10 @@ public:
   void
   set_deletion_curve( DeletionCurve& d )
   {
-    if ( del_curve_ != &d )
+    if ( deletion_curve_ != &d )
     {
-      delete del_curve_;
-      del_curve_ = &d;
+      delete deletion_curve_;
+      deletion_curve_ = &d;
     }
   }
 
@@ -296,6 +296,7 @@ private:
   double z_t_;
   // Number of synaptic elements bound to a synapse
   int z_connected_;
+  int z_deletion_;
   // Variable which defines if the number of synaptic elements should be treated
   // as a continous double number or as an integer value
   bool continuous_;
@@ -307,7 +308,7 @@ private:
   double tau_vacant_;
   // Growth curve which defines the dynamics of this synaptic element.
   GrowthCurve* growth_curve_;
-  DeletionCurve* del_curve_;
+  DeletionCurve* deletion_curve_;
 };
 
 } // of namespace

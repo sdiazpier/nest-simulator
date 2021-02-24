@@ -39,6 +39,7 @@
 // Includes from nestkernel:
 #include "gid_collection.h"
 #include "growth_curve_factory.h"
+#include "deletion_curve_factory.h"
 #include "nest_time.h"
 #include "nest_types.h"
 
@@ -80,6 +81,13 @@ public:
    * @return a new Growth Curve object of the type indicated by name
    */
   GrowthCurve* new_growth_curve( Name name );
+
+  /**
+   * Create a new Deletion Curve object using the DeletionCurve Factory
+   * @param name which defines the type of DC to be created
+   * @return a new Deletion Curve object of the type indicated by name
+   */
+  DeletionCurve* new_deletion_curve( Name name );
 
   /**
    * Add a growth curve for MSP
@@ -218,6 +226,20 @@ private:
    * GrowthCurve factories, indexed by growthcurvedict_ elements.
    */
   std::vector< GenericGrowthCurveFactory* > growthcurve_factories_;
+
+  /** @BeginDocumentation
+
+   Name: deletioncurvedict - deletion curves for Model of Structural Plasticity
+
+   Description:
+   This dictionary provides indexes for the deletion curve factory
+   */
+  DictionaryDatum deletioncurvedict_; //!< Dictionary for growth rules.
+
+  /**
+   * DeletionCurve factories, indexed by deletioncurvedict_ elements.
+   */
+  std::vector< GenericDeletionCurveFactory* > deletioncurve_factories_;
 };
 
 inline DictionaryDatum&
@@ -231,6 +253,13 @@ SPManager::new_growth_curve( Name name )
 {
   const long gc_id = ( *growthcurvedict_ )[ name ];
   return growthcurve_factories_.at( gc_id )->create();
+}
+
+inline DeletionCurve*
+SPManager::new_deletion_curve( Name name )
+{
+  const long dc_id = ( *deletioncurvedict_ )[ name ];
+  return deletioncurve_factories_.at( dc_id )->create();
 }
 
 inline bool

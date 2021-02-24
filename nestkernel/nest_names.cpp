@@ -94,6 +94,7 @@ const Name configbit_0( "configbit_0" );
 const Name configbit_1( "configbit_1" );
 const Name connection_count( "connection_count" );
 const Name consistent_integration( "consistent_integration" );
+const Name const_z_deletion( "const_z_deletion" );
 const Name continuous( "continuous" );
 const Name count_covariance( "count_covariance" );
 const Name count_histogram( "count_histogram" );
@@ -111,7 +112,9 @@ const Name dead_time_shape( "dead_time_shape" );
 const Name delay( "delay" );
 const Name delay_u_bars( "delay_u_bars" );
 const Name delays( "delays" );
-const Name deletion_probability("deletion_probability");
+const Name deletion_curve("deletion_curve");
+const Name deletion_probability ("deletion_probability");
+const Name deletion_rate( "deletion_rate" );
 const Name deliver_interval( "deliver_interval" );
 const Name delta( "delta" );
 const Name delta_P( "delta_P" );
@@ -264,6 +267,7 @@ const Name lookuptable_2( "lookuptable_2" );
 const Name make_symmetric( "make_symmetric" );
 const Name max_buffer_size_spike_data( "max_buffer_size_spike_data" );
 const Name max_buffer_size_target_data( "max_buffer_size_target_data" );
+const Name max_delete_z( "max_delete_z" );
 const Name max_num_syn_models( "max_num_syn_models" );
 const Name max_delay( "max_delay" );
 const Name MAXERR( "MAXERR" );
@@ -567,6 +571,7 @@ const Name y_1( "y_1" );
 
 const Name z( "z" );
 const Name z_connected( "z_connected" );
+const Name z_deletion( "z_deletion" );
 
 } // namespace names
 

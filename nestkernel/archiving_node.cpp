@@ -56,8 +56,6 @@ nest::Archiving_Node::Archiving_Node()
   , Ca_minus_( 0.0 )
   , tau_Ca_( 10000.0 )
   , beta_Ca_( 0.001 )
-  , max_delete_z ( 0.05 )
-  , const_z_deletion ( 0.0001 )
   , synaptic_elements_map_()
 {
 }
@@ -78,8 +76,6 @@ nest::Archiving_Node::Archiving_Node( const Archiving_Node& n )
   , Ca_minus_( n.Ca_minus_ )
   , tau_Ca_( n.tau_Ca_ )
   , beta_Ca_( n.beta_Ca_ )
-  , max_delete_z ( 0.05 )
-  , const_z_deletion ( 0.0001 )
   , synaptic_elements_map_( n.synaptic_elements_map_ )
 {
 }
@@ -422,7 +418,7 @@ nest::Archiving_Node::get_synaptic_elements_to_delete( Name n ) const
     bino_dev.set_p_n( pbino, nbino);
     
     return bino_dev.ldev( rng ); */
-    return se_it->second.get_z_deletion();
+    return se_it->second.get_z_deletion( Ca_minus_, get_thread() );
   }
   else
   {

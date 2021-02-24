@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef GROWTH_CURVE_H
-#define GROWTH_CURVE_H
+#ifndef DELETION_CURVE_H
+#define DELETION_CURVE_H
 
 /**
  * \file deletion_curve.h
@@ -39,7 +39,7 @@ namespace nest
 {
 
 /**
- * \class GrowthCurve
+ * \class DeletionCurve
  * Defines the way the number of synaptic elements changes through time
  * according to the calcium concentration of the neuron.
  */
@@ -52,7 +52,7 @@ public:
   virtual void get( DictionaryDatum& d ) const = 0;
   virtual void set( const DictionaryDatum& d ) = 0;
   virtual double
-  update( double t, double t_minus, double Ca_minus, double z, double tau_Ca, double growth_rate ) const = 0;
+  update( int z_connected, double Ca_minus, thread thrd ) const = 0;
   virtual bool
   is( Name n )
   {
@@ -70,60 +70,24 @@ protected:
   {
   }
   const Name name_;
+
+  double deletion_probability_;
+  
+  // Max number of deleted synapses per update step dependent on the firing rate (precentage)
+  double max_delete_z_;
+
+  // constant deleted synaptic elements per update step
+  int const_z_deletion_;
 };
 
 /** @BeginDocumentation
 
-  Name: growth_curve_linear - Linear version of a growth curve
+  Name: deletion_curve_linear - Linear version of a growth curve
 
-  Description:
-   This class represents a linear growth rule for the number of synaptic
-   elements inside a neuron. The creation and deletion of synaptic elements
-   when structural plasticity is enabled, allows the dynamic rewiring of the
-   network during the simulation.
-   This type of growth curve uses an exact integration method to update the
-   number of synaptic elements: dz/dt = nu (1 - (1/eps) * Ca(t)), where nu is
-   the growth rate [elements/ms] and eps is the desired average calcium
-   concentration. The growth rate nu is defined in the SynapticElement class.
-
-  Parameters:
-   eps          double -  The target calcium concentration that
-                          the neuron should look to achieve by creating or
-                          deleting synaptic elements. It should always be a
-                          positive value.  It is important to note that the
-                          calcium concentration is linearly proportional to the
-                          firing rate. This is because dCa/dt = - Ca(t)/tau_Ca
-                          + beta_Ca if the neuron fires and dCa/dt = -
-                          Ca(t)/tau_Ca otherwise, where tau_Ca is the calcium
-                          concentration decay constant and beta_Ca is the
-                          calcium intake constant (see SynapticElement class).
-                          This means that eps also defines the desired firing
-                          rate that the neuron should achieve.  For example, an
-                          eps = 0.05 [Ca2+] with tau_Ca = 10000.0 and beta_Ca =
-                          0.001 for a synaptic element means a desired firing
-                          rate of 5Hz.
-
-  References:
-   [1] Butz, Markus, Florentin Wörgötter, and Arjen van Ooyen.
-   "Activity-dependent structural plasticity." Brain research reviews 60.2
-   (2009): 287-305.
-
-   [2] Butz, Markus, and Arjen van Ooyen. "A simple rule for dendritic spine
-   and axonal bouton formation can account for cortical reorganization after
-   focal retinal lesions." PLoS Comput Biol 9.10 (2013): e1003259.
-
-  FirstVersion: July 2013
-
-  Author: Mikael Naveau
-
-  SeeAlso: SynapticElement, SPManager, SPBuilder, GrowthCurveLinear,
-           GrowthCurveGaussian
+  SeeAlso: SynapticElement, SPManager, SPBuilder, DeletionCurveLinear
 */
 /**
- * \class GrowthCurveLinear
- * Uses an exact integration method to update the number of synaptic elements:
- * dz/dt = nu (1 - (1/eps) * Ca(t)), where nu is the growth rate and
- * eps is the desired average calcium concentration.
+ * \class DeletionCurveLinear
  */
 class DeletionCurveLinear : public DeletionCurve
 {
@@ -131,10 +95,17 @@ public:
   DeletionCurveLinear();
   void get( DictionaryDatum& d ) const;
   void set( const DictionaryDatum& d );
-  double update( double t, double t_minus, double Ca_minus, double z, double tau_Ca, double deletion_rate ) const;
+  double update( int z_connected, double Ca_minus, thread thrd ) const;
 
 private:
   double eps_;
+  double deletion_probability_;
+  
+  // Max number of deleted synapses per update step dependent on the firing rate (precentage)
+  double max_delete_z_;
+
+  // constant deleted synaptic elements per update step
+  int const_z_deletion_;
 };
 
 

@@ -260,12 +260,6 @@ private:
   // Time of the last update of the Calcium concentration in ms
   double Ca_t_;
 
-  // Max number of deleted synapses per update step dependent on the firing rate (precentage)
-  double max_delete_z;
-
-  // constant deleted synaptic elements per update step
-  int const_z_deletion;
-
   // Value of the calcium concentration [Ca2+] at Ca_t_. Intracellular calcium
   // concentration has a linear factor to mean electrical activity of 10^2,
   // this means, for example, that a [Ca2+] of 0.2 is equivalent to a mean

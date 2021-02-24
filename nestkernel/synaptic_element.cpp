@@ -59,7 +59,7 @@ nest::SynapticElement::SynapticElement( const SynapticElement& se )
   : z_( se.z_ )
   , z_t_( se.z_t_ )
   , z_connected_( se.z_connected_ )
-  , z_deletion ( se.z_deletion_ )
+  , z_deletion_ ( se.z_deletion_ )
   , continuous_( se.continuous_ )
   , growth_rate_( se.growth_rate_ )
   , deletion_rate_( se.deletion_rate_ )
@@ -184,6 +184,5 @@ nest::SynapticElement::update( double t, double t_minus, double Ca_minus, double
       "of the synaptic element" );
   }
   z_ = growth_curve_->update( t, t_minus, Ca_minus, z_, tau_Ca, growth_rate_ );
-  z_deletion = deletion_curve_->update( t, t_minus, Ca_minus, z_connected, tau_Ca, deletion_rate_ );
   z_t_ = t;
 }

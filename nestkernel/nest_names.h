@@ -115,6 +115,7 @@ extern const Name configbit_0;
 extern const Name configbit_1;
 extern const Name connection_count;
 extern const Name consistent_integration;
+extern const Name const_z_deletion;
 extern const Name continuous;
 extern const Name count_covariance;
 extern const Name count_histogram;
@@ -132,7 +133,9 @@ extern const Name dead_time_shape;
 extern const Name delay;
 extern const Name delay_u_bars;
 extern const Name delays;
+extern const Name deletion_curve;
 extern const Name deletion_probability;
+extern const Name deletion_rate;
 extern const Name deliver_interval;
 extern const Name delta;
 extern const Name delta_P;
@@ -285,6 +288,7 @@ extern const Name lookuptable_2;
 extern const Name make_symmetric;
 extern const Name max_buffer_size_spike_data;
 extern const Name max_buffer_size_target_data;
+extern const Name max_delete_z;
 extern const Name max_num_syn_models;
 extern const Name max_delay;
 extern const Name MAXERR;
@@ -588,6 +592,7 @@ extern const Name y_1;
 
 extern const Name z;
 extern const Name z_connected;
+extern const Name z_deletion;
 
 } // namespace names
 

@@ -21,10 +21,8 @@
  */
 
 /**
- * \file growth_curve.cpp
- * Implementation of growth_curve
- * \author Mikael Naveau
- * \date July 2013
+ * \file deletion_curve.cpp
+ * Implementation of deletion_curve
  */
 
 #include "deletion_curve.h"
@@ -35,6 +33,7 @@
 // Includes from nestkernel:
 #include "nest_names.h"
 #include "nest_time.h"
+#include "kernel_manager.h"
 
 // Includes from librandom
 #include "binomial_randomdev.h"
@@ -49,6 +48,8 @@
 nest::DeletionCurveLinear::DeletionCurveLinear()
   : DeletionCurve( names::linear )
   , eps_( 0.7 )
+  , max_delete_z_ ( 0.05 )
+  , const_z_deletion_ ( 0.0001 )
 {
 }
 
@@ -56,30 +57,30 @@ void
 nest::DeletionCurveLinear::get( DictionaryDatum& d ) const
 {
   def< std::string >( d, names::deletion_curve, name_.toString() );
-  def< double >( d, names::deletion_probablity, deletion_probability_ );
+  def< double >( d, names::deletion_probability, deletion_probability_ );
+  def< double >( d, names::max_delete_z, max_delete_z_ );
+  def< double >( d, names::const_z_deletion, const_z_deletion_ );
 }
 
 void
 nest::DeletionCurveLinear::set( const DictionaryDatum& d )
 {
-  updateValue< double >( d, names::deletion_probablity, deletion_probability_ );
+  updateValue< double >( d, names::deletion_probability, deletion_probability_ );
+  updateValue< double >( d, names::max_delete_z, max_delete_z_ );
+  updateValue< double >( d, names::const_z_deletion, const_z_deletion_ );
 }
 
 double
-nest::DeletionCurveLinear::update( double t,
-  double t_minus,
+nest::DeletionCurveLinear::update( int z_connected,
   double Ca_minus,
-  double z_connected,
-  double tau_Ca,
-  double deletion_rate ) const
+  thread thrd ) const
 {
   //std::cout << "("<< std::floor(se_it->second.get_z_connected()*std::min(const_z_deletion + 0.02 * Ca_minus_ / tau_Ca_*10000. , max_delete_z)) << "," << const_z_deletion + 0.02 * Ca_minus_ / tau_Ca_*10000. << ") "; 
   //std::cout<<Ca_minus_ * 1000.<<" ";
-  librandom::RngPtr rng = kernel().rng_manager.get_rng( get_thread() );
+  librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
   librandom::BinomialRandomDev bino_dev ;
-  double pbino =  const_z_deletion +  max_delete_z /(1. + std::exp( - (Ca_minus_ *1000. - 100.) /10. ));
-  int nbino = se_it->second.get_z_connected();
-  bino_dev.set_p_n( pbino, nbino);
+  double pbino =  const_z_deletion_ +  max_delete_z_ /(1. + std::exp( - (Ca_minus *1000. - 100.) /10. ));
+  bino_dev.set_p_n( pbino, z_connected);
 
   return bino_dev.ldev( rng );
 }
