@@ -62,6 +62,8 @@ SPManager::SPManager()
   , sp_conn_builders_()
   , growthcurvedict_( new Dictionary() )
   , growthcurve_factories_()
+  , deletioncurvedict_( new Dictionary() )
+  , deletioncurve_factories_()
 {
 }
 

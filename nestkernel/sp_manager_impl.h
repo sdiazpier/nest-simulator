@@ -31,6 +31,9 @@
 // Includes from nestkernel:
 #include "growth_curve.h"
 #include "growth_curve_factory.h"
+#include "deletion_curve.h"
+#include "deletion_curve_factory.h"
+
 
 namespace nest
 {
@@ -46,6 +49,19 @@ SPManager::register_growth_curve( const std::string& name )
   growthcurve_factories_.push_back( gc );
   growthcurvedict_->insert( name, id );
 }
+
+template < typename DeletionCurve >
+void
+SPManager::register_deletion_curve( const std::string& name )
+{
+  assert( not deletioncurvedict_->known( name ) );
+  GenericDeletionCurveFactory* dc = new DeletionCurveFactory< DeletionCurve >();
+  assert( dc != 0 );
+  const int id = deletioncurve_factories_.size();
+  deletioncurve_factories_.push_back( dc );
+  deletioncurvedict_->insert( name, id );
+}
+
 
 } // namespace nest
 

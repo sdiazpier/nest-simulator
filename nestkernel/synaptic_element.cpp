@@ -70,6 +70,10 @@ nest::SynapticElement::SynapticElement( const SynapticElement& se )
   DictionaryDatum gc_parameters = DictionaryDatum( new Dictionary );
   se.get( gc_parameters );
   growth_curve_->set( gc_parameters );
+  
+  deletion_curve_ = kernel().sp_manager.new_deletion_curve( se.deletion_curve_->get_name() );
+  assert( deletion_curve_ != 0 ); 
+  deletion_curve_->set( gc_parameters );
 }
 
 nest::SynapticElement& nest::SynapticElement::operator=( const SynapticElement& other )

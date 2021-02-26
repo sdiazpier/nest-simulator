@@ -96,6 +96,13 @@ public:
   void register_growth_curve( const std::string& name );
 
   /**
+   * Add a deletion curve for MSP
+   */
+  template < typename DeletionCurve >
+  void register_deletion_curve( const std::string& name );
+
+
+  /**
    * Disconnect two nodes. The source node is defined by its global ID.
    * The target node is defined by the node. The connection is
    * established on the thread/process that owns the target node.
@@ -234,7 +241,7 @@ private:
    Description:
    This dictionary provides indexes for the deletion curve factory
    */
-  DictionaryDatum deletioncurvedict_; //!< Dictionary for growth rules.
+  DictionaryDatum deletioncurvedict_; //!< Dictionary for deletion rules.
 
   /**
    * DeletionCurve factories, indexed by deletioncurvedict_ elements.

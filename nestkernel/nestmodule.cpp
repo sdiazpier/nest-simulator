@@ -1765,6 +1765,7 @@ NestModule::init( SLIInterpreter* i )
   kernel().sp_manager.register_growth_curve< GrowthCurveSigmoid >( "sigmoid" );
   kernel().sp_manager.register_growth_curve< GrowthCurveGaussian >( "gaussian" );
   kernel().sp_manager.register_growth_curve< GrowthCurveLinear >( "linear" );
+  kernel().sp_manager.register_deletion_curve< DeletionCurveLinear >( "linear" );
 
   Token statusd = i->baselookup( Name( "statusdict" ) );
   DictionaryDatum dd = getValue< DictionaryDatum >( statusd );
