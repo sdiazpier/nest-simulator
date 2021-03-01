@@ -390,7 +390,14 @@ nest::Archiving_Node::get_synaptic_elements_vacant( Name n ) const
 
   if ( se_it != synaptic_elements_map_.end() )
   {
-    return se_it->second.get_z_vacant();// I can put * precentage
+    int nbino = se_it->second.get_z_vacant();
+    double pbino = 0.10;
+    librandom::RngPtr rng = kernel().rng_manager.get_rng( get_thread() );
+    librandom::BinomialRandomDev bino_dev ;
+    bino_dev.set_p_n( pbino, nbino);
+
+    return bino_dev.ldev( rng );
+    //return se_it->second.get_z_vacant();// I can put * precentage
   }
   else
   {
