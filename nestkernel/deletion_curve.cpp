@@ -79,7 +79,7 @@ nest::DeletionCurveLinear::update( int z_connected,
   //std::cout<<Ca_minus_ * 1000.<<" ";
   librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
   librandom::BinomialRandomDev bino_dev ;
-  double pbino =  const_z_deletion_ +  max_delete_z_ /(1. + std::exp( - (Ca_minus *1000. - 100.) /10. ));
+  double pbino =  const_z_deletion_ +  max_delete_z_ /(1. + std::exp( - (Ca_minus *1000. - 30.) /1. ));
   bino_dev.set_p_n( pbino, z_connected);
 
   return bino_dev.ldev( rng );
