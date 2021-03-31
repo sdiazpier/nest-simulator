@@ -90,9 +90,13 @@
 // Includes from nestkernel:
 #include "growth_curve.h"
 #include "deletion_curve.h"
+#include "kernel_manager.h"
 
 // Includes from sli:
 #include "dictdatum.h"
+
+// Includes from librandom
+#include "binomial_randomdev.h"
 
 namespace nest
 {
@@ -175,10 +179,31 @@ public:
   * @param t Current time (in ms)
   */
   int
+  get_z_vacant( thread thrd ) const
+  {
+    int vacant = std::floor( z_ ) - z_connected_;
+    if (random_vacant_)
+    {
+    	double pbino = 0.10;
+    	librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
+    	librandom::BinomialRandomDev bino_dev ;
+    	bino_dev.set_p_n( pbino, vacant);
+        vacant = bino_dev.ldev( rng );
+    }
+    return vacant;
+  }
+
+  /**
+  * \fn double get_z_vacant, returns number of non connected
+  * synaptic elemenents.
+  */
+  int
   get_z_vacant() const
   {
-    return std::floor( z_ ) - z_connected_;
+    int vacant = std::floor( z_ ) - z_connected_;
+    return vacant;
   }
+
 
   int
   get_z_deletion( double Ca_minus, thread thrd ) const
@@ -300,9 +325,12 @@ private:
   // Variable which defines if the number of synaptic elements should be treated
   // as a continous double number or as an integer value
   bool continuous_;
+  bool random_vacant_;
   // The maximum amount by which the synaptic elements will change between time
   // steps.
   double growth_rate_;
+  // The maximum amount by which the synaptic elements will be deleted between
+  // update steps.
   double deletion_rate_;
   // Rate at which vacant synaptic elements will decay
   double tau_vacant_;

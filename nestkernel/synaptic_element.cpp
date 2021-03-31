@@ -51,7 +51,8 @@ nest::SynapticElement::SynapticElement()
   , deletion_rate_( 1.0 )
   , tau_vacant_( 0.1 )
   , growth_curve_( new GrowthCurveLinear )
-  , deletion_curve_( new DeletionCurveLinear )
+  , deletion_curve_( new DeletionCurveSigmoidal )
+  , random_vacant_(true)
 {
 }
 
@@ -64,6 +65,7 @@ nest::SynapticElement::SynapticElement( const SynapticElement& se )
   , growth_rate_( se.growth_rate_ )
   , deletion_rate_( se.deletion_rate_ )
   , tau_vacant_( se.tau_vacant_ )
+  , random_vacant_(true)
 {
   growth_curve_ = kernel().sp_manager.new_growth_curve( se.growth_curve_->get_name() );
   assert( growth_curve_ != 0 );
@@ -107,6 +109,7 @@ nest::SynapticElement& nest::SynapticElement::operator=( const SynapticElement& 
     continuous_ = other.continuous_;
     growth_rate_ = other.growth_rate_;
     tau_vacant_ = other.tau_vacant_;
+    random_vacant_ = other.random_vacant_;
   }
   return *this;
 }
@@ -125,6 +128,7 @@ nest::SynapticElement::get( DictionaryDatum& d ) const
   def< double >( d, names::z, z_ );
   def< int >( d, names::z_connected, z_connected_ );
   def< int >( d, names::z_deletion, z_deletion_ );
+  def< int >( d, names::random_vacant, random_vacant_);
 
   // Store growth curve
   growth_curve_->get( d );
@@ -145,6 +149,7 @@ nest::SynapticElement::set( const DictionaryDatum& d )
   updateValue< double >( d, names::tau_vacant, new_tau_vacant );
   updateValue< bool >( d, names::continuous, continuous_ );
   updateValue< double >( d, names::z, z_ );
+  updateValue< double >( d, names::random_vacant, random_vacant_);
 
   if ( d->known( names::growth_curve ) )
   {

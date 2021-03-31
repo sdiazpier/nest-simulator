@@ -98,7 +98,6 @@ public:
   double update( int z_connected, double Ca_minus, thread thrd ) const;
 
 private:
-  double eps_;
   double deletion_probability_;
   
   // Max number of deleted synapses per update step dependent on the firing rate (precentage)
@@ -108,6 +107,29 @@ private:
   int const_z_deletion_;
 };
 
+/**
+ * \class DeletionCurveSigmoidal
+ */
+class DeletionCurveSigmoidal : public DeletionCurve
+{
+public:
+  DeletionCurveSigmoidal();
+  void get( DictionaryDatum& d ) const;
+  void set( const DictionaryDatum& d );
+  double update( int z_connected, double Ca_minus, thread thrd ) const;
+
+private:
+  double deletion_probability_;
+  
+  // Max number of deleted synapses per update step dependent on the firing rate (precentage)
+  double max_delete_z_;
+
+  // constant deleted synaptic elements per update step
+  int const_z_deletion_;
+
+  double deletion_threshold_;
+  double deletion_threshold_sigma_;
+};
 
 } // of namespace
 

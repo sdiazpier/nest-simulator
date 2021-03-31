@@ -46,8 +46,7 @@
  * ---------------------------------------------------------------- */
 
 nest::DeletionCurveLinear::DeletionCurveLinear()
-  : DeletionCurve( names::linear )
-  , eps_( 0.7 )
+  : DeletionCurve( names::linear_deletion )
   , max_delete_z_ ( 0.05 )
   , const_z_deletion_ ( 0.0001 )
 {
@@ -75,11 +74,53 @@ nest::DeletionCurveLinear::update( int z_connected,
   double Ca_minus,
   thread thrd ) const
 {
-  //std::cout << "("<< std::floor(se_it->second.get_z_connected()*std::min(const_z_deletion + 0.02 * Ca_minus_ / tau_Ca_*10000. , max_delete_z)) << "," << const_z_deletion + 0.02 * Ca_minus_ / tau_Ca_*10000. << ") "; 
-  //std::cout<<Ca_minus_ * 1000.<<" ";
+  const double z_value = const_z_deletion_ +  z_connected * deletion_probability_;
+
+  return std::min( z_value, max_delete_z_ );
+}
+
+/* ----------------------------------------------------------------
+ * DeletionCurveSigmoidal
+ * ---------------------------------------------------------------- */
+
+nest::DeletionCurveSigmoidal::DeletionCurveSigmoidal()
+  : DeletionCurve( names::sigmoidal_deletion )
+  , max_delete_z_ ( 0.05 )
+  , const_z_deletion_ ( 0.0001 )
+  , deletion_threshold_sigma_ (1.)
+  , deletion_threshold_ (30.)
+{
+}
+
+void
+nest::DeletionCurveSigmoidal::get( DictionaryDatum& d ) const
+{
+  def< std::string >( d, names::deletion_curve, name_.toString() );
+  def< double >( d, names::deletion_probability, deletion_probability_ );
+  def< double >( d, names::max_delete_z, max_delete_z_ );
+  def< double >( d, names::const_z_deletion, const_z_deletion_ );
+  def< double >( d, names::deletion_threshold_sigma, deletion_threshold_sigma_ );
+  def< double >( d, names::deletion_threshold, deletion_threshold_ );
+}
+
+void
+nest::DeletionCurveSigmoidal::set( const DictionaryDatum& d )
+{
+  updateValue< double >( d, names::deletion_probability, deletion_probability_ );
+  updateValue< double >( d, names::max_delete_z, max_delete_z_ );
+  updateValue< double >( d, names::const_z_deletion, const_z_deletion_ );
+  updateValue< double >( d, names::deletion_threshold_sigma, deletion_threshold_sigma_ );
+  updateValue< double >( d, names::deletion_threshold, deletion_threshold_ );
+}
+
+double
+nest::DeletionCurveSigmoidal::update( int z_connected,
+  double Ca_minus,
+  thread thrd ) const
+{
   librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
   librandom::BinomialRandomDev bino_dev ;
-  double pbino =  const_z_deletion_ +  max_delete_z_ /(1. + std::exp( - (Ca_minus *1000. - 30.) /1. ));
+  double pbino =  const_z_deletion_ +  max_delete_z_ /(1. + std::exp( - (Ca_minus *1000. - deletion_threshold_) / deletion_threshold_sigma_ ));
   bino_dev.set_p_n( pbino, z_connected);
 
   return bino_dev.ldev( rng );
