@@ -74,9 +74,15 @@ nest::DeletionCurveLinear::update( int z_connected,
   double Ca_minus,
   thread thrd ) const
 {
-  const double z_value = const_z_deletion_ +  z_connected * deletion_probability_;
+//  const double z_value = const_z_deletion_ +  z_connected * deletion_probability_;
+//
+  //return std::min( z_value, max_delete_z_ );
+  librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
+  librandom::BinomialRandomDev bino_dev ;
+  double pbino =  const_z_deletion_ +   deletion_probability_ * Ca_minus * 1000. ;
+  bino_dev.set_p_n( pbino, z_connected);
 
-  return std::min( z_value, max_delete_z_ );
+  return bino_dev.ldev( rng );
 }
 
 /* ----------------------------------------------------------------
