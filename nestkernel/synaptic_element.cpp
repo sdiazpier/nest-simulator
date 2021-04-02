@@ -172,9 +172,9 @@ nest::SynapticElement::set( const DictionaryDatum& d )
   deletion_curve_->set( d );
 
 
-  if ( new_tau_vacant <= 0.0 )
+  if ( new_tau_vacant < 0.0 )
   {
-    throw BadProperty( "All time constants must be strictly positive." );
+    throw BadProperty( "All time constants can't be negative" );
   }
   tau_vacant_ = new_tau_vacant;
 }
