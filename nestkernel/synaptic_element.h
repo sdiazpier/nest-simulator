@@ -184,11 +184,13 @@ public:
     int vacant = std::floor( z_ ) - z_connected_;
     if (random_vacant_)
     {
-    	double pbino = 0.10;
-    	librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
-    	librandom::BinomialRandomDev bino_dev ;
-    	bino_dev.set_p_n( pbino, vacant);
-        vacant = bino_dev.ldev( rng );
+    	
+	if(vacant>0){
+	  double pbino = 0.10;
+    	  librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
+    	  librandom::BinomialRandomDev bino_dev ;
+    	  bino_dev.set_p_n( pbino, vacant);
+          vacant = bino_dev.ldev( rng );}
     }
     return vacant;
   }

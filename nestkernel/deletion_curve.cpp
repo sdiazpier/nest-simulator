@@ -124,11 +124,15 @@ nest::DeletionCurveSigmoidal::update( int z_connected,
   double Ca_minus,
   thread thrd ) const
 {
+  int ndel = 0;
+  if(z_connected>0){
   librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
   librandom::BinomialRandomDev bino_dev ;
   double pbino =  const_z_deletion_ +  max_delete_z_ /(1. + std::exp( - (Ca_minus *1000. - deletion_threshold_) / deletion_threshold_sigma_ ));
   bino_dev.set_p_n( pbino, z_connected);
+  ndel = bino_dev.ldev( rng );
+  }
 
-  return bino_dev.ldev( rng );
+  return ndel;
 }
 
