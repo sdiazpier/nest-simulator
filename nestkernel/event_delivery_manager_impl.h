@@ -55,7 +55,6 @@ EventDeliveryManager::send< SpikeEvent >( Node& source,
     kernel().simulation_manager.get_slice_origin() + Time::step( lag + 1 ) );
   e.set_sender( source );
   thread t = source.get_thread();
-
   if ( source.has_proxies() )
   {
     if ( source.is_off_grid() )

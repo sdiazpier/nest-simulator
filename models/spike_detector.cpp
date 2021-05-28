@@ -162,12 +162,14 @@ nest::spike_detector::handle( SpikeEvent& e )
     else
       // locally delivered events
       dest_buffer = kernel().event_delivery_manager.write_toggle();
-
+    
     for ( int i = 0; i < e.get_multiplicity(); ++i )
     {
       // We store the complete events
       Event* event = e.clone();
       B_.spikes_[ dest_buffer ].push_back( event );
     }
+  }
+  else{
   }
 }

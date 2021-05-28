@@ -276,7 +276,7 @@ STDPConnection< targetidentifierT >::send( Event& e,
 template < typename targetidentifierT >
 STDPConnection< targetidentifierT >::STDPConnection()
   : ConnectionBase()
-  , weight_( 1.0 )
+  , weight_( 0.0025 )
   , tau_plus_( 20.0 )
   , lambda_( 0.01 )
   , alpha_( 1.0 )

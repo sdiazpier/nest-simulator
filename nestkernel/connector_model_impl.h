@@ -533,15 +533,16 @@ GenericConnectorModel< ConnectionT >::delete_connection( Node& tgt,
       ConnectionT* connection = &vc->at( i );
       if ( connection->get_target( target_thread )->get_gid() == tgt.get_gid() )
       {
-        if ( vc->get_num_connections() > 1 )
+        if ( vc->get_num_connections() > 1 ){
           conn = &vc->erase( i );
+        }
         else
         {
           delete vc;
           conn = 0;
         }
         if ( conn != 0 )
-          conn = pack_pointer( conn, is_primary_, !is_primary_ );
+          conn = pack_pointer( conn, b_has_primary, b_has_secondary); //is_primary_, !is_primary_ );
         found = true;
         break;
       }
@@ -576,7 +577,7 @@ GenericConnectorModel< ConnectionT >::delete_connection( Node& tgt,
             if ( vc->size() == 1 )
             {
               ( *hc ).erase( ( *hc ).begin() + i );
-              hc->delete_connector();
+              hc->delete_connector(i);
               // Test if the homogeneous vector of connections went back to only
               // 1 type of synapse... then go back to the simple vector_like
               // case.

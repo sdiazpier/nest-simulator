@@ -31,6 +31,7 @@
 
 // Includes from nestkernel:
 #include "node.h"
+#include <cstdio>
 
 namespace nest
 {

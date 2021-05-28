@@ -633,9 +633,13 @@ nest::ConnectionManager::disconnect( Node& target,
 
   if ( kernel().node_manager.is_local_gid( target.get_gid() ) )
   {
+    target_thread = kernel().vp_manager.vp_to_thread(
+        kernel().vp_manager.suggest_vp( target.get_gid() ) );
     // get the ConnectorBase corresponding to the source
     ConnectorBase* conn =
-      validate_pointer( validate_source_entry_( target_thread, sgid, syn_id ) );
+      //validate_pointer( validate_source_entry_( target_thread, sgid, syn_id ) );
+      validate_source_entry_( target_thread, sgid, syn_id );
+      //printf("Conn syn id %d and syn id %d in connection manager\n", conn->get_syn_id(), syn_id);
     ConnectorBase* c =
       kernel()
         .model_manager.get_synapse_prototype( syn_id, target_thread )
@@ -950,6 +954,7 @@ nest::ConnectionManager::send( thread t, index sgid, Event& e )
       if ( has_primary( p ) )
       {
         // erase 2 least significant bits to obtain the correct pointer
+        e.set_sender_gid(sgid);
         validate_pointer( p )->send(
           e, t, kernel().model_manager.get_synapse_prototypes( t ) );
       }

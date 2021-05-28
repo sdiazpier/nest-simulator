@@ -410,9 +410,11 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
   if ( pre_deleted_id_global.size() > 0 && pre_deleted_n_global.size() > 0 )
   {
    /*if(kernel().mpi_manager.get_rank()==0){
+     int sum_deletedpre = 0;
      for(int i=0; i< pre_deleted_n_global.size(); i++){
-       std::cout<<"Pre Deleted N: "<<pre_deleted_n_global[i]<<" Deleted ID: "<<pre_deleted_id_global[i] <<"\n";
+       sum_deletedpre += pre_deleted_n_global[i];
      }
+     std::cout<<"Pre Deleted N: "<<sum_deletedpre<<"\n";
    }*/
    if(pre_deleted_id_global.size() != pre_deleted_n_global.size()){
          std::cout<<"This is really bad pre\n";
@@ -445,9 +447,11 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
   if ( post_deleted_id_global.size() > 0 && post_deleted_n_global.size() > 0 )
   {
     /*if(kernel().mpi_manager.get_rank()==0){
+      int sum_deletedpost = 0;
       for(int i=0; i< post_deleted_n_global.size(); i++){
-        std::cout<<"Post Deleted N: "<<post_deleted_n_global[i]<<" Deleted ID: "<<post_deleted_id_global[i] <<"\n";
+        sum_deletedpost += post_deleted_n_global[i];
       }
+      std::cout<<"Post Deleted N: "<<sum_deletedpost<<"\n";
     }*/
     if(post_deleted_id_global.size() != post_deleted_n_global.size()){
 	std::cout<<"This is really bad post\n";
@@ -481,6 +485,17 @@ SPManager::update_structural_plasticity( SPBuilder* sp_builder )
 
   if ( pre_vacant_id_global.size() > 0 && post_vacant_id_global.size() > 0 )
   {
+    /*if(kernel().mpi_manager.get_rank()==0){
+      int vacant_sumpre = 0;
+      int vacant_sumpos = 0;
+      for(int i=0; i< pre_vacant_n_global.size(); i++){
+        vacant_sumpre = vacant_sumpre+pre_vacant_n_global[i];
+      }
+      for(int i=0; i< post_vacant_n_global.size(); i++){
+        vacant_sumpos = vacant_sumpos+post_vacant_n_global[i];
+      }
+      std::cout<<"Diff: "<<vacant_sumpre-vacant_sumpos<<"Num: "<<vacant_sumpre<<"\n";
+    }*/
     create_synapses( pre_vacant_id_global,
       pre_vacant_n_global,
       post_vacant_id_global,
@@ -631,8 +646,8 @@ SPManager::delete_synapse( index sgid,
     thread target_thread = target->get_thread();
     if ( tid == target_thread )
     {
-      kernel().connection_manager.disconnect(
-        *target, sgid, target_thread, syn_id );
+          kernel().connection_manager.disconnect(
+          *target, sgid, target_thread, syn_id );
 
       target->connect_synaptic_element( se_post_name, -1 );
     }
