@@ -36,7 +36,7 @@
 #include "dictutils.h"
 
 // Includes from librandom
-#include "binomial_randomdev.h"
+//#include "gsl_binomial_randomdev.h"
 
 namespace nest
 {
@@ -412,7 +412,7 @@ nest::Archiving_Node::get_synaptic_elements_to_delete( Name n ) const
     //std::cout << "("<< std::floor(se_it->second.get_z_connected()*std::min(const_z_deletion + 0.02 * Ca_minus_ / tau_Ca_*10000. , max_delete_z)) << "," << const_z_deletion + 0.02 * Ca_minus_ / tau_Ca_*10000. << ") "; 
     //std::cout<<Ca_minus_ * 1000.<<" ";
     /*librandom::RngPtr rng = kernel().rng_manager.get_rng( get_thread() );
-    librandom::BinomialRandomDev bino_dev ;
+    librandom::GSL_BinomialRandomDev bino_dev ;
     double pbino =  const_z_deletion +  max_delete_z /(1. + std::exp( - (Ca_minus_ *1000. - 100.) /10. ));
     int nbino = se_it->second.get_z_connected();
     bino_dev.set_p_n( pbino, nbino);

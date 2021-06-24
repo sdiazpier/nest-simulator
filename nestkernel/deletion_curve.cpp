@@ -36,7 +36,7 @@
 #include "kernel_manager.h"
 
 // Includes from librandom
-#include "binomial_randomdev.h"
+#include "gsl_binomial_randomdev.h"
 
 // Includes from sli:
 #include "dictutils.h"
@@ -78,7 +78,7 @@ nest::DeletionCurveLinear::update( int z_connected,
 //
   //return std::min( z_value, max_delete_z_ );
   librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
-  librandom::BinomialRandomDev bino_dev ;
+  librandom::GSL_BinomialRandomDev bino_dev ;
   double pbino =  const_z_deletion_ +   deletion_probability_ * Ca_minus * 1000. ;
   bino_dev.set_p_n( pbino, z_connected);
 
@@ -127,7 +127,7 @@ nest::DeletionCurveSigmoidal::update( int z_connected,
   int ndel = 0;
   if(z_connected>0){
   librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
-  librandom::BinomialRandomDev bino_dev ;
+  librandom::GSL_BinomialRandomDev bino_dev ;
   double pbino =  const_z_deletion_ +  max_delete_z_ /(1. + std::exp( - (Ca_minus *1000. - deletion_threshold_) / deletion_threshold_sigma_ ));
   bino_dev.set_p_n( pbino, z_connected);
   ndel = bino_dev.ldev( rng );

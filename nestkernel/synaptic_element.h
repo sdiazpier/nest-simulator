@@ -96,7 +96,7 @@
 #include "dictdatum.h"
 
 // Includes from librandom
-#include "binomial_randomdev.h"
+#include "gsl_binomial_randomdev.h"
 
 namespace nest
 {
@@ -186,9 +186,9 @@ public:
     {
     	
 	if(vacant>0){
-	  double pbino = 0.10;
+	  double pbino = deletion_rate_;//I used deletion rate for \alpha
     	  librandom::RngPtr rng = kernel().rng_manager.get_rng( thrd );
-    	  librandom::BinomialRandomDev bino_dev ;
+    	  librandom::GSL_BinomialRandomDev bino_dev ;
     	  bino_dev.set_p_n( pbino, vacant);
           vacant = bino_dev.ldev( rng );}
     }
