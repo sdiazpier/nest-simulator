@@ -201,6 +201,13 @@ private:
   size_t wfr_interpolation_order_; //!< interpolation order for waveform
                                    //!< relaxation method
 
+  // timer
+  struct timeval time_save_pre_run [100000];
+  struct timeval time_save_pre_run_2 [100000];
+  struct timeval time_save_run [100000];
+  struct timeval time_save_post_run [100000];
+  struct timeval time_save_end [100000];
+  int index_time = 0;
   // private stop watches for benchmarking purposes
   Stopwatch sw_simulate_;
   Stopwatch sw_communicate_prepare_;

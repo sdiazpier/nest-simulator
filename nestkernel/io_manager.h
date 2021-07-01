@@ -135,6 +135,12 @@ private:
    * A mapping from names to registered stimulating backends
    */
   std::map< Name, StimulatingBackend* > stimulating_backends_;
+
+  // timer variable
+  struct timeval time_pre_run_init  [100000];
+  struct timeval time_pre_run_recorder  [100000];
+  struct timeval time_pre_run_end [100000];
+  int index_time = 0;
 };
 
 } // namespace nest

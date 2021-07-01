@@ -130,7 +130,7 @@ public:
 
   void prepare() override;
 
-  void pre_run_hook() override;
+  bool pre_run_hook(bool first_test) override;
 
   void post_run_hook() override;
 
@@ -165,7 +165,7 @@ private:
    * @param device_id : the list of IDs which needs to be updated
    * @return pair( size of data by device, the continuous array with all the data for the device )
    */
-  static std::pair< int*, double* > receive_spike_train( const MPI_Comm& comm, std::vector< int >& device_id );
+  std::pair< int*, double* > receive_spike_train( const MPI_Comm& comm, std::vector< int >& device_id , bool first_test);
   /**
    * Update all the devices with the data received
    * @param array_index : number of devices by thread
@@ -178,6 +178,18 @@ private:
    * @param data
    */
   void clean_memory_input_data( std::pair< int*, double* >* data );
+
+  // timer save
+  struct timeval time_prepare_init  [2];
+  struct timeval time_prepare_end   [2];
+  struct timeval time_pre_run_init  [100000];
+  struct timeval time_pre_run_end   [100000];
+  struct timeval time_pre_run_wait  [100000];
+  struct timeval time_pre_run_receive_data  [100000];
+  struct timeval time_post_run_init [100000];
+  struct timeval time_post_run_end  [100000];
+
+  int index_time = 0;
 };
 
 } // namespace

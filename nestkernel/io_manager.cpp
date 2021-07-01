@@ -223,14 +223,20 @@ IOManager::get_status( DictionaryDatum& d )
 void
 IOManager::pre_run_hook()
 {
+  gettimeofday(&time_pre_run_init[index_time],NULL);
   for ( auto& it : recording_backends_ )
   {
     it.second->pre_run_hook();
   }
+  gettimeofday(&time_pre_run_recorder[index_time],NULL);
+  bool first_test = true;
   for ( auto& it : stimulating_backends_ )
   {
-    it.second->pre_run_hook();
+    bool first_test_return = it.second->pre_run_hook(first_test);
+    first_test = first_test and first_test_return;
   }
+  gettimeofday(&time_pre_run_end[index_time],NULL);
+  index_time +=1;
 }
 
 void
@@ -278,6 +284,17 @@ IOManager::cleanup()
   for ( auto& it : stimulating_backends_ )
   {
     it.second->cleanup();
+  }
+  std::ofstream myfile (kernel().io_manager.get_data_path()+"/timer_io_"+std::to_string(kernel().mpi_manager.get_rank())+".txt");
+  if (myfile.is_open())
+  {
+    for(int count = 0; count < index_time; count ++){
+      myfile <<
+             std::to_string((double) (time_pre_run_init[count].tv_sec + time_pre_run_init[count].tv_usec/1000000.0) )<< ";" <<
+             std::to_string((double) (time_pre_run_recorder[count].tv_sec + time_pre_run_recorder[count].tv_usec/1000000.0) )<< ";" <<
+             std::to_string((double) (time_pre_run_end[count].tv_sec + time_pre_run_end[count].tv_usec/1000000.0) )<<std::endl;
+    }
+    myfile.close();
   }
 }
 
